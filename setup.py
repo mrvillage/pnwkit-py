@@ -1,8 +1,6 @@
 from setuptools import setup
 
-requirements = []
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
+requirements = ["aiohttp>=3.7.0,<3.8.", "requests>=2.25.0,<2.26.0"]
 
 version = ""
 with open("pnwkit/__init__.py") as f:
