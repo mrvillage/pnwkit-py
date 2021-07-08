@@ -19,7 +19,7 @@ readme = ""
 with open("README.md") as f:
     readme = f.read()
 
-extra_requires = {
+extras_require = {
     "docs": [
         "sphinx==4.0.3",
         "pydata-sphinx-theme==0.6.3",
