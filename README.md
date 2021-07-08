@@ -25,6 +25,8 @@ Install the library using PIP.
   py -3 -m pip install -U pnwkit
   ```
 
+### Documentation
+You can view the docs [here](https://pnwkit-py.readthedocs.io/) on readthedocs.io.
 ## Usage
 
 To use PnWKit just import the library and add your key, then you can make synchronous or asynchronous queries.
