@@ -37,7 +37,7 @@ setup(
     description="A Python wrapped for the Politics and War GraphQL API.",
     long_description=readme,
     install_requires=requirements,
-    python_requires=">=3.9.0",
+    python_requires=">=3.8.0",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
