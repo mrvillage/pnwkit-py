@@ -5,7 +5,7 @@
     <img src="https://github.com/Village05/pnwkit-py/blob/master/logo.png" alt="Logo" width="120" height="120">
   </a>
 
-  <h3 align="center">PnWKit</h3>
+  <h3 align="center">PnWKit-Py</h3>
 
   <p align="center">
     Politics & War V3 API Library
