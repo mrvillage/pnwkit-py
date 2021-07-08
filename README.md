@@ -1,7 +1,7 @@
 # PnWKit-Py
 
 <p align="center">
-  <a href="https://github.com/bsnk-dev/pnwkit">
+  <a href="https://github.com/Village05/pnwkit-py">
     <img src="https://github.com/Village05/pnwkit-py/blob/master/logo.png" alt="Logo" width="120" height="120">
   </a>
 
@@ -28,16 +28,18 @@ PnWKit is here to make interacting with the V3 Politics and War API easy. All yo
 To get started using PnWKit you must first have Python and PIP installed.
 
 ### Installing
+
 Python 3.9 or higher is required.
 
 Install the library using PIP.
-  ```sh
-  # Linux/MacOS
-  python3 -m pip install -U pnwkit
-  
-  # Windows
-  py -3 -m pip install -U pnwkit
-  ```
+
+```sh
+# Linux/MacOS
+python3 -m pip install -U pnwkit
+
+# Windows
+py -3 -m pip install -U pnwkit
+```
 
 ## Usage
 
@@ -63,11 +65,11 @@ print(f"Nation name: {nations.data[0].name}, current page: {nations.paginator_in
 The queries are written in normal GraphQL, so you can get all the cities in a nation like this
 
 ```py
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, 
+nations = pnwkit.nation_query({"id": 100541, "first": 1},
   """
   name
   cities {
-    name  
+    name
   }
   """)
 
@@ -85,7 +87,8 @@ other_kit = Kit(api_key="xxxx");
 ```
 
 Unlike the JavaScript/TypeScript library, the Python library has a few additional features.
-- To use the asynchronous client (aiohttp as opposed to requests) append async_ to your queries on the pnwkit module, or import async_pnwkit from pnwkit and run queries as normal, with the addition of an await statement.
+
+- To use the asynchronous client (aiohttp as opposed to requests) append async\_ to your queries on the pnwkit module, or import async_pnwkit from pnwkit and run queries as normal, with the addition of an await statement.
 - If the params argument is falsy in a query (i.e. None or an empty dict) then any additional kwargs on the query will be interpreted as params.
 - Additional arguments on a query will be concatenated with the first to form the query.
 
