@@ -71,7 +71,7 @@ class SyncKit(KitBase):
         if "first" not in params and endpoint in {"alliance", "nations"}:
             params["first"] = 5
         response = self._query(
-            endpoint, params or kwargs, args, is_paginator=is_paginator
+            endpoint, params, args, is_paginator=is_paginator
         )
         if is_paginator and paginator_type:
             data: Tuple[type_] = tuple(
