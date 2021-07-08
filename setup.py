@@ -12,7 +12,7 @@ with open("pnwkit/__init__.py") as f:
         version = text[:index]
     except ValueError:
         raise RuntimeError("Version not found")
-
+long_description_content_type = "text/markdown"
 readme = ""
 with open("README.md") as f:
     readme = f.read()
@@ -49,4 +49,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
+    long_description_content_type=long_description_content_type,
 )
