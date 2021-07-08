@@ -13,9 +13,12 @@ Welcome to PnWKit-Py!
    api
    data
 
+GitHub and Installing
+=====================
+Please see the GitHub page `here <https://github.com/Village05/pnwkit-py>`_ to install and learn more!
+
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
