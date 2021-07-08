@@ -1,13 +1,8 @@
 from setuptools import setup
 
-doc_requirements = []
-with open("doc_requirements.txt") as f:
-    doc_requirements = f.read().splitlines()
-
 requirements = []
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
-    requirements = [i for i in requirements if i not in doc_requirements]
 
 version = ""
 with open("pnwkit/__init__.py") as f:
@@ -24,6 +19,12 @@ readme = ""
 with open("README.md") as f:
     readme = f.read()
 
+extra_requires = {
+    "docs": [
+        "sphinx==4.0.3",
+        "pydata-sphinx-theme==0.6.3",
+    ],
+}
 packages = ["pnwkit"]
 
 setup(
