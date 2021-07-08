@@ -45,12 +45,7 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
-    "sphinxcontrib_trio",
-    "details",
-    "exception_hierarchy",
     "attributetable",
-    "resourcelinks",
-    "nitpick_file_ignorer",
 ]
 
 # autodoc_member_order = "bysource"
