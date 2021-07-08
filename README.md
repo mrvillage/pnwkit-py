@@ -9,6 +9,8 @@
 
 PnWKit is here to make interacting with the V3 Politics and War API easy. All you have to do is import the library, add your key, and make a query.
 
+The JavaScript/TypeScript talk can be found [here](https://github.com/bsnk-dev/pnwkit).
+
 ## Getting Started
 
 To get started using PnWKit you must first have Python and PIP installed.
