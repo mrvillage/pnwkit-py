@@ -66,7 +66,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #
 # html_theme = "furo"
 html_theme = "pydata_sphinx_theme"
-html_theme_path = ["."]
 html_logo = "_static/logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
