@@ -1,15 +1,27 @@
 # PnWKit-Py
 
 <p align="center">
-  <a href="https://github.com/Village05/pnwkit-py">
-    <img src="https://assets.bsnk.dev/pnwkit_icon.png" alt="Logo" width="120" height="120">
+  <a href="https://github.com/bsnk-dev/pnwkit">
+    <img src="https://github.com/Village05/pnwkit-py/blob/master/logo.png" alt="Logo" width="120" height="120">
   </a>
+
+  <h3 align="center">PnWKit</h3>
+
+  <p align="center">
+    Politics & War V3 API Library
+    <br />
+    <a href="https://pnwkit-py.readthedocs.io"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/bsnk-dev/pnwkit">JavaScript/TypeScript Version</a>
+    ·
+    <a href="https://github.com/Village05/pnwkit-py/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Village05/pnwkit-py/issues">Request Feature</a>
+  </p>
 </p>
 
-
 PnWKit is here to make interacting with the V3 Politics and War API easy. All you have to do is import the library, add your key, and make a query.
-
-The JavaScript/TypeScript talk can be found [here](https://github.com/bsnk-dev/pnwkit).
 
 ## Getting Started
 
@@ -27,8 +39,6 @@ Install the library using PIP.
   py -3 -m pip install -U pnwkit
   ```
 
-### Documentation
-You can view the docs [here](https://pnwkit-py.readthedocs.io/) on readthedocs.io.
 ## Usage
 
 To use PnWKit just import the library and add your key, then you can make synchronous or asynchronous queries.
