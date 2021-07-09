@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/Village05/pnwkit-py">
-    <img src="https://github.com/Village05/pnwkit-py/blob/master/logo.png" alt="Logo" width="120" height="120">
+    <img src="https://raw.githubusercontent.com/Village05/pnwkit-py/master/logo.png" alt="Logo" width="120" height="120">
   </a>
 
   <h3 align="center">PnWKit-Py</h3>

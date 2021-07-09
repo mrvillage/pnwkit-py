@@ -29,6 +29,10 @@ setup(
     name="pnwkit",
     author="Village",
     url="https://github.com/Village05/pnwkit-py",
+    project_urls={
+        "Documentation": "https://pnwkit-py.readthedocs.io/en/latest/",
+        "Issue tracker": "https://github.com/Village05/pnwkit-py/issues",
+    },
     version=version,
     packages=packages,
     license="MIT",
