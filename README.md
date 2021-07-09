@@ -10,7 +10,7 @@
   <p align="center">
     Politics & War V3 API Library
     <br />
-    <a href="https://pnwkit-py.readthedocs.io"><strong>Explore the docs »</strong></a>
+    <a href="https://pnwkit-py.readthedocs.io"><strong>Explore the docs</strong></a>
     <br />
     <br />
     <a href="https://www.npmjs.com/package/pnwkit">JavaScript/TypeScript Version</a>
