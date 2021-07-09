@@ -14,9 +14,9 @@
     <br />
     <br />
     <a href="https://www.npmjs.com/package/pnwkit">JavaScript/TypeScript Version</a>
-    ·
+    -
     <a href="https://github.com/Village05/pnwkit-py/issues">Report Bug</a>
-    ·
+    -
     <a href="https://github.com/Village05/pnwkit-py/issues">Request Feature</a>
   </p>
 </p>
