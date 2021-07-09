@@ -13,7 +13,7 @@
     <a href="https://pnwkit-py.readthedocs.io"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/bsnk-dev/pnwkit">JavaScript/TypeScript Version</a>
+    <a href="https://www.npmjs.com/package/pnwkit">JavaScript/TypeScript Version</a>
     ·
     <a href="https://github.com/Village05/pnwkit-py/issues">Report Bug</a>
     ·

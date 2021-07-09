@@ -1,7 +1,7 @@
 from .api_key import set_key
 from .core import pnwkit, async_pnwkit, Kit
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query
