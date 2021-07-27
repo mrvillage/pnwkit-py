@@ -41,7 +41,7 @@ class Data:
         return self.__getattribute__(name)
 
     def __int__(self) -> int:
-        return int(self.id) if "id" in self.__dict__ else -1
+        return self.get("id", -1)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
