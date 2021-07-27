@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence, Type
+from typing import Any, Dict, Mapping, Optional, Sequence, Type
 
 
 class Data:
@@ -40,13 +40,13 @@ class Data:
     def __getitem__(self, name: str) -> Any:
         return self.__getattribute__(name)
 
-    def __int__(self):
-        return self.id if "id" in self.__dict__ else -1
+    def __int__(self) -> int:
+        return int(self.id) if "id" in self.__dict__ else -1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, str]:
         return self.__dict__
 
 
@@ -328,7 +328,7 @@ class Color(Data):
     bloc_name: str
     turn_bonus: int
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.bloc_name if 'bloc_name' in self.__dict__ else -1}"
 
 
@@ -676,7 +676,7 @@ class Treasure(Data):
     spawndate: str
     nation: Nation
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.name if 'name' in self.__dict__ else -1}"
 
 
