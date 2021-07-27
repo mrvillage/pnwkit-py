@@ -47,7 +47,7 @@ class Data:
         return self.get("id", -1)
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} - {self.get('id', -1)}"
+        return f"{type(self).__name__} - {int(self)}"
 
     def get(self, key: str, default: Any = None) -> Any:
         try:
