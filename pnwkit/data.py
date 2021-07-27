@@ -46,6 +46,9 @@ class Data:
     def __repr__(self):
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
 
+    def to_dict(self):
+        return self.__dict__
+
 
 class Alliance(Data):
     """Represents an alliance.
