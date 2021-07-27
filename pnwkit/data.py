@@ -47,6 +47,14 @@ class Data:
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
 
     def to_dict(self) -> Dict[str, str]:
+        """
+        Return a dictionary of the data.
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary of the data on the object.
+        """
         return self.__dict__
 
 
