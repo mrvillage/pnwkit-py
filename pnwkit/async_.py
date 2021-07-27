@@ -1,6 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 import aiohttp
 
@@ -22,10 +33,10 @@ from .paginator import AlliancePaginator, NationPaginator, Paginator
 
 class AsyncKit(KitBase):
     async def _query(
-        self: AsyncKit,
+        self,
         endpoint: str,
-        params: Union[str, Mapping[str, Any]],
-        args: Union[str, Sequence[str]],
+        params: Mapping[str, Any],
+        args: Sequence[Union[str, Any]],
         *,
         is_paginator: bool = False,
     ) -> Dict[str, Any]:
@@ -33,69 +44,65 @@ class AsyncKit(KitBase):
         async with aiohttp.request(
             "GET", self.graphql_url(), json={"query": query}
         ) as response:
-            response = await response.json()
+            data: dict = await response.json()
             try:
-                if "errors" in response[0]:
+                if "errors" in data[0]:
                     error = (
-                        "\n".join(i["message"] for i in response[0]["errors"])
-                        if len(response[0]["errors"]) > 1
-                        else response[0]["errors"][0]["message"]
+                        "\n".join(i["message"] for i in data[0]["errors"])
+                        if len(data[0]["errors"]) > 1
+                        else data[0]["errors"][0]["message"]
                     )
                     raise GraphQLError(error)
             except KeyError:
                 pass
             try:
-                if "errors" in response:
+                if "errors" in data:
                     error = (
-                        "\n".join(i["message"] for i in response["errors"])
-                        if len(response["errors"]) > 1
-                        else response["errors"][0]["message"]
+                        "\n".join(i["message"] for i in data["errors"])
+                        if len(data["errors"]) > 1
+                        else data["errors"][0]["message"]
                     )
                     raise GraphQLError(error)
             except KeyError:
                 pass
-            return response
+            return data
 
     async def _data_query(
-        self: AsyncKit,
+        self,
         endpoint: str,
-        params: Union[str, Mapping[str, Any]],
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         is_paginator: bool = False,
-        type_: Data,
-        paginator_type: Optional[Paginator] = None,
+        type_: Type[Data],
+        paginator_type: Optional[Type[Paginator]] = None,
         **kwargs: Any,
-    ) -> Union[Tuple[Data], Paginator]:
+    ) -> Union[Tuple[Data, ...], Paginator]:
         args = (arg, *args)
         params = params or kwargs
         if "first" not in params and endpoint in {"alliance", "nations"}:
-            params["first"] = 5
-        response = await self._query(
-            endpoint, params, args, is_paginator=is_paginator
-        )
+            setattr(params, "first", 5)
+        response = await self._query(endpoint, params, args, is_paginator=is_paginator)
         if is_paginator and paginator_type:
-            data: Tuple[type_] = tuple(
-                type_(i) for i in response["data"][endpoint]["data"]
-            )
+            data = tuple(type_(i) for i in response["data"][endpoint]["data"])
             if paginator:
                 return paginator_type(
                     data, PaginatorInfo(response["data"][endpoint]["paginatorInfo"])
                 )
             return data
-        data: Tuple[type_] = tuple(type_(i) for i in response["data"][endpoint])
+        data = tuple(type_(i) for i in response["data"][endpoint])
         return data
 
     async def alliance_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         **kwargs: Any,
-    ) -> Union[Tuple[Alliance], AlliancePaginator]:
-        return await self._data_query(
+    ) -> Union[Tuple[Alliance, ...], AlliancePaginator]:
+        data = await self._data_query(
             "alliances",
             params,
             arg,
@@ -106,15 +113,21 @@ class AsyncKit(KitBase):
             is_paginator=True,
             paginator_type=AlliancePaginator,
         )
+        if TYPE_CHECKING:
+            if isinstance(data, tuple):
+                data = cast(Tuple[Alliance, ...], data)
+            else:
+                data = cast(AlliancePaginator, data)
+        return data
 
     async def color_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Color]:
-        return await self._data_query(
+    ) -> Tuple[Color, ...]:
+        data = await self._data_query(
             "colors",
             params,
             arg,
@@ -122,16 +135,19 @@ class AsyncKit(KitBase):
             **kwargs,
             type_=Color,
         )
+        if TYPE_CHECKING:
+            data = cast(Tuple[Color, ...], data)
+        return data
 
     async def nation_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         **kwargs: Any,
-    ) -> Union[Tuple[Nation], NationPaginator]:
-        return await self._data_query(
+    ) -> Union[Tuple[Nation, ...], NationPaginator]:
+        data = await self._data_query(
             "nations",
             params,
             arg,
@@ -142,15 +158,21 @@ class AsyncKit(KitBase):
             is_paginator=True,
             paginator_type=NationPaginator,
         )
+        if TYPE_CHECKING:
+            if isinstance(data, tuple):
+                data = cast(Tuple[Nation, ...], data)
+            else:
+                data = cast(NationPaginator, data)
+        return data
 
     async def trade_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Trade]:
-        return await self._data_query(
+    ) -> Tuple[Trade, ...]:
+        data = await self._data_query(
             "trades",
             params,
             arg,
@@ -158,15 +180,18 @@ class AsyncKit(KitBase):
             **kwargs,
             type_=Trade,
         )
+        if TYPE_CHECKING:
+            data = cast(Tuple[Trade, ...], data)
+        return data
 
     async def trade_price_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Tradeprice]:
-        return await self._data_query(
+    ) -> Tuple[Tradeprice, ...]:
+        data = await self._data_query(
             "tradeprices",
             params,
             arg,
@@ -174,15 +199,18 @@ class AsyncKit(KitBase):
             **kwargs,
             type_=Tradeprice,
         )
+        if TYPE_CHECKING:
+            data = cast(Tuple[Tradeprice, ...], data)
+        return data
 
     async def treasure_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Treasure]:
-        return await self._data_query(
+    ) -> Tuple[Treasure, ...]:
+        data = await self._data_query(
             "treasures",
             params,
             arg,
@@ -190,15 +218,18 @@ class AsyncKit(KitBase):
             **kwargs,
             type_=Treasure,
         )
+        if TYPE_CHECKING:
+            data = cast(Tuple[Treasure, ...], data)
+        return data
 
     async def war_query(
-        self: AsyncKit,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[War]:
-        return await self._data_query(
+    ) -> Tuple[War, ...]:
+        data = await self._data_query(
             "wars",
             params,
             arg,
@@ -206,3 +237,6 @@ class AsyncKit(KitBase):
             **kwargs,
             type_=War,
         )
+        if TYPE_CHECKING:
+            data = cast(Tuple[War, ...], data)
+        return data

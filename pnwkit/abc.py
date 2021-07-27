@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 
 from .api_key import API_KEY
 from .data import Alliance, Color, Data, Nation, Trade, Tradeprice, Treasure, War
@@ -9,15 +9,13 @@ from .paginator import AlliancePaginator, NationPaginator, Paginator
 
 
 class KitBase(metaclass=ABCMeta):
-    def __init__(
-        self: KitBase, api_key: str = None, **kwargs: Mapping[str, Any]
-    ) -> None:
+    def __init__(self, api_key: str = None, **kwargs: Any) -> None:
         self.api_key = api_key or API_KEY
 
-    def graphql_url(self: KitBase) -> str:
+    def graphql_url(self) -> str:
         return f"https://api.politicsandwar.com/graphql?api_key={self.api_key}"
 
-    def set_key(self: KitBase, api_key: str) -> None:
+    def set_key(self, api_key: str) -> None:
         """Sets the API key for this instance.
 
         Parameters
@@ -29,51 +27,61 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def _query(
-        self: KitBase,
-        endpoint: Union[str, Mapping[str, Any]],
-        params: Union[str, Mapping[str, Any]],
-        args: Union[str, Sequence[str]],
+        self,
+        endpoint: str,
+        params: Mapping[str, Any],
+        args: Sequence[Union[str, Any]],
         *,
-        is_paginator: bool,
+        is_paginator: bool = False,
     ) -> Dict[str, Any]:
         ...
 
     @abstractmethod
     def _data_query(
-        self: KitBase,
+        self,
         endpoint: str,
-        params: Union[str, Mapping[str, Any]],
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         is_paginator: bool = False,
-        type_: Data,
-        paginator_type: Optional[Paginator] = None,
+        type_: Type[Data],
+        paginator_type: Optional[Type[Paginator]] = None,
         **kwargs: Any,
-    ) -> Union[Tuple[Data], Paginator]:
+    ) -> Union[Tuple[Data, ...], Paginator]:
         ...
 
     @classmethod
-    def _format_sub_query(cls: KitBase, query: Mapping[str, Sequence[Any]]) -> str:
-        key = list(query.keys())[0]
-        query = query[key]
-        if not isinstance(query, str):
-            query = " ".join(
-                value if isinstance(value, str) else cls._format_sub_query(value)
-                for value in query
-            )
-        return f"{key}{{{query}}}"
+    def _format_sub_query(
+        cls, query: Mapping[str, Union[str, Mapping[str, Any]]]
+    ) -> str:
+        key, query_string = list(query.items())[0]
+        if not isinstance(query_string, str):
+            query_arguments = []
+            for value in query_string:
+                if isinstance(value, str):
+                    query_arguments.append(value)
+                else:
+                    query_arguments.append(cls._format_sub_query(value))
+            query_string = " ".join(query_arguments)
+
+        return f"{key}{{{query_string}}}"
 
     @classmethod
     def _format_query(
-        cls: KitBase,
+        cls,
         endpoint: str,
-        params: Union[str, Mapping[str, Any]],
-        query: Union[str, Sequence[str, Mapping[str, Sequence[Any]]]],
+        params: Mapping[str, Any],
+        query: Union[
+            str,
+            Sequence[Union[str, Mapping[str, Union[str, Mapping[str, Any]]]]],
+        ],
         is_paginator: bool,
     ) -> str:
-        if not isinstance(params, str):
-            params = ",".join(
+        if isinstance(params, str):
+            params_string = params
+        else:
+            params_string = ",".join(
                 name
                 + ":"
                 + (
@@ -85,28 +93,33 @@ class KitBase(metaclass=ABCMeta):
                 )
                 for name, value in params.items()
             )
-        if not isinstance(query, str):
-            query = " ".join(
-                value if isinstance(value, str) else cls._format_sub_query(value)
-                for value in query
-            )
+        if isinstance(query, str):
+            query_string = query
+        else:
+            query_arguments = []
+            for value in query:
+                if isinstance(value, str):
+                    query_arguments.append(value)
+                else:
+                    query_arguments.append(cls._format_sub_query(value))
+            query_string = " ".join(query_arguments)
         if is_paginator:
             if params:
-                return f"{{{endpoint}({params}){{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query}}}}}}}"
-            return f"{{{endpoint}{{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query}}}}}}}"
-        if params:
-            return f"{{{endpoint}({params}){{{query}}}}}"
-        return f"{{{endpoint}{{{query}}}}}"
+                return f"{{{endpoint}({params}){{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query_string}}}}}}}"
+            return f"{{{endpoint}{{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query_string}}}}}}}"
+        if params_string:
+            return f"{{{endpoint}({params_string}){{{query_string}}}}}"
+        return f"{{{endpoint}{{{query_string}}}}}"
 
     @abstractmethod
     def alliance_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         **kwargs: Any,
-    ) -> Union[Tuple[Alliance], AlliancePaginator]:
+    ) -> Union[Tuple[Alliance, ...], AlliancePaginator]:
         """Makes a query to the alliances endpoint.
 
         Parameters
@@ -131,12 +144,12 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def color_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Color]:
+    ) -> Tuple[Color, ...]:
         """Makes a query to the colors endpoint.
 
         Parameters
@@ -159,13 +172,13 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def nation_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         **kwargs: Any,
-    ) -> Union[Tuple[Nation], NationPaginator]:
+    ) -> Union[Tuple[Nation, ...], NationPaginator]:
         """Makes a query to the nations endpoint.
 
         Parameters
@@ -190,12 +203,12 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def trade_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Trade]:
+    ) -> Tuple[Trade, ...]:
         """Makes a query to the trades endpoint.
 
         Parameters
@@ -218,12 +231,12 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def trade_price_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Tradeprice]:
+    ) -> Tuple[Tradeprice, ...]:
         """Makes a query to the tradeprices endpoint.
 
         Parameters
@@ -246,12 +259,12 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def treasure_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[Treasure]:
+    ) -> Tuple[Treasure, ...]:
         """Makes a query to the treasures endpoint.
 
         Parameters
@@ -274,12 +287,12 @@ class KitBase(metaclass=ABCMeta):
 
     @abstractmethod
     def war_query(
-        self: KitBase,
-        params: Union[str, Mapping[str, Any]],
+        self,
+        params: Mapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
-    ) -> Tuple[War]:
+    ) -> Tuple[War, ...]:
         """Makes a query to the wars endpoint.
 
         Parameters

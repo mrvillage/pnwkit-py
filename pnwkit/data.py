@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, List, Mapping, Optional, Sequence, Type
+from typing import Any, Mapping, Optional, Sequence, Type
 
 
 class Data:
+    id: str
+
     def __init__(self, data: Mapping[str, Any]) -> None:
         for key, value in data.items():
             if isinstance(value, dict):
@@ -324,7 +326,7 @@ class Color(Data):
     turn_bonus: int
 
     def __repr__(self):
-        return f"{type(self).__name__} - {self.name if 'name' in self.__dict__ else -1}"
+        return f"{type(self).__name__} - {self.bloc_name if 'bloc_name' in self.__dict__ else -1}"
 
 
 class Nation(Data):

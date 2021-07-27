@@ -21,20 +21,13 @@ class Kit:
     # for use in development
     # it should never be called
     def __init__(
-        self: Kit,
-        api_key: str = None,
-        *,
-        async_: bool = False,
-        **kwargs: Mapping[str, Any]
+        self, api_key: str = None, *, async_: bool = False, **kwargs: Any
     ) -> None:
         pass
 
-    def __new__(
-        cls: Kit,
-        api_key: str = None,
-        *,
-        async_: bool = False,
-        **kwargs: Mapping[str, Any]
+    # typing is ignored here to provide the custom Kit() constructor functionality
+    def __new__(  # type: ignore
+        cls, api_key: str = None, *, async_: bool = False, **kwargs: Any
     ) -> Union[AsyncKit, SyncKit]:
         if "async" in kwargs:
             async_ = kwargs["async"]
@@ -43,6 +36,7 @@ class Kit:
         return SyncKit(api_key=api_key, **kwargs)
 
 
-pnwkit: SyncKit = Kit()
+# This is a workaround since Kit just constructs and returns a SyncKit or AsyncKit
+pnwkit: SyncKit = Kit()  # type: ignore
 
-async_pnwkit: AsyncKit = Kit(async_=True)
+async_pnwkit: AsyncKit = Kit(async_=True)  # type: ignore
