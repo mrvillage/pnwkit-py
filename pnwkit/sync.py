@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Mapping,
+    MutableMapping,
     Optional,
     Sequence,
     Tuple,
@@ -35,7 +36,7 @@ class SyncKit(KitBase):
     def _query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         args: Sequence[Union[str, Any]],
         *,
         is_paginator: bool = False,
@@ -68,7 +69,7 @@ class SyncKit(KitBase):
     def _data_query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -80,7 +81,7 @@ class SyncKit(KitBase):
         args = (arg, *args)
         params = params or kwargs
         if "first" not in params and endpoint in {"alliance", "nations"}:
-            setattr(params, "first", 5)
+            params["first"] = 5
         response = self._query(endpoint, params, args, is_paginator=is_paginator)
         if is_paginator and paginator_type:
             data = tuple(type_(i) for i in response["data"][endpoint]["data"])
@@ -94,7 +95,7 @@ class SyncKit(KitBase):
 
     def alliance_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -120,7 +121,7 @@ class SyncKit(KitBase):
 
     def color_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -139,7 +140,7 @@ class SyncKit(KitBase):
 
     def nation_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -165,7 +166,7 @@ class SyncKit(KitBase):
 
     def trade_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -184,7 +185,7 @@ class SyncKit(KitBase):
 
     def trade_price_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -203,7 +204,7 @@ class SyncKit(KitBase):
 
     def treasure_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -222,7 +223,7 @@ class SyncKit(KitBase):
 
     def war_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,

@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Mapping,
+    MutableMapping,
     Optional,
     Sequence,
     Tuple,
@@ -35,7 +36,7 @@ class AsyncKit(KitBase):
     async def _query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         args: Sequence[Union[str, Any]],
         *,
         is_paginator: bool = False,
@@ -70,7 +71,7 @@ class AsyncKit(KitBase):
     async def _data_query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -82,7 +83,7 @@ class AsyncKit(KitBase):
         args = (arg, *args)
         params = params or kwargs
         if "first" not in params and endpoint in {"alliance", "nations"}:
-            setattr(params, "first", 5)
+            params["first"] = 5
         response = await self._query(endpoint, params, args, is_paginator=is_paginator)
         if is_paginator and paginator_type:
             data = tuple(type_(i) for i in response["data"][endpoint]["data"])
@@ -96,7 +97,7 @@ class AsyncKit(KitBase):
 
     async def alliance_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -122,7 +123,7 @@ class AsyncKit(KitBase):
 
     async def color_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -141,7 +142,7 @@ class AsyncKit(KitBase):
 
     async def nation_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -167,7 +168,7 @@ class AsyncKit(KitBase):
 
     async def trade_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -186,7 +187,7 @@ class AsyncKit(KitBase):
 
     async def trade_price_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -205,7 +206,7 @@ class AsyncKit(KitBase):
 
     async def treasure_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -224,7 +225,7 @@ class AsyncKit(KitBase):
 
     async def war_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,

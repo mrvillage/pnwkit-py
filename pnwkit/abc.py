@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Any,
+    Dict,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from .api_key import API_KEY
 from .data import Alliance, Color, Data, Nation, Trade, Tradeprice, Treasure, War
@@ -29,7 +39,7 @@ class KitBase(metaclass=ABCMeta):
     def _query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         args: Sequence[Union[str, Any]],
         *,
         is_paginator: bool = False,
@@ -40,7 +50,7 @@ class KitBase(metaclass=ABCMeta):
     def _data_query(
         self,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -71,7 +81,7 @@ class KitBase(metaclass=ABCMeta):
     def _format_query(
         cls,
         endpoint: str,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         query: Union[
             str,
             Sequence[Union[str, Mapping[str, Union[str, Mapping[str, Any]]]]],
@@ -105,7 +115,7 @@ class KitBase(metaclass=ABCMeta):
             query_string = " ".join(query_arguments)
         if is_paginator:
             if params:
-                return f"{{{endpoint}({params}){{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query_string}}}}}}}"
+                return f"{{{endpoint}({params_string}){{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query_string}}}}}}}"
             return f"{{{endpoint}{{paginatorInfo{{count currentPage firstItem hasMorePages lastItem lastPage perPage total}}data{{{query_string}}}}}}}"
         if params_string:
             return f"{{{endpoint}({params_string}){{{query_string}}}}}"
@@ -114,7 +124,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def alliance_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -145,7 +155,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def color_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -173,7 +183,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def nation_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
@@ -204,7 +214,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def trade_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -232,7 +242,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def trade_price_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -260,7 +270,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def treasure_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
@@ -288,7 +298,7 @@ class KitBase(metaclass=ABCMeta):
     @abstractmethod
     def war_query(
         self,
-        params: Mapping[str, Any],
+        params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         **kwargs: Any,
