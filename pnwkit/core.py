@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Union
+from typing import Any, Union
 
 from .async_ import AsyncKit
 from .sync import SyncKit
