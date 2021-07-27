@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional, Sequence, Type
+from typing import Any, Dict, Mapping, Sequence, Type
 
 
 class Data:
@@ -9,10 +9,10 @@ class Data:
     def __init__(self, data: Mapping[str, Any]) -> None:
         for key, value in data.items():
             if isinstance(value, dict):
-                attr = _attribute_map[key]
+                attr = _ATTRIBUTE_MAP[key]
                 self.__dict__[key] = attr(value)
             elif isinstance(value, list):
-                attr = _attribute_map[key]
+                attr = _ATTRIBUTE_MAP[key]
                 self.__dict__[key] = tuple(attr(i) for i in value)
             else:
                 self.__dict__[key] = value
@@ -46,13 +46,13 @@ class Data:
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, Any]:
         """
-        Return a dictionary of the data.
+        Get a dict representation of this data.
 
         Returns
         -------
-        Dict[str, str]
+        Dict[str, Any]
             A dictionary of the data on the object.
         """
         return self.__dict__
@@ -83,33 +83,33 @@ class Alliance(Data):
         The alliance forum link.
     irclink: :class:`str`
         The alliance Discord link.
-    bankrecs: Optional[Sequence[:class:`Bankrec`]]
+    bankrecs: Sequence[:class:`Bankrec`]
         Sequence containing the alliance's bank records. Will be `None` if the querying key cannot view the alliance bank.
-    taxrecs: Optional[Sequence[:class:`Bankrec`]]
+    taxrecs: Sequence[:class:`Bankrec`]
         Sequence containing the alliance's tax records. Will be `None` if the querying key cannot view the alliance bank.
-    money: Optional[:class:`float`]
+    money: :class:`float`
         The current amount of money in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    coal: Optional[:class:`float`]
+    coal: :class:`float`
         The current amount of coal in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    oil: Optional[:class:`float`]
+    oil: :class:`float`
         The current amount of oil in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    uranium: Optional[:class:`float`]
+    uranium: :class:`float`
         The current amount of uranium in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    iron: Optional[:class:`float`]
+    iron: :class:`float`
         The current amount of iron in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    bauxite: Optional[:class:`float`]
+    bauxite: :class:`float`
         The current amount of bauxite in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    lead: Optional[:class:`float`]
+    lead: :class:`float`
         The current amount of lead in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    gasoline: Optional[:class:`float`]
+    gasoline: :class:`float`
         The current amount of gasoline in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    munitions: Optional[:class:`float`]
+    munitions: :class:`float`
         The current amount of munitions in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    steel: Optional[:class:`float`]
+    steel: :class:`float`
         The current amount of steel in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    aluminum: Optional[:class:`float`]
+    aluminum: :class:`float`
         The current amount of aluminum in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    food: Optional[:class:`float`]
+    food: :class:`float`
         The current amount of food in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
     """
 
@@ -123,20 +123,20 @@ class Alliance(Data):
     flag: str
     forumlink: str
     irclink: str
-    bankrecs: Optional[Sequence[Bankrec]]
-    taxrecs: Optional[Sequence[Bankrec]]
-    money: Optional[float]
-    coal: Optional[float]
-    oil: Optional[float]
-    uranium: Optional[float]
-    iron: Optional[float]
-    bauxite: Optional[float]
-    lead: Optional[float]
-    gasoline: Optional[float]
-    munitions: Optional[float]
-    steel: Optional[float]
-    aluminum: Optional[float]
-    food: Optional[float]
+    bankrecs: Sequence[Bankrec]
+    taxrecs: Sequence[Bankrec]
+    money: float
+    coal: float
+    oil: float
+    uranium: float
+    iron: float
+    bauxite: float
+    lead: float
+    gasoline: float
+    munitions: float
+    steel: float
+    aluminum: float
+    food: float
 
 
 class Bankrec(Data):
@@ -952,7 +952,7 @@ class PaginatorInfo(Data):
     total: int
 
 
-_attribute_map: Mapping[str, Type[Data]] = {
+_ATTRIBUTE_MAP: Mapping[str, Type[Data]] = {
     "alliance": Alliance,
     "cities": City,
     "treasures": Treasure,
