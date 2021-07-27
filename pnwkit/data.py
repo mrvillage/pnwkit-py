@@ -46,6 +46,12 @@ class Data:
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
 
+    def get(self, key: str, default: Any = None) -> Any:
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Get a dict representation of this data.
@@ -74,7 +80,7 @@ class Alliance(Data):
     color: :class:`str`
         The alliance color.
     nations: Sequence[:class:`Nation`]
-        The aliance's members.
+        The alliance's members.
     acceptmem: :class:`bool`
         Whether the alliance is accepting members or not.
     flag: :class:`str`
