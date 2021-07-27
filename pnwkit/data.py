@@ -38,18 +38,21 @@ class Data:
         )
 
     def __getitem__(self, name: str) -> Any:
-        return self.__getattribute__(name)
+        try:
+            return self.__getattribute__(name)
+        except AttributeError:
+            raise KeyError(name)
 
     def __int__(self) -> int:
         return self.get("id", -1)
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} - {self.id if 'id' in self.__dict__ else -1}"
+        return f"{type(self).__name__} - {self.get('id', -1)}"
 
     def get(self, key: str, default: Any = None) -> Any:
         try:
-            return self[key]
-        except KeyError:
+            return self.__getattribute__(key)
+        except AttributeError:
             return default
 
     def to_dict(self) -> Dict[str, Any]:
@@ -794,7 +797,7 @@ class War(Data):
     att_nukes_used: :class:`int`
         The amount of nukes used by the attacker.
     def_nukes_used: :class:`int`
-        The amount of nules killed by the defender.
+        The amount of nukes killed by the defender.
     att_infra_destroyed_value: :class:`float`
         The value of infrastructure destroyed by the attacker.
     def_infra_destroyed_value: :class:`float`
