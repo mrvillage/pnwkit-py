@@ -7,7 +7,7 @@ Welcome to PnWKit-Py!
 =====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    api
@@ -17,7 +17,16 @@ GitHub and Installing
 =====================
 Please see the GitHub page `here <https://github.com/Village05/pnwkit-py>`_ to install and learn more!
 
-Indices and tables
+Extensions
+==========
+PnWKit-Py also offers a number of extensions for use:
+
+.. toctree::
+   :maxdepth: 2
+
+   ext/dumps/index
+
+Index
 ==================
 
 * :ref:`genindex`

@@ -6,7 +6,7 @@ Data Reference
 
 .. note::
 
-    The following documents every data class modelled by the library and all its potential attributes, it will only have the attributes queried, attempting to access unqueried (and therefore non-existent) attributes will result in it raising a :class:`AttributeError`.
+    The following documents every data class modelled by the library and all its potential attributes, it will only have the attributes queried, attempting to access unqueried (and therefore non-existent) attributes will result in it raising an :class:`AttributeError` or a :class:`KeyError` depending on the context.
 
 Alliance
 ========

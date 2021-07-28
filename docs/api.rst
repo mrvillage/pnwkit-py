@@ -13,7 +13,7 @@ An instance of :class:`SyncKit` for synchronous interactions with the API.
 
 .. note::
 
-    All methods of this instance can be accessed from the root pnwkit module. I.e. `pnwkit.alliance_query` as opposed to `pnwkit.pnwkit.alliance_query`.
+    All methods of this instance can be accessed from the root pnwkit module. I.e. ``pnwkit.alliance_query`` as opposed to ``pnwkit.pnwkit.alliance_query``.
 
 async_pnwit
 ~~~~~~~~~~~~
@@ -24,7 +24,7 @@ An instance of :class:`AsyncKit` for asynchronous interactions with the API.
 
 .. note::
 
-    All methods of this instance can be accessed from the root pnwkit module with prefix `async_`. I.e. `pnwkit.async_alliance_query` as opposed to `pnwkit.async_pnwkit.alliance_query`.
+    All methods of this instance can be accessed from the root pnwkit module with prefix ``async_``. I.e. ``pnwkit.async_alliance_query`` as opposed to ``pnwkit.async_pnwkit.alliance_query``.
 
 set_key
 ~~~~~~~~
