@@ -36,7 +36,7 @@ setup(
     version=version,
     packages=packages,
     license="MIT",
-    description="A Python wrapped for the Politics and War GraphQL API.",
+    description="A Python wrapper for the Politics and War API.",
     long_description=readme,
     install_requires=requirements,
     extras_require=extras_require,
