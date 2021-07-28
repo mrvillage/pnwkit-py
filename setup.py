@@ -23,7 +23,7 @@ extras_require = {
         "pydata-sphinx-theme==0.6.3",
     ],
 }
-packages = ["pnwkit"]
+packages = ["pnwkit", "pnwkit.ext.dumps"]
 
 setup(
     name="pnwkit",
