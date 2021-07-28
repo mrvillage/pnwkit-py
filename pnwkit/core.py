@@ -14,7 +14,7 @@ class Kit:
     Returns
     -------
     Union[AsyncKit, SyncKit]
-        SyncKit if `async_` is False, AsyncKit if `async_` is true.
+        SyncKit if ``async_`` is ``False``, AsyncKit if ``async_`` is ``True``.
     """
 
     # __init__ is only here to provide typing and IntelliSense features

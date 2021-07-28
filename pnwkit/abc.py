@@ -148,7 +148,7 @@ class KitBase(metaclass=ABCMeta):
         Returns
         -------
         Union[Tuple[Alliance], AlliancePaginator]
-            A tuple of Alliances representing the data retrived. If `paginator` is True then will return an AlliancePaginator.
+            A tuple of Alliances representing the data retrived. If ``paginator`` is True then will return an AlliancePaginator.
         """
         ...
 
@@ -207,7 +207,7 @@ class KitBase(metaclass=ABCMeta):
         Returns
         -------
         Union[Tuple[Nation], NationPaginator]
-            A tuple of Nations representing the data retrived. If `paginator` is True then will return a NationPaginator.
+            A tuple of Nations representing the data retrived. If ``paginator`` is True then will return a NationPaginator.
         """
         ...
 
