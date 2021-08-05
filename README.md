@@ -57,7 +57,7 @@ print(f"Nation name: {nations[0].name}")
 If you want to paginate your query for more results, just enable pagination after your query.
 
 ```py
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, "name", paginator=True)
+nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name", paginator=True)
 
 print(f"Nation name: {nations.data[0].name}, current page: {nations.paginator_info.currentPage}")
 ```
