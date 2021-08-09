@@ -47,7 +47,7 @@ To use PnWKit just import the library and add your key, then you can make synchr
 
 ```py
 import pnwkit
-pnwkit.setKey("xxxxx");
+pnwkit.set_key("xxxxx");
 
 nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name")
 
