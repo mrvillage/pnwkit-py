@@ -47,19 +47,19 @@ To use PnWKit just import the library and add your key, then you can make synchr
 
 ```py
 import pnwkit
-pnwkit.setKey("xxxxx");
+pnwkit.set_key("xxxxx");
 
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, "name")
+nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name")
 
-print(f"Nation name: {nations[0].name}")
+print(f"Nation name: {nations[0].nation_name}")
 ```
 
 If you want to paginate your query for more results, just enable pagination after your query.
 
 ```py
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, "name", paginator=True)
+nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name", paginator=True)
 
-print(f"Nation name: {nations.data[0].name}, current page: {nations.paginator_info.currentPage}")
+print(f"Nation name: {nations.data[0].nation_name}, current page: {nations.paginator_info.currentPage}")
 ```
 
 The queries are written in normal GraphQL, so you can get all the cities in a nation like this
@@ -67,13 +67,13 @@ The queries are written in normal GraphQL, so you can get all the cities in a na
 ```py
 nations = pnwkit.nation_query({"id": 100541, "first": 1},
   """
-  name
+  nation_name
   cities {
     name
   }
   """)
 
-print(f"First city of ${nations[0].name}: ${nations[0].cities[0].name}");
+print(f"First city of ${nations[0].nation_name}: ${nations[0].cities[0].name}");
 ```
 
 If you want to have multiple copies of PnWKit running at the same time, you can use the Kit class export.
