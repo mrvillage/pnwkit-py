@@ -6,10 +6,12 @@ from typing import Any, Dict, Mapping
 class DumpData:
     id: str
 
+    __slots__ = ()
+
     def __init__(self, data: Mapping[str, Any]) -> None:
         for key, value in data.items():
             attr = __builtins__[self.__annotations__[key]]
-            self.__dict__[key] = attr(value)
+            object.__setattr__(self, key, attr(value))
 
     def __setattr__(self, name: str, value: Any) -> None:
         raise TypeError(
@@ -95,6 +97,18 @@ class DumpAlliance(DumpData):
     discord_server: str
     score: float
     flag_url: str
+
+    __slots__ = (
+        "alliance_id",
+        "date_created",
+        "name",
+        "acronym",
+        "color",
+        "continent",
+        "discord_server",
+        "score",
+        "flag_url",
+    )
 
     def __int__(self) -> int:
         return int(self.get("alliance_id", -1))
@@ -215,6 +229,45 @@ class DumpCity(DumpData):
     hangars: int
     drydocks: int
     last_nuke_date: str
+
+    __slots__ = (
+        "city_id",
+        "nation_id",
+        "date_created",
+        "name",
+        "capital",
+        "infrastructure",
+        "maxinfra",
+        "land",
+        "oil_power_plants",
+        "wind_power_plants",
+        "coal_power_plants",
+        "nuclear_power_plants",
+        "coal_mines",
+        "oil_wells",
+        "uranium_mines",
+        "iron_mines",
+        "lead_mines",
+        "bauxite_mines",
+        "farms",
+        "police_stations",
+        "hospitals",
+        "recycling_centers",
+        "subway",
+        "supermarkets",
+        "banks",
+        "shopping_malls",
+        "stadiums",
+        "oil_refineries",
+        "aluminum_refineries",
+        "steel_mills",
+        "munitions_factories",
+        "barracks",
+        "factories",
+        "hangars",
+        "drydocks",
+        "last_nuke_date",
+    )
 
     def __int__(self) -> int:
         return int(self.get("city_id", -1))
@@ -408,6 +461,69 @@ class DumpNation(DumpData):
     advanced_engineering_corps_np: bool
     vm_turns: int
 
+    __slots__ = (
+        "nation_id",
+        "nation_name",
+        "leader_name",
+        "date_created",
+        "continent",
+        "latitude",
+        "longitude",
+        "leader_title",
+        "nation_title",
+        "score",
+        "population",
+        "flag_url",
+        "color",
+        "beige_turns_remaining",
+        "portrait_url",
+        "cities",
+        "gdp",
+        "currency",
+        "wars_won",
+        "wars_lost",
+        "alliance",
+        "alliance_id",
+        "alliance_position",
+        "soldiers",
+        "tanks",
+        "aircraft",
+        "ships",
+        "missiles",
+        "nukes",
+        "domestic_policy",
+        "war_policy",
+        "projects",
+        "ironworks_np",
+        "bauxiteworks_np",
+        "arms_stockpile_np",
+        "emergency_gasoline_reserve_np",
+        "mass_irrigation_np",
+        "international_trade_center_np",
+        "missile_launch_pad_np",
+        "nuclear_research_facility_np",
+        "iron_dome_np",
+        "vital_defense_system_np",
+        "intelligence_agency_np",
+        "center_for_civil_engineering_np",
+        "propaganda_bureau_np",
+        "uranium_enrichment_program_np",
+        "urban_planning_np",
+        "advanced_urban_planning_np",
+        "space_program_np",
+        "moon_landing_np",
+        "spy_satellite_np",
+        "pirate_economy_np",
+        "recycling_initiative_np",
+        "telecommunications_satellite_np",
+        "green_technologies_np",
+        "clinical_research_center_np",
+        "specialized_police_training_program_np",
+        "arable_land_agency_np",
+        "advanced_engineering_corps_np",
+        "vm_turns",
+    )
+
     def __int__(self) -> int:
         return int(self.get("nation_id", -1))
 
@@ -455,6 +571,21 @@ class DumpTrade(DumpData):
     accepted: bool
     original_trade_id: str
     date_accepted: str
+
+    __slots__ = (
+        "trade_id",
+        "date_created",
+        "offerer_nation_id",
+        "receiver_nation_id",
+        "offer_type",
+        "buy_or_sell",
+        "resource",
+        "quantity",
+        "price",
+        "accepted",
+        "original_trade_id",
+        "date_accepted",
+    )
 
     def __int__(self) -> int:
         return int(self.get("trade_id", -1))
@@ -617,6 +748,59 @@ class DumpWar(DumpData):
     def_nukes_used: int
     att_infra_destroyed_value: float
     def_infra_destroyed_value: float
+
+    __slots__ = (
+        "war_id",
+        "date_declared",
+        "aggressor_nation_id",
+        "defender_nation_id",
+        "aggressor_alliance_name",
+        "aggressor_alliance_id",
+        "aggressor_alliance_position",
+        "defender_alliance_name",
+        "defender_alliance_id",
+        "defender_alliance_position",
+        "aggressor_offering_peace",
+        "defender_offering_peace",
+        "reason",
+        "ground_control",
+        "air_superiority",
+        "blockade",
+        "turns_left",
+        "aggressor_resistance",
+        "defender_resistance",
+        "war_type",
+        "aggressor_war_policy",
+        "defender_war_policy",
+        "att_attacks",
+        "def_attacks",
+        "att_gas_used",
+        "def_gas_used",
+        "att_mun_used",
+        "def_mun_used",
+        "att_alum_used",
+        "def_alum_used",
+        "att_steel_used",
+        "def_steel_used",
+        "att_infra_destroyed",
+        "def_infra_destroyed",
+        "att_money_looted",
+        "def_money_looted",
+        "att_soldiers_killed",
+        "def_soldiers_killed",
+        "att_tanks_killed",
+        "def_tanks_killed",
+        "att_aircraft_killed",
+        "def_aircraft_killed",
+        "att_ships_killed",
+        "def_ships_killed",
+        "att_missiles_used",
+        "def_missiles_used",
+        "att_nukes_used",
+        "def_nukes_used",
+        "att_infra_destroyed_value",
+        "def_infra_destroyed_value",
+    )
 
     def __int__(self) -> int:
         return int(self.get("war_id", -1))

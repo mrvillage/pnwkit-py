@@ -5,17 +5,18 @@ from typing import Any, Dict, Mapping, Sequence, Type
 
 class Data:
     id: str
+    __slots__ = ()
 
     def __init__(self, data: Mapping[str, Any]) -> None:
         for key, value in data.items():
             if isinstance(value, dict):
                 attr = _ATTRIBUTE_MAP[key]
-                self.__dict__[key] = attr(value)
+                object.__setattr__(self, key, attr(value))
             elif isinstance(value, list):
                 attr = _ATTRIBUTE_MAP[key]
-                self.__dict__[key] = tuple(attr(i) for i in value)
+                object.__setattr__(self, key, tuple(attr(i) for i in value))
             else:
-                self.__dict__[key] = value
+                object.__setattr__(self, key, value)
 
     def __setattr__(self, name: str, value: Any) -> None:
         raise TypeError(
@@ -44,7 +45,7 @@ class Data:
             raise KeyError(name)
 
     def __int__(self) -> int:
-        return self.get("id", -1)
+        return int(self.get("id", -1))
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {int(self)}"
@@ -147,6 +148,33 @@ class Alliance(Data):
     aluminum: float
     food: float
 
+    __slots__ = (
+        "id",
+        "name",
+        "acronym",
+        "score",
+        "color",
+        "nations",
+        "acceptmem",
+        "flag",
+        "forumlink",
+        "irclink",
+        "bankrecs",
+        "taxrecs",
+        "money",
+        "coal",
+        "oil",
+        "uranium",
+        "iron",
+        "bauxite",
+        "lead",
+        "gasoline",
+        "munitions",
+        "steel",
+        "aluminum",
+        "food",
+    )
+
 
 class Bankrec(Data):
     """Represents a bank record.
@@ -218,6 +246,30 @@ class Bankrec(Data):
     aluminum: float
     food: float
     tax_id: str
+
+    __slots__ = (
+        "id",
+        "date",
+        "sid",
+        "stype",
+        "rid",
+        "rtype",
+        "pid",
+        "note",
+        "money",
+        "coal",
+        "oil",
+        "uranium",
+        "iron",
+        "bauxite",
+        "lead",
+        "gasoline",
+        "munitions",
+        "steel",
+        "aluminum",
+        "food",
+        "tax_id",
+    )
 
 
 class City(Data):
@@ -327,6 +379,42 @@ class City(Data):
     airforcebase: int
     drydock: int
 
+    __slots__ = (
+        "id",
+        "name",
+        "date",
+        "infrastructure",
+        "land",
+        "powered",
+        "oilpower",
+        "windpower",
+        "coalpower",
+        "nuclearpower",
+        "coalmine",
+        "oilwell",
+        "uramine",
+        "barracks",
+        "farm",
+        "policestation",
+        "hospital",
+        "recyclingcenter",
+        "subway",
+        "supermarket",
+        "bank",
+        "mall",
+        "stadium",
+        "leadmine",
+        "ironmine",
+        "bauxitemine",
+        "gasrefinery",
+        "aluminumrefinery",
+        "steelmill",
+        "munitionsfactory",
+        "factory",
+        "airforcebase",
+        "drydock",
+    )
+
 
 class Color(Data):
     """Represents a color bloc.
@@ -344,6 +432,8 @@ class Color(Data):
     color: str
     bloc_name: str
     turn_bonus: int
+
+    __slots__ = ("color", "bloc_name", "turn_bonus")
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.bloc_name if 'bloc_name' in self.__dict__ else -1}"
@@ -570,6 +660,80 @@ class Nation(Data):
     specialized_police_training: bool
     adv_engineering_corps: bool
 
+    __slots__ = (
+        "id",
+        "alliance_id",
+        "alliance_position",
+        "alliance",
+        "nation_name",
+        "leader_name",
+        "continent",
+        "warpolicy",
+        "dompolicy",
+        "color",
+        "num_cities",
+        "cities",
+        "score",
+        "population",
+        "flag",
+        "vmode",
+        "beigeturns",
+        "espionage_available",
+        "last_active",
+        "date",
+        "soldiers",
+        "tanks",
+        "aircraft",
+        "ships",
+        "missiles",
+        "nukes",
+        "treasures",
+        "offensive_wars",
+        "defensive_wars",
+        "sent_bankrecs",
+        "received_bankrecs",
+        "money",
+        "coal",
+        "oil",
+        "uranium",
+        "iron",
+        "bauxite",
+        "lead",
+        "gasoline",
+        "munitions",
+        "steel",
+        "aluminum",
+        "food",
+        "projects",
+        "ironw",
+        "bauxitew",
+        "armss",
+        "egr",
+        "massirr",
+        "itc",
+        "mlp",
+        "nrf",
+        "irond",
+        "vds",
+        "cia",
+        "cfce",
+        "propb",
+        "uap",
+        "city_planning",
+        "adv_city_planning",
+        "space_program",
+        "spy_satellite",
+        "moon_landing",
+        "pirate_economy",
+        "recycling_initiative",
+        "telecom_satellite",
+        "green_tech",
+        "arable_land_agency",
+        "clinical_research_center",
+        "specialized_police_training",
+        "adv_engineering_corps",
+    )
+
 
 class Trade(Data):
     """Represents a trade
@@ -614,6 +778,21 @@ class Trade(Data):
     total: int
     accepted: bool
     date_accepted: str
+
+    __slots__ = (
+        "id",
+        "date",
+        "sid",
+        "rid",
+        "sender",
+        "receiver",
+        "offer_resource",
+        "offer_amount",
+        "buy_or_sell",
+        "total",
+        "accepted",
+        "date_accepted",
+    )
 
 
 class Tradeprice(Data):
@@ -666,6 +845,23 @@ class Tradeprice(Data):
     food: float
     credits: float
 
+    __slots__ = (
+        "id",
+        "date",
+        "coal",
+        "oil",
+        "uranium",
+        "iron",
+        "bauxite",
+        "lead",
+        "gasoline",
+        "munitions",
+        "steel",
+        "aluminum",
+        "food",
+        "credits",
+    )
+
 
 class Treasure(Data):
     """Represents a treasure.
@@ -692,6 +888,8 @@ class Treasure(Data):
     bonus: int
     spawndate: str
     nation: Nation
+
+    __slots__ = ("name", "color", "continent", "bonus", "spawndate", "nation")
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} - {self.name if 'name' in self.__dict__ else -1}"
@@ -855,6 +1053,59 @@ class War(Data):
     att_infra_destroyed_value: float
     def_infra_destroyed_value: float
 
+    __slots__ = (
+        "id",
+        "date",
+        "reason",
+        "war_type",
+        "groundcontrol",
+        "airsuperiority",
+        "navalblockade",
+        "winner",
+        "attacks",
+        "turnsleft",
+        "attid",
+        "att_alliance_id",
+        "attacker",
+        "defid",
+        "def_alliance_id",
+        "defender",
+        "attpoints",
+        "defpoints",
+        "attpeace",
+        "defpeace",
+        "att_resistance",
+        "def_resistance",
+        "att_fortify",
+        "def_fortify",
+        "att_gas_used",
+        "def_gas_used",
+        "att_mun_used",
+        "def_mun_used",
+        "att_alum_used",
+        "def_alum_used",
+        "att_steel_used",
+        "def_steel_used",
+        "att_infra_destroyed",
+        "def_infra_destroyed",
+        "att_money_looted",
+        "def_money_looted",
+        "att_soldiers_killed",
+        "def_soldiers_killed",
+        "att_tanks_killed",
+        "def_tanks_killed",
+        "att_aircraft_killed",
+        "def_aircraft_killed",
+        "att_ships_killed",
+        "def_ships_killed",
+        "att_missiles_used",
+        "def_missiles_used",
+        "att_nukes_used",
+        "def_nukes_used",
+        "att_infra_destroyed_value",
+        "def_infra_destroyed_value",
+    )
+
 
 class WarAttack(Data):
     """Represents a war attack.
@@ -927,6 +1178,30 @@ class WarAttack(Data):
     att_gas_used: float
     def_gas_used: float
 
+    __slots__ = (
+        "id",
+        "date",
+        "type",
+        "victor",
+        "success",
+        "attcas1",
+        "defcas1",
+        "attcas2",
+        "defcas2",
+        "cityid",
+        "infradestroyed",
+        "improvementslost",
+        "moneystolen",
+        "loot_info",
+        "resistance_eliminated",
+        "city_infra_before",
+        "infra_destroyed_value",
+        "att_mun_used",
+        "def_mun_used",
+        "att_gas_used",
+        "def_gas_used",
+    )
+
 
 class PaginatorInfo(Data):
     """Represents paginator info
@@ -959,6 +1234,17 @@ class PaginatorInfo(Data):
     lastPage: int
     perPage: int
     total: int
+
+    __slots__ = (
+        "count",
+        "currentPage",
+        "firstItem",
+        "hasMorePages",
+        "lastItem",
+        "lastPage",
+        "perPage",
+        "total",
+    )
 
 
 _ATTRIBUTE_MAP: Mapping[str, Type[Data]] = {
