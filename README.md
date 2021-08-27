@@ -1,11 +1,11 @@
-# PnWKit-Py
+# pnwkit-py
 
 <p align="center">
   <a href="https://github.com/Village05/pnwkit-py">
     <img src="https://raw.githubusercontent.com/Village05/pnwkit-py/master/logo.png" alt="Logo" width="120" height="120">
   </a>
 
-  <h3 align="center">PnWKit-Py</h3>
+  <h3 align="center">pnwkit-py</h3>
 
   <p align="center">
     Politics & War V3 API Library
@@ -25,7 +25,7 @@ PnWKit is here to make interacting with the V3 Politics and War API easy. All yo
 
 ## Getting Started
 
-To get started using PnWKit you must first have Python and PIP installed.
+To get started using pnwkit-py you must first have Python and PIP installed.
 
 ### Installing
 
@@ -43,7 +43,7 @@ py -3 -m pip install -U pnwkit
 
 ## Usage
 
-To use PnWKit just import the library and add your key, then you can make synchronous or asynchronous queries.
+To use pnwkit-py just import the library and add your key, then you can make synchronous or asynchronous queries.
 
 ```py
 import pnwkit
@@ -76,7 +76,7 @@ nations = pnwkit.nation_query({"id": 100541, "first": 1},
 print(f"First city of ${nations[0].nation_name}: ${nations[0].cities[0].name}");
 ```
 
-If you want to have multiple copies of PnWKit running at the same time, you can use the Kit class export.
+If you want to have multiple copies of pnwkit-py running at the same time, you can use the Kit class export.
 
 ```py
 import Kit from pnwkit;
@@ -92,7 +92,7 @@ Unlike the JavaScript/TypeScript library, the Python library has a few additiona
 - If the params argument is falsy in a query (i.e. None or an empty dict) then any additional kwargs on the query will be interpreted as params.
 - Additional arguments on a query will be concatenated with the first to form the query.
 
-You can also do the following queries in PnWKit:
+You can also do the following queries in pnwkit-py:
 
 - nation_query
 - alliance_query

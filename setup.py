@@ -26,7 +26,7 @@ extras_require = {
 packages = ["pnwkit", "pnwkit.ext.dumps"]
 
 setup(
-    name="pnwkit",
+    name="pnwkit-py",
     author="Village",
     url="https://github.com/Village05/pnwkit-py",
     project_urls={
