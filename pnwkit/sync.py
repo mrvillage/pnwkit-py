@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Literal,
     Mapping,
     MutableMapping,
     Optional,
@@ -12,6 +13,7 @@ from typing import (
     Type,
     Union,
     cast,
+    overload,
 )
 
 import requests
@@ -93,6 +95,28 @@ class SyncKit(KitBase):
         data = tuple(type_(i) for i in response["data"][endpoint])
         return data
 
+    @overload
+    def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> Tuple[Alliance, ...]:
+        ...
+
+    @overload
+    def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> AlliancePaginator:
+        ...
+
     def alliance_query(
         self,
         params: MutableMapping[str, Any],
@@ -137,6 +161,28 @@ class SyncKit(KitBase):
         if TYPE_CHECKING:
             data = cast(Tuple[Color, ...], data)
         return data
+
+    @overload
+    def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False],
+        **kwargs: Any,
+    ) -> Tuple[Nation, ...]:
+        ...
+
+    @overload
+    def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> NationPaginator:
+        ...
 
     def nation_query(
         self,

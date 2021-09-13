@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 from typing import (
     Any,
     Dict,
+    Literal,
     Mapping,
     MutableMapping,
     Optional,
@@ -11,6 +12,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    overload,
 )
 
 from .api_key import API_KEY
@@ -120,6 +122,30 @@ class KitBase(metaclass=ABCMeta):
         if params_string:
             return f"{{{endpoint}({params_string}){{{query_string}}}}}"
         return f"{{{endpoint}{{{query_string}}}}}"
+
+    @overload
+    @abstractmethod
+    def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> Tuple[Alliance, ...]:
+        ...
+
+    @overload
+    @abstractmethod
+    def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> AlliancePaginator:
+        ...
 
     @abstractmethod
     def alliance_query(

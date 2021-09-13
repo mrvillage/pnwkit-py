@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Literal,
     Mapping,
     MutableMapping,
     Optional,
@@ -12,6 +13,7 @@ from typing import (
     Type,
     Union,
     cast,
+    overload,
 )
 
 import aiohttp
@@ -95,6 +97,28 @@ class AsyncKit(KitBase):
         data = tuple(type_(i) for i in response["data"][endpoint])
         return data
 
+    @overload
+    async def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False],
+        **kwargs: Any,
+    ) -> Tuple[Alliance, ...]:
+        ...
+
+    @overload
+    async def alliance_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> AlliancePaginator:
+        ...
+
     async def alliance_query(
         self,
         params: MutableMapping[str, Any],
@@ -139,6 +163,28 @@ class AsyncKit(KitBase):
         if TYPE_CHECKING:
             data = cast(Tuple[Color, ...], data)
         return data
+
+    @overload
+    async def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False],
+        **kwargs: Any,
+    ) -> Tuple[Nation, ...]:
+        ...
+
+    @overload
+    async def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        **kwargs: Any,
+    ) -> NationPaginator:
+        ...
 
     async def nation_query(
         self,
