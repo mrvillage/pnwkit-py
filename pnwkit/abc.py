@@ -206,6 +206,30 @@ class KitBase(metaclass=ABCMeta):
         """
         ...
 
+    @overload
+    @abstractmethod
+    def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = False,
+        **kwargs: Any,
+    ) -> Tuple[Nation, ...]:
+        ...
+
+    @overload
+    @abstractmethod
+    def nation_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = True,
+        **kwargs: Any,
+    ) -> NationPaginator:
+        ...
+
     @abstractmethod
     def nation_query(
         self,

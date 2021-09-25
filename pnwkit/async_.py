@@ -103,7 +103,7 @@ class AsyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[False],
+        paginator: Literal[False] = False,
         **kwargs: Any,
     ) -> Tuple[Alliance, ...]:
         ...
@@ -114,7 +114,7 @@ class AsyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[True] = True,
         **kwargs: Any,
     ) -> AlliancePaginator:
         ...
@@ -170,7 +170,7 @@ class AsyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[False],
+        paginator: Literal[False] = False,
         **kwargs: Any,
     ) -> Tuple[Nation, ...]:
         ...
@@ -181,7 +181,7 @@ class AsyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[True] = True,
         **kwargs: Any,
     ) -> NationPaginator:
         ...

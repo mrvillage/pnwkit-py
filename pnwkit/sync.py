@@ -101,7 +101,7 @@ class SyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[False] = False,
         **kwargs: Any,
     ) -> Tuple[Alliance, ...]:
         ...
@@ -112,7 +112,7 @@ class SyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[True] = True,
         **kwargs: Any,
     ) -> AlliancePaginator:
         ...
@@ -168,7 +168,7 @@ class SyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[False],
+        paginator: Literal[False] = False,
         **kwargs: Any,
     ) -> Tuple[Nation, ...]:
         ...
@@ -179,7 +179,7 @@ class SyncKit(KitBase):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[True] = True,
         **kwargs: Any,
     ) -> NationPaginator:
         ...
