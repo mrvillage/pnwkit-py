@@ -21,7 +21,7 @@ from .paginator import AlliancePaginator, NationPaginator, Paginator
 
 
 class KitBase(metaclass=ABCMeta):
-    def __init__(self, api_key: str = None, **kwargs: Any) -> None:
+    def __init__(self, api_key: Optional[str] = None, **kwargs: Any) -> None:
         self.api_key = api_key or API_KEY
 
     def graphql_url(self) -> str:
@@ -130,7 +130,7 @@ class KitBase(metaclass=ABCMeta):
         params: MutableMapping[str, Any],
         arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True],
+        paginator: Literal[False],
         **kwargs: Any,
     ) -> Tuple[Alliance, ...]:
         ...
