@@ -18,7 +18,7 @@ sys.path.insert(1, os.path.abspath("extensions"))
 
 # -- Project information -----------------------------------------------------
 
-project = "PnWKit-Py"
+project = "pnwkit-Py"
 copyright = "2021, Village"
 author = "Village"
 

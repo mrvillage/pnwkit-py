@@ -25,6 +25,7 @@ PnWKit-Py also offers a number of extensions for use:
    :maxdepth: 2
 
    ext/dumps/index
+   ext/scrape/index
 
 Index
 ==================
