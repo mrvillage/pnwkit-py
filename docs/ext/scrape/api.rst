@@ -4,12 +4,12 @@
 API Reference
 **************
 
-Sync
+sync
 ~~~~~~~~
 .. automodule :: pnwkit.ext.scrape.sync
     :members:
 
-Async
+async
 ~~~~~~~~~
 .. automodule :: pnwkit.ext.scrape.async_
     :members:
