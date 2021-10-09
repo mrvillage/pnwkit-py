@@ -23,6 +23,18 @@ if TYPE_CHECKING:
 
 
 async def async_scrape_discord_username(nation_id: int, /) -> Optional[str]:
+    """Scrape a nation page for the discord username
+
+    Parameters
+    ----------
+    nation_id : int
+        The nation ID to scrape.
+
+    Returns
+    -------
+    Optional[str]
+        The discord username, or None if not found.
+    """
     try:
         async with aiohttp.request(
             "GET", f"https://politicsandwar.com/nation/id={nation_id}"
@@ -46,7 +58,31 @@ async def async_alliance_bank_withdraw(
     receiver_type: Literal["alliance", "nation"],
     note: Optional[str] = None,
     **resources: Union[int, float, str],
-):
+) -> bool:
+    """Send money from an alliance bank.
+
+    Parameters
+    ----------
+    email : str
+        The email of the account to use.
+    password : str
+        The password of the account to use.
+    alliance_id : int
+        The alliance ID to send from.
+    receiver : str
+        The receiver of the withdrawal, must be a nation or alliance name.
+    receiver_type : Literal["alliance", "nation"]
+        The type of receiver, either "alliance" or "nation".
+    note : Optional[str], optional
+        The note to send with the withdrawal, by default no note is sent.
+    **resources : Union[int, float, str]
+        The resources to send, specified as kwargs. (i.e. money=100)
+
+    Returns
+    -------
+    bool
+        Whether or not the withdrawal was successful.
+    """
     async with aiohttp.ClientSession() as session:
         transaction_data = {f"with{key}": value for key, value in resources.items()}
         transaction_data["withtype"] = receiver_type.capitalize()
@@ -82,6 +118,18 @@ async def async_alliance_bank_withdraw(
 
 
 async def async_scrape_treaties(alliance_id: int, /) -> List[TreatyData]:
+    """Scrape the treaties of an alliance.
+
+    Parameters
+    ----------
+    alliance_id : int
+        The alliance ID of the alliance to scrape
+
+    Returns
+    -------
+    List[TreatyData]
+        A list of treaties, each treaty is a dict with the keys "from_", "to_", and "treaty_type".
+    """
     async with aiohttp.request(
         "GET", f"https://politicsandwar.com/alliance/id={alliance_id}"
     ) as response:
@@ -96,6 +144,13 @@ async def async_scrape_treaties(alliance_id: int, /) -> List[TreatyData]:
 
 
 async def async_scrape_treaty_web() -> List[TreatyData]:
+    """Scrape the treaty web
+
+    Returns
+    -------
+    List[TreatyData]
+        A list of treaties, each treaty is a dict with the keys "from_", "to_", and "treaty_type".
+    """
     async with aiohttp.request(
         "GET", "https://politicsandwar.com/alliances/treatyweb/all"
     ) as response:
