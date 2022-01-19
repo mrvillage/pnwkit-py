@@ -18,7 +18,7 @@ from typing import (
 
 import requests
 
-from .abc import KitBase
+from .base import KitBase
 from .data import (
     Alliance,
     Color,
@@ -45,7 +45,7 @@ class SyncKit(KitBase):
     ) -> Dict[str, Any]:
         query = query = self._format_query(endpoint, params, args, is_paginator)
         response = requests.request("GET", self.graphql_url(), json={"query": query})
-        data: dict = response.json()
+        data: Any = response.json()
         try:
             if "errors" in data[0]:
                 error = (

@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 from .data import Alliance, Data, Nation, PaginatorInfo
+
+__all__ = ("AlliancePaginator", "NationPaginator")
+
+if TYPE_CHECKING:
+    from typing import Any, Sequence
 
 
 class Paginator(metaclass=ABCMeta):
@@ -35,7 +40,7 @@ class Paginator(metaclass=ABCMeta):
     def __getitem__(self, name: str) -> Any:
         return self.__getattribute__(name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return type(self).__name__
 
 

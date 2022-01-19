@@ -1,6 +1,23 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Sequence, Type
+from typing import TYPE_CHECKING
+
+__all__ = (
+    "Alliance",
+    "Bankrec",
+    "City",
+    "Color",
+    "Nation",
+    "Trade",
+    "Tradeprice",
+    "Treasure",
+    "War",
+    "WarAttack",
+    "PaginatorInfo",
+)
+
+if TYPE_CHECKING:
+    from typing import Any, Dict, Mapping, Sequence, Type
 
 
 class Data:
@@ -11,10 +28,10 @@ class Data:
         for key, value in data.items():
             if isinstance(value, dict):
                 attr = _ATTRIBUTE_MAP[key]
-                object.__setattr__(self, key, attr(value))
+                object.__setattr__(self, key, attr(value))  # type: ignore
             elif isinstance(value, list):
                 attr = _ATTRIBUTE_MAP[key]
-                object.__setattr__(self, key, tuple(attr(i) for i in value))
+                object.__setattr__(self, key, tuple(attr(i) for i in value))  # type: ignore
             else:
                 object.__setattr__(self, key, value)
 

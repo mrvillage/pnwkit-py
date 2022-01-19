@@ -1,24 +1,10 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Literal,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, cast, overload
 
 import aiohttp
 
-from .abc import KitBase
+from .base import KitBase
 from .data import (
     Alliance,
     Color,
@@ -32,6 +18,20 @@ from .data import (
 )
 from .errors import GraphQLError
 from .paginator import AlliancePaginator, NationPaginator, Paginator
+
+if TYPE_CHECKING:
+    from typing import (
+        Any,
+        Dict,
+        Literal,
+        Mapping,
+        MutableMapping,
+        Optional,
+        Sequence,
+        Tuple,
+        Type,
+        Union,
+    )
 
 
 class AsyncKit(KitBase):
@@ -47,7 +47,7 @@ class AsyncKit(KitBase):
         async with aiohttp.request(
             "GET", self.graphql_url(), json={"query": query}
         ) as response:
-            data: dict = await response.json()
+            data: Any = await response.json()
             try:
                 if "errors" in data[0]:
                     error = (

@@ -54,4 +54,9 @@ setup(
         "Topic :: Utilities",
     ],
     long_description_content_type=long_description_content_type,
+    package_data={
+        "pnwkit": ["py.typed", "*.pyi"],
+        "pnwkit.ext.dumps": ["*.pyi"],
+        "pnwkit.ext.scrape": ["*.pyi"],
+    },
 )

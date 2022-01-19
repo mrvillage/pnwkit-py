@@ -1,28 +1,34 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import (
-    Any,
-    Dict,
-    Literal,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, overload
 
 from .api_key import API_KEY
-from .data import Alliance, Color, Data, Nation, Trade, Tradeprice, Treasure, War
-from .paginator import AlliancePaginator, NationPaginator, Paginator
+
+__all__ = ("KitBase",)
+
+if TYPE_CHECKING:
+    from typing import (
+        Any,
+        List,
+        Literal,
+        Mapping,
+        MutableMapping,
+        Optional,
+        Sequence,
+        Tuple,
+        Union,
+    )
+
+    from .data import *
+    from .paginator import *
+
+    SubQuery = Mapping[str, Union[str, "SubQuery", Sequence[Union[str, "SubQuery"]]]]
 
 
 class KitBase(metaclass=ABCMeta):
     def __init__(self, api_key: Optional[str] = None, **kwargs: Any) -> None:
-        self.api_key = api_key or API_KEY
+        self.api_key: str = api_key or API_KEY
 
     def graphql_url(self) -> str:
         return f"https://api.politicsandwar.com/graphql?api_key={self.api_key}"
@@ -35,41 +41,16 @@ class KitBase(metaclass=ABCMeta):
         api_key : str
             A Politics and War API Key.
         """
-        self.api_key = api_key
-
-    @abstractmethod
-    def _query(
-        self,
-        endpoint: str,
-        params: MutableMapping[str, Any],
-        args: Sequence[Union[str, Any]],
-        *,
-        is_paginator: bool = False,
-    ) -> Dict[str, Any]:
-        ...
-
-    @abstractmethod
-    def _data_query(
-        self,
-        endpoint: str,
-        params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
-        *args: Union[str, Mapping[str, Any]],
-        paginator: bool = False,
-        is_paginator: bool = False,
-        type_: Type[Data],
-        paginator_type: Optional[Type[Paginator]] = None,
-        **kwargs: Any,
-    ) -> Union[Tuple[Data, ...], Paginator]:
-        ...
+        self.api_key: str = api_key
 
     @classmethod
     def _format_sub_query(
-        cls, query: Mapping[str, Union[str, Mapping[str, Any]]]
+        cls,
+        query: SubQuery,
     ) -> str:
         key, query_string = list(query.items())[0]
         if not isinstance(query_string, str):
-            query_arguments = []
+            query_arguments: List[Any] = []
             for value in query_string:
                 if isinstance(value, str):
                     query_arguments.append(value)
@@ -108,7 +89,7 @@ class KitBase(metaclass=ABCMeta):
         if isinstance(query, str):
             query_string = query
         else:
-            query_arguments = []
+            query_arguments: List[Any] = []
             for value in query:
                 if isinstance(value, str):
                     query_arguments.append(value)

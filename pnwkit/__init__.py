@@ -1,7 +1,7 @@
-from .api_key import set_key
-from .core import Kit, async_pnwkit, pnwkit
+from .api_key import set_key  # type: ignore
+from .core import Kit, async_pnwkit, pnwkit  # type: ignore
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query
@@ -10,7 +10,7 @@ nation_query = pnwkit.nation_query
 trade_price_query = pnwkit.trade_price_query
 trade_query = pnwkit.trade_query
 treasure_query = pnwkit.treasure_query
-war_query = pnwkit.war_query
+async_war_query = pnwkit.war_query
 
 async_alliance_query = async_pnwkit.alliance_query
 async_color_query = async_pnwkit.color_query

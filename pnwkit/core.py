@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Union
+from typing import TYPE_CHECKING, Literal, overload
 
 from .async_ import AsyncKit
 from .sync import SyncKit
+
+if TYPE_CHECKING:
+    from typing import Any, Optional, Union
 
 
 class Kit:
@@ -17,17 +20,28 @@ class Kit:
         SyncKit if ``async_`` is ``False``, AsyncKit if ``async_`` is ``True``.
     """
 
-    # __init__ is only here to provide typing and IntelliSense features
-    # for use in development
-    # it should never be called
-    def __init__(
-        self, api_key: str = None, *, async_: bool = False, **kwargs: Any
-    ) -> None:
-        pass
+    @overload
+    def __new__(
+        cls,
+        api_key: Optional[str] = ...,
+        *,
+        async_: Literal[False] = False,
+        **kwargs: Any
+    ) -> SyncKit:
+        ...
 
-    # typing is ignored here to provide the custom Kit() constructor functionality
-    def __new__(  # type: ignore
-        cls, api_key: str = None, *, async_: bool = False, **kwargs: Any
+    @overload
+    def __new__(
+        cls,
+        api_key: Optional[str] = ...,
+        *,
+        async_: Literal[True] = True,
+        **kwargs: Any
+    ) -> AsyncKit:
+        ...
+
+    def __new__(
+        cls, api_key: Optional[str] = None, *, async_: bool = False, **kwargs: Any
     ) -> Union[AsyncKit, SyncKit]:
         if "async" in kwargs:
             async_ = kwargs["async"]
@@ -36,7 +50,6 @@ class Kit:
         return SyncKit(api_key=api_key, **kwargs)
 
 
-# This is a workaround since Kit just constructs and returns a SyncKit or AsyncKit
-pnwkit: SyncKit = Kit()  # type: ignore
+pnwkit: SyncKit = Kit()
 
-async_pnwkit: AsyncKit = Kit(async_=True)  # type: ignore
+async_pnwkit: AsyncKit = Kit(async_=True)
