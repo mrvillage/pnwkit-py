@@ -9,7 +9,16 @@ from .abc import DataBase
 from .data import _TYPE_MAP, DumpData
 
 if TYPE_CHECKING:
-    from csv import _reader
+    from csv import Dialect
+    from typing import Iterator, List
+
+    class _reader(Iterator[List[str]]):
+        dialect: Dialect
+        line_num: int
+
+        def __next__(self) -> List[str]:
+            ...
+
 
 # when parsing bytes as string the 0th byte is taken
 # off since it's has no place in the string
