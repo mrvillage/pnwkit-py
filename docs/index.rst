@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PnWKit-Py!
+Welcome to pnwkit-py!
 =====================================
 
 .. toctree::
@@ -19,7 +19,7 @@ Please see the GitHub page `here <https://github.com/Village05/pnwkit-py>`_ to i
 
 Extensions
 ==========
-PnWKit-Py also offers a number of extensions for use:
+pnwkit-py also offers a number of extensions for use:
 
 .. toctree::
    :maxdepth: 2
