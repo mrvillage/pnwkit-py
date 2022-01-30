@@ -50,3 +50,12 @@ AsyncKit
 
 .. autoclass:: pnwkit.async_.AsyncKit
     :members:
+
+Paginator
+~~~~~~~~~
+.. autoclass:: pnwkit.paginator.Paginator
+    :members:
+
+.. note::
+
+    This class is intended to be used as an iterator with a `for` or `async for` loop.

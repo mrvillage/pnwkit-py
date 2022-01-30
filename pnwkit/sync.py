@@ -1,108 +1,199 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Literal,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, overload
 
 import requests
 
 from .base import KitBase
 from .data import (
     Alliance,
+    ApiKeyDetails,
+    Bankrec,
+    BBGame,
+    BBPlayer,
+    BBTeam,
+    Bounty,
+    City,
     Color,
     Data,
+    GameInfo,
     Nation,
-    PaginatorInfo,
     Trade,
     Tradeprice,
     Treasure,
+    Treaty,
     War,
+    WarAttack,
 )
 from .errors import GraphQLError
-from .paginator import AlliancePaginator, NationPaginator, Paginator
+from .paginator import Paginator
+
+if TYPE_CHECKING:
+    from typing import (
+        Any,
+        Dict,
+        Final,
+        Literal,
+        Mapping,
+        MutableMapping,
+        Optional,
+        Sequence,
+        Tuple,
+        Type,
+        TypeVar,
+        Union,
+    )
+
+    D = TypeVar("D", bound=Data)
 
 
 class SyncKit(KitBase):
-    def _query(
+    is_async: Final[bool] = False
+
+    def actual_query(
         self,
         endpoint: str,
         params: MutableMapping[str, Any],
         args: Sequence[Union[str, Any]],
-        *,
+        variables: MutableMapping[str, Any],
         is_paginator: bool = False,
+        root: str = "query",
+        headers: Optional[MutableMapping[str, Any]] = None,
     ) -> Dict[str, Any]:
-        query = query = self._format_query(endpoint, params, args, is_paginator)
-        response = requests.request("GET", self.graphql_url(), json={"query": query})
-        data: Any = response.json()
-        try:
-            if "errors" in data[0]:
-                error = (
-                    "\n".join(i["message"] for i in data[0]["errors"])
-                    if len(data[0]["errors"]) > 1
-                    else data[0]["errors"][0]["message"]
-                )
-                raise GraphQLError(error)
-        except KeyError:
-            pass
-        try:
-            if "errors" in data:
-                error = (
-                    "\n".join(i["message"] for i in data["errors"])
-                    if len(data["errors"]) > 1
-                    else data["errors"][0]["message"]
-                )
-                raise GraphQLError(error)
-        except KeyError:
-            pass
-        return data
+        variables, variables_string = self._format_variables(variables)
+        query = f"{root}{f'({variables_string})' if variables_string else ''}{self._format_query(endpoint, params, args, is_paginator)}"
+        with requests.request(
+            "POST",
+            self.graphql_url,
+            json={"query": query, "variables": variables},
+            headers=headers,
+        ) as response:
+            data: Any = response.json()
+            try:
+                if "errors" in data[0]:
+                    error = (
+                        "\n".join(i["message"] for i in data[0]["errors"])
+                        if len(data[0]["errors"]) > 1
+                        else data[0]["errors"][0]["message"]
+                    )
+                    raise GraphQLError(error)
+            except KeyError:
+                pass
+            try:
+                if "errors" in data:
+                    error = (
+                        "\n".join(i["message"] for i in data["errors"])
+                        if len(data["errors"]) > 1
+                        else data["errors"][0]["message"]
+                    )
+                    raise GraphQLError(error)
+            except KeyError:
+                pass
+            return data
 
-    def _data_query(
+    def run_query(
         self,
         endpoint: str,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
-        *args: Union[str, Mapping[str, Any]],
-        paginator: bool = False,
+        args: Sequence[Union[str, Any]],
+        variables: MutableMapping[str, Any],
+        type: Type[D],
         is_paginator: bool = False,
-        type_: Type[Data],
-        paginator_type: Optional[Type[Paginator]] = None,
-        **kwargs: Any,
-    ) -> Union[Tuple[Data, ...], Paginator]:
-        args = (arg, *args)
-        params = params or kwargs
-        if "first" not in params and endpoint in {"alliance", "nations"}:
-            params["first"] = 5
-        response = self._query(endpoint, params, args, is_paginator=is_paginator)
-        if is_paginator and paginator_type:
-            data = tuple(type_(i) for i in response["data"][endpoint]["data"])
-            if paginator:
-                return paginator_type(
-                    data, PaginatorInfo(response["data"][endpoint]["paginatorInfo"])
-                )
-            return data
-        data = tuple(type_(i) for i in response["data"][endpoint])
-        return data
+        root: str = "query",
+        headers: Optional[MutableMapping[str, Any]] = None,
+    ) -> Tuple[D, ...]:
+        data = self.actual_query(
+            endpoint, params, args, variables, is_paginator, root, headers
+        )
+        if is_paginator:
+            return tuple(type(i) for i in data["data"][endpoint]["data"])
+        return tuple(type(i) for i in data["data"][endpoint])
+
+    @overload
+    def query(
+        self,
+        endpoint: str,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False],
+        is_paginator: bool,
+        type: Type[D],
+        root: str = ...,
+        headers: Optional[MutableMapping[str, Any]] = ...,
+        **variables: Any,
+    ) -> Tuple[D, ...]:
+        ...
+
+    @overload
+    def query(
+        self,
+        endpoint: str,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True],
+        is_paginator: bool,
+        type: Type[D],
+        root: str = ...,
+        headers: Optional[MutableMapping[str, Any]] = ...,
+        **variables: Any,
+    ) -> Paginator[D]:
+        ...
+
+    @overload
+    def query(
+        self,
+        endpoint: str,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool,
+        is_paginator: bool,
+        type: Type[D],
+        root: str = ...,
+        headers: Optional[MutableMapping[str, Any]] = ...,
+        **variables: Any,
+    ) -> Union[Tuple[D, ...], Paginator[D]]:
+        ...
+
+    def query(
+        self,
+        endpoint: str,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool,
+        is_paginator: bool,
+        type: Type[D],
+        root: str = "query",
+        headers: Optional[MutableMapping[str, Any]] = None,
+        **variables: Any,
+    ) -> Union[Tuple[D, ...], Paginator[D]]:
+        if paginator:
+            return Paginator(None, endpoint, self, params, args, variables, type)
+        return self.run_query(
+            endpoint, params, args, variables, type, is_paginator, root, headers
+        )
+
+    def single_query(
+        self,
+        endpoint: str,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        type: Type[D],
+        root: str = "query",
+        headers: Optional[MutableMapping[str, Any]] = None,
+        **variables: Any,
+    ) -> D:
+        data = self.actual_query(
+            endpoint, params, args, variables, False, root, headers
+        )
+        return type(data["data"][endpoint])
 
     @overload
     def alliance_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[False] = False,
-        **kwargs: Any,
+        paginator: Literal[False] = ...,
+        **variables: Any,
     ) -> Tuple[Alliance, ...]:
         ...
 
@@ -110,66 +201,294 @@ class SyncKit(KitBase):
     def alliance_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True] = True,
-        **kwargs: Any,
-    ) -> AlliancePaginator:
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Alliance]:
         ...
 
     def alliance_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
-        **kwargs: Any,
-    ) -> Union[Tuple[Alliance, ...], AlliancePaginator]:
-        data = self._data_query(
+        **variables: Any,
+    ) -> Union[Tuple[Alliance, ...], Paginator[Alliance]]:
+        return self.query(
             "alliances",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Alliance,
             paginator=paginator,
             is_paginator=True,
-            paginator_type=AlliancePaginator,
+            type=Alliance,
+            **variables,
         )
-        if TYPE_CHECKING:
-            if isinstance(data, tuple):
-                data = cast(Tuple[Alliance, ...], data)
-            else:
-                data = cast(AlliancePaginator, data)
-        return data
+
+    @overload
+    def bankrec_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[Bankrec, ...]:
+        ...
+
+    @overload
+    def bankrec_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Bankrec]:
+        ...
+
+    def bankrec_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[Bankrec, ...], Paginator[Bankrec]]:
+        return self.query(
+            "bankrecs",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=Bankrec,
+            **variables,
+        )
+
+    @overload
+    def bbgame_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[BBGame, ...]:
+        ...
+
+    @overload
+    def bbgame_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[BBGame]:
+        ...
+
+    def bbgame_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[BBGame, ...], Paginator[BBGame]]:
+        return self.query(
+            "bbgames",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=BBGame,
+            **variables,
+        )
+
+    @overload
+    def bbplayer_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[BBPlayer, ...]:
+        ...
+
+    @overload
+    def bbplayer_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[BBPlayer]:
+        ...
+
+    def bbplayer_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[BBPlayer, ...], Paginator[BBPlayer]]:
+        return self.query(
+            "bbplayers",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=BBPlayer,
+            **variables,
+        )
+
+    @overload
+    def bbteam_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[BBTeam, ...]:
+        ...
+
+    @overload
+    def bbteam_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[BBTeam]:
+        ...
+
+    def bbteam_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[BBTeam, ...], Paginator[BBTeam]]:
+        return self.query(
+            "bbteams",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=BBTeam,
+            **variables,
+        )
+
+    @overload
+    def bounty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[Bounty, ...]:
+        ...
+
+    @overload
+    def bounty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Bounty]:
+        ...
+
+    def bounty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[Bounty, ...], Paginator[Bounty]]:
+        return self.query(
+            "bountys",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=Bounty,
+            **variables,
+        )
+
+    @overload
+    def city_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[City, ...]:
+        ...
+
+    @overload
+    def city_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[City]:
+        ...
+
+    def city_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[City, ...], Paginator[City]]:
+        return self.query(
+            "citys",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=City,
+            **variables,
+        )
 
     def color_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        **kwargs: Any,
     ) -> Tuple[Color, ...]:
-        data = self._data_query(
+        return self.query(
             "colors",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Color,
+            paginator=False,
+            is_paginator=False,
+            type=Color,
         )
-        if TYPE_CHECKING:
-            data = cast(Tuple[Color, ...], data)
-        return data
+
+    def game_info_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+    ) -> GameInfo:
+        return self.single_query(
+            "game_info",
+            params,
+            *args,
+            paginator=False,
+            is_paginator=False,
+            type=GameInfo,
+        )
+
+    def me_query(
+        self,
+        params: MutableMapping[str, Any],
+        arg: Union[str, Mapping[str, Any]],
+        *args: Union[str, Mapping[str, Any]],
+    ) -> ApiKeyDetails:
+        ...
 
     @overload
     def nation_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[False] = False,
-        **kwargs: Any,
+        paginator: Literal[False] = ...,
+        **variables: Any,
     ) -> Tuple[Nation, ...]:
         ...
 
@@ -177,111 +496,257 @@ class SyncKit(KitBase):
     def nation_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        paginator: Literal[True] = True,
-        **kwargs: Any,
-    ) -> NationPaginator:
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Nation]:
         ...
 
     def nation_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
-        **kwargs: Any,
-    ) -> Union[Tuple[Nation, ...], NationPaginator]:
-        data = self._data_query(
+        **variables: Any,
+    ) -> Union[Tuple[Nation, ...], Paginator[Nation]]:
+        return self.query(
             "nations",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Nation,
             paginator=paginator,
             is_paginator=True,
-            paginator_type=NationPaginator,
+            type=Nation,
+            **variables,
         )
-        if TYPE_CHECKING:
-            if isinstance(data, tuple):
-                data = cast(Tuple[Nation, ...], data)
-            else:
-                data = cast(NationPaginator, data)
-        return data
+
+    @overload
+    def trade_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[Trade, ...]:
+        ...
+
+    @overload
+    def trade_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Trade]:
+        ...
 
     def trade_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        **kwargs: Any,
-    ) -> Tuple[Trade, ...]:
-        data = self._data_query(
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[Trade, ...], Paginator[Trade]]:
+        return self.query(
             "trades",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Trade,
+            paginator=paginator,
+            is_paginator=True,
+            type=Trade,
+            **variables,
         )
-        if TYPE_CHECKING:
-            data = cast(Tuple[Trade, ...], data)
-        return data
 
-    def trade_price_query(
+    @overload
+    def tradeprice_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        **kwargs: Any,
+        paginator: Literal[False] = ...,
+        **variables: Any,
     ) -> Tuple[Tradeprice, ...]:
-        data = self._data_query(
+        ...
+
+    @overload
+    def tradeprice_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Tradeprice]:
+        ...
+
+    def tradeprice_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[Tradeprice, ...], Paginator[Tradeprice]]:
+        return self.query(
             "tradeprices",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Tradeprice,
+            paginator=paginator,
+            is_paginator=True,
+            type=Tradeprice,
+            **variables,
         )
-        if TYPE_CHECKING:
-            data = cast(Tuple[Tradeprice, ...], data)
-        return data
 
     def treasure_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        **kwargs: Any,
     ) -> Tuple[Treasure, ...]:
-        data = self._data_query(
+        return self.query(
             "treasures",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=Treasure,
+            paginator=False,
+            is_paginator=False,
+            type=Treasure,
         )
-        if TYPE_CHECKING:
-            data = cast(Tuple[Treasure, ...], data)
-        return data
+
+    @overload
+    def treaty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[Treaty, ...]:
+        ...
+
+    @overload
+    def treaty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[Treaty]:
+        ...
+
+    def treaty_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[Treaty, ...], Paginator[Treaty]]:
+        return self.query(
+            "treatys",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=Treaty,
+            **variables,
+        )
+
+    @overload
+    def war_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[War, ...]:
+        ...
+
+    @overload
+    def war_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[War]:
+        ...
 
     def war_query(
         self,
         params: MutableMapping[str, Any],
-        arg: Union[str, Mapping[str, Any]],
         *args: Union[str, Mapping[str, Any]],
-        **kwargs: Any,
-    ) -> Tuple[War, ...]:
-        data = self._data_query(
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[War, ...], Paginator[War]]:
+        return self.query(
             "wars",
             params,
-            arg,
             *args,
-            **kwargs,
-            type_=War,
+            paginator=paginator,
+            is_paginator=True,
+            type=War,
+            **variables,
         )
-        if TYPE_CHECKING:
-            data = cast(Tuple[War, ...], data)
-        return data
+
+    @overload
+    def warattack_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[False] = ...,
+        **variables: Any,
+    ) -> Tuple[WarAttack, ...]:
+        ...
+
+    @overload
+    def warattack_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: Literal[True] = ...,
+        **variables: Any,
+    ) -> Paginator[WarAttack]:
+        ...
+
+    def warattack_query(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        paginator: bool = False,
+        **variables: Any,
+    ) -> Union[Tuple[WarAttack, ...], Paginator[WarAttack]]:
+        return self.query(
+            "warattacks",
+            params,
+            *args,
+            paginator=paginator,
+            is_paginator=True,
+            type=WarAttack,
+            **variables,
+        )
+
+    def bank_deposit_mutation(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        **variables: Any,
+    ) -> Bankrec:
+        return self.single_query(
+            "bankWithdraw",
+            params,
+            *args,
+            type=Bankrec,
+            root="mutation",
+            headers={"X-Bot-Key": self.bot_key},
+            **variables,
+        )
+
+
+    def bank_withdraw_mutation(
+        self,
+        params: MutableMapping[str, Any],
+        *args: Union[str, Mapping[str, Any]],
+        **variables: Any,
+    ) -> Bankrec:
+        return self.single_query(
+            "bankWithdraw",
+            params,
+            *args,
+            type=Bankrec,
+            root="mutation",
+            headers={"X-Bot-Key": self.bot_key},
+            **variables,
+        )

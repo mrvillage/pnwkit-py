@@ -4,20 +4,27 @@ from typing import TYPE_CHECKING
 
 __all__ = (
     "Alliance",
+    "ApiKeyDetails",
     "Bankrec",
+    "BBGame",
+    "BBPlayer",
+    "BBTeam",
+    "Bounty",
     "City",
     "Color",
+    "GameInfo",
     "Nation",
     "Trade",
     "Tradeprice",
     "Treasure",
+    "Treaty",
     "War",
     "WarAttack",
     "PaginatorInfo",
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Dict, Mapping, Sequence, Type
+    from typing import Any, Dict, Mapping, Optional, Tuple, Type
 
 
 class Data:
@@ -26,11 +33,13 @@ class Data:
 
     def __init__(self, data: Mapping[str, Any]) -> None:
         for key, value in data.items():
+            if key == "global":
+                key = "global_"
             if isinstance(value, dict):
-                attr = _ATTRIBUTE_MAP[key]
+                attr = _RELATION_MAP[key]
                 object.__setattr__(self, key, attr(value))  # type: ignore
             elif isinstance(value, list):
-                attr = _ATTRIBUTE_MAP[key]
+                attr = _RELATION_MAP[key]
                 object.__setattr__(self, key, tuple(attr(i) for i in value))  # type: ignore
             else:
                 object.__setattr__(self, key, value)
@@ -82,7 +91,11 @@ class Data:
         Dict[str, Any]
             A dictionary of the data on the object.
         """
-        return self.__dict__
+        return {
+            key: value
+            for key in self.__slots__
+            if (value := getattr(self, key, (False,))) != (False,)
+        }
 
 
 class Alliance(Data):
@@ -100,8 +113,10 @@ class Alliance(Data):
         The alliance score.
     color: :class:`str`
         The alliance color.
-    nations: Sequence[:class:`Nation`]
+    nations: Tuple[:class:`Nation`, ...]
         The alliance's members.
+    treaties: Tuple[:class:`Treaty`, ...]
+        The alliance's treaties.
     acceptmem: :class:`bool`
         Whether the alliance is accepting members or not.
     flag: :class:`str`
@@ -110,33 +125,35 @@ class Alliance(Data):
         The alliance forum link.
     irclink: :class:`str`
         The alliance Discord link.
-    bankrecs: Sequence[:class:`Bankrec`]
-        Sequence containing the alliance's bank records. Will be `None` if the querying key cannot view the alliance bank.
-    taxrecs: Sequence[:class:`Bankrec`]
-        Sequence containing the alliance's tax records. Will be `None` if the querying key cannot view the alliance bank.
-    money: :class:`float`
+    bankrecs: Tuple[:class:`Bankrec`, ...]
+        The alliance's bank records. Will not contain alliance to alliance records if the querying key cannot view the alliance bank.
+    taxrecs: Optional[Tuple[:class:`Bankrec`, ...]]
+        The alliance's tax records. Will be `None` if the querying key cannot view the alliance bank.
+    tax_brackets: Optional[Tuple[:class:`TaxBracket`, ...]]
+        The alliance's tax brackets. Will be `None` if the querying key cannot view the alliance bank.
+    money: Optional[:class:`float`]
         The current amount of money in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    coal: :class:`float`
+    coal: Optional[:class:`float`]
         The current amount of coal in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    oil: :class:`float`
+    oil: Optional[:class:`float`]
         The current amount of oil in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    uranium: :class:`float`
+    uranium: Optional[:class:`float`]
         The current amount of uranium in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    iron: :class:`float`
+    iron: Optional[:class:`float`]
         The current amount of iron in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    bauxite: :class:`float`
+    bauxite: Optional[:class:`float`]
         The current amount of bauxite in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    lead: :class:`float`
+    lead: Optional[:class:`float`]
         The current amount of lead in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    gasoline: :class:`float`
+    gasoline: Optional[:class:`float`]
         The current amount of gasoline in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    munitions: :class:`float`
+    munitions: Optional[:class:`float`]
         The current amount of munitions in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    steel: :class:`float`
+    steel: Optional[:class:`float`]
         The current amount of steel in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    aluminum: :class:`float`
+    aluminum: Optional[:class:`float`]
         The current amount of aluminum in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
-    food: :class:`float`
+    food: Optional[:class:`float`]
         The current amount of food in the alliance bank. Will be `None` if the querying key cannot view the alliance bank.
     """
 
@@ -145,25 +162,27 @@ class Alliance(Data):
     acronym: str
     score: float
     color: str
-    nations: Sequence[Nation]
+    nations: Tuple[Nation, ...]
+    treaties: Tuple[Treaty, ...]
     acceptmem: bool
     flag: str
     forumlink: str
     irclink: str
-    bankrecs: Sequence[Bankrec]
-    taxrecs: Sequence[Bankrec]
-    money: float
-    coal: float
-    oil: float
-    uranium: float
-    iron: float
-    bauxite: float
-    lead: float
-    gasoline: float
-    munitions: float
-    steel: float
-    aluminum: float
-    food: float
+    bankrecs: Tuple[Bankrec, ...]
+    taxrecs: Optional[Tuple[Bankrec, ...]]
+    tax_brackets: Optional[Tuple[TaxBracket, ...]]
+    money: Optional[float]
+    coal: Optional[float]
+    oil: Optional[float]
+    uranium: Optional[float]
+    iron: Optional[float]
+    bauxite: Optional[float]
+    lead: Optional[float]
+    gasoline: Optional[float]
+    munitions: Optional[float]
+    steel: Optional[float]
+    aluminum: Optional[float]
+    food: Optional[float]
 
     __slots__ = (
         "id",
@@ -172,12 +191,14 @@ class Alliance(Data):
         "score",
         "color",
         "nations",
+        "treaties",
         "acceptmem",
         "flag",
         "forumlink",
         "irclink",
         "bankrecs",
         "taxrecs",
+        "tax_brackets",
         "money",
         "coal",
         "oil",
@@ -191,6 +212,10 @@ class Alliance(Data):
         "aluminum",
         "food",
     )
+
+
+class ApiKeyDetails(Data):
+    nation: Nation
 
 
 class Bankrec(Data):
@@ -239,7 +264,7 @@ class Bankrec(Data):
     food: :class:`float`
         The food sent in the transaction.
     tax_id: :class:`str`
-        The ID of the tax bracker.
+        The ID of the tax bracket.
     """
 
     id: str
@@ -289,6 +314,294 @@ class Bankrec(Data):
     )
 
 
+class BBGame(Data):
+    """Represents a baseball game.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The game ID.
+    date: :class:`str`
+        The date of the game.
+    home_id: :class:`str`
+        The ID of the home team.
+    away_id: :class:`str`
+        The ID of the away team.
+    home_team: :class:`BBTeam`
+        The home team.
+    away_team: :class:`BBTeam`
+        The away team.
+    home_nation_id: :class:`str`
+        The ID of the home nation.
+    away_nation_id: :class:`str`
+        The ID of the away nation.
+    home_nation: :class:`Nation`
+        The home nation.
+    away_nation: :class:`Nation`
+        The away nation.
+    stadium_name: :class:`str`
+        The name of the stadium.
+    home_score: :class:`int`
+        The home team's score.
+    away_score: :class:`int`
+        The away team's score.
+    sim_text: :class:`str`
+        The simulation text.
+    highlights: :class:`str`
+        The game highlights.
+    home_revenue: :class:`float`
+        The home team's revenue.
+    spoils: :class:`float`
+        The spoils.
+    open: :class:`int`
+        Honestly no idea what this one does.
+    wager: :class:`float`
+        The wager.
+    """
+
+    id: str
+    date: str
+    home_id: str
+    away_id: str
+    home_team: BBTeam
+    away_team: BBTeam
+    home_nation_id: str
+    away_nation_id: str
+    home_nation: Nation
+    away_nation: Nation
+    stadium_name: str
+    home_score: int
+    away_score: int
+    sim_text: str
+    highlights: str
+    home_revenue: float
+    spoils: float
+    open: int
+    wager: float
+
+    __slots__ = (
+        "id",
+        "date",
+        "home_id",
+        "away_id",
+        "home_team",
+        "away_team",
+        "home_nation_id",
+        "away_nation_id",
+        "home_nation",
+        "away_nation",
+        "stadium_name",
+        "home_score",
+        "away_score",
+        "sim_text",
+        "highlights",
+        "home_revenue",
+        "spoils",
+        "open",
+        "wager",
+    )
+
+
+class BBPlayer(Data):
+    """Represents a baseball player.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The player ID.
+    date: :class:`str`
+        The date the player was created.
+    nation_id: :class:`str`
+        The ID of the nation the player belongs to.
+    nation: :class:`Nation`
+        The nation the player belongs to.
+    team_id: :class:`str`
+        The ID of the team the player belongs to.
+    team: :class:`BBTeam`
+        The team the player belongs to.
+    name: :class:`str`
+        The player's name.
+    age: :class:`int`
+        The player's age.
+    position: :class:`str`
+        The player's position.
+    pitching: :class:`float`
+        The player's pitching rating.
+    batting: :class:`float`
+        The player's batting rating.
+    speed: :class:`float`
+        The player's speed rating.
+    awareness: :class:`float`
+        The player's awareness rating.
+    overall: :class:`float`
+        The player's overall rating.
+    birthday: :class:`int`
+        The player's birthday.
+    """
+
+    id: str
+    date: str
+    nation_id: str
+    nation: Nation
+    team_id: str
+    team: BBTeam
+    name: str
+    age: int
+    position: str
+    pitching: float
+    batting: float
+    speed: float
+    awareness: float
+    overall: float
+    birthday: int
+
+    __slots__ = (
+        "id",
+        "date",
+        "nation_id",
+        "nation",
+        "team_id",
+        "team",
+        "name",
+        "age",
+        "position",
+        "pitching",
+        "batting",
+        "speed",
+        "awareness",
+        "overall",
+        "birthday",
+    )
+
+
+class BBTeam(Data):
+    """Represents a baseball team.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The team ID.
+    date: :class:`str`
+        The date the team was created.
+    nation_id: :class:`str`
+        The ID of the nation the team belongs to.
+    nation: :class:`Nation`
+        The nation the team belongs to.
+    name: :class:`str`
+        The team's name.
+    logo: :class:`str`
+        The team's logo.
+    home_jersey: :class:`str`
+        The team's home jersey.
+    away_jersey: :class:`str`
+        The team's away jersey.
+    stadium: :class:`str`
+        The team's stadium.
+    quality: :class:`int`
+        The team's quality rating.
+    seating: :class:`int`
+        The team's seating rating.
+    rating: :class:`float`
+        The team's overall rating.
+    wins: :class:`int`
+        The team's number of wins.
+    glosses: :class:`int`
+        The team's number of losses.
+    runs: :class:`int`
+        The team's number of runs.
+    homers: :class:`int`
+        The team's number of home runs.
+    strikeouts: :class:`int`
+        The team's number of strikeouts.
+    games_played: :class:`int`
+        The team's number of games played.
+    games: Tuple[:class:`BBGame`, ...]
+        The team's games.
+    players: Tuple[:class:`BBPlayer`, ...]
+        The team's players.
+    """
+
+    id: str
+    date: str
+    nation_id: str
+    nation: Nation
+    name: str
+    logo: str
+    home_jersey: str
+    away_jersey: str
+    stadium: str
+    quality: int
+    seating: int
+    rating: float
+    wins: int
+    glosses: int
+    runs: int
+    homers: int
+    strikeouts: int
+    games_played: int
+    games: Tuple[BBGame, ...]
+    players: Tuple[BBPlayer, ...]
+
+    __slots__ = (
+        "id",
+        "date",
+        "nation_id",
+        "nation",
+        "name",
+        "logo",
+        "home_jersey",
+        "away_jersey",
+        "stadium",
+        "quality",
+        "seating",
+        "rating",
+        "wins",
+        "glosses",
+        "runs",
+        "homers",
+        "strikeouts",
+        "games_played",
+        "games",
+        "players",
+    )
+
+
+class Bounty(Data):
+    """Represents a bounty.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The bounty ID.
+    date: :class:`str`
+        The date the bounty was created.
+    nation_id: :class:`str`
+        The ID of the nation the bounty is on.
+    nation: :class:`Nation`
+        The nation the bounty is on.
+    amount: :class:`int`
+        The amount of the bounty reward.
+    war_type: :class:`str`
+        The type of war the bounty is for.
+    """
+
+    id: str
+    date: str
+    nation_id: str
+    nation: Nation
+    amount: int
+    war_type: str
+
+    __slots__ = (
+        "id",
+        "date",
+        "nation_id",
+        "nation",
+        "amount",
+        "war_type",
+    )
+
+
 class City(Data):
     """Represents a city.
 
@@ -296,6 +609,10 @@ class City(Data):
     ----------
     id: :class:`str`
         The city ID.
+    nation_id: :class:`str`
+        The ID of the nation the city belongs to.
+    nation: :class:`Nation`
+        The nation the city belongs to.
     name: :class:`str`
         The city name.
     date: :class:`str`
@@ -360,9 +677,13 @@ class City(Data):
         The amount of Hangars in the city.
     drydock: :class:`int`
         The amount of Drydocks in the city.
+    nukedate: :class:`str`
+        The date the city was last nuked.
     """
 
     id: str
+    nation_id: str
+    nation: Nation
     name: str
     date: str
     infrastructure: float
@@ -395,9 +716,12 @@ class City(Data):
     factory: int
     airforcebase: int
     drydock: int
+    nukedate: str
 
     __slots__ = (
         "id",
+        "nation_id",
+        "nation",
         "name",
         "date",
         "infrastructure",
@@ -430,6 +754,7 @@ class City(Data):
         "factory",
         "airforcebase",
         "drydock",
+        "nukedate",
     )
 
 
@@ -453,7 +778,27 @@ class Color(Data):
     __slots__ = ("color", "bloc_name", "turn_bonus")
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} - {self.bloc_name if 'bloc_name' in self.__dict__ else -1}"
+        return f"{type(self).__name__} - {getattr(self, 'bloc_name', None)}"
+
+
+class GameInfo(Data):
+    """Represents some game info.
+
+    Attributes
+    ----------
+    game_date: :class:`str`
+        The game date.
+    radiation: :class:`Radiation`
+        The radiation index.
+    """
+
+    game_date: str
+    radiation: Radiation
+
+    __slots__ = (
+        "game_date",
+        "radiation",
+    )
 
 
 class Nation(Data):
@@ -483,10 +828,12 @@ class Nation(Data):
         The nation's color
     num_cities: :class:`int`
         The number of cities the nation has.
-    cities: Sequence[:class:`City`]
+    cities: Tuple[:class:`City`, ...]
         The nation's cities.
     score: :class:`float`
         The nation's score.
+    update_tz: :class:`float`
+        The nation's update timezone. Will return `None` if the querying key cannot see the nation's bank.
     population: :class:`int`
         The nation's population.
     flag: :class:`str`
@@ -496,7 +843,7 @@ class Nation(Data):
     beigeturns: :class:`int`
         The number of turns the nation has on Beige.
     espionage_available: :class:`bool`
-        Whether the nation has espionage available or not.
+        Whether the nation has can be have an espionage operation executed on it or not.
     last_active: :class:`str`
         When the nation was last active.
     date: :class:`str`
@@ -513,42 +860,52 @@ class Nation(Data):
         The amount of missiles the nation has.
     nukes: :class:`int`
         The amount of nukes the nation has.
-    treasures: Sequence[:class:`Treasure`]
+    spies: :class:`int`
+        The amount of spies the nation has. Will return `None` if the querying key cannot see the nation's bank.
+    discord: :class:`str`
+        The nation's discord username.
+    treasures: Tuple[:class:`Treasure`, ...]
         The treasures a nation has.
-    offensive_wars: Sequence[:class:`War`]
-        The offensive wars the nation is involved in.
-    defensive_wars: Sequence[:class:`War`]
-        The defensive wars the nation is involved in.
-    sent_bankrecs: Sequence[:class:`Bankrec`]
-        The sent bank records of the nation.
-    received_bankrecs: Sequence[:class:`Bankrec`]
+    wars: Tuple[:class:`War`, ...]
+        The wars the nation is involved in.
+    bankrecs: Tuple[:class:`Bankrec`, ...]
         The received bank records of the nation.
-    money: :class:`float`
+    taxrecs: Optional[Tuple[:class:`Bankrec`, ...]]
+        The nation's tax records. Will return `None` if the querying key cannot see the nation's bank.
+    bounties: Tuple[:class:`Bounty`, ...]
+        The bounties on the nation.
+    turns_since_last_city: :class:`int`
+        The number of turns since the nation has built a city.
+    turns_since_last_project: :class:`int`
+        The number of turns since the nation has built a project.
+    money: Optional[:class:`float`]
         The amount of money the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    coal: :class:`float`
+    coal: Optional[:class:`float`]
         The amount of coal the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    oil: :class:`float`
+    oil: Optional[:class:`float`]
         The amount of oil the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    uranium: :class:`float`
+    uranium: Optional[:class:`float`]
         The amount of uranium the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    iron: :class:`float`
+    iron: Optional[:class:`float`]
         The amount of iron the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    bauxite: :class:`float`
+    bauxite: Optional[:class:`float`]
         The amount of bauxite the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    lead: :class:`float`
+    lead: Optional[:class:`float`]
         The amount of lead the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    gasoline: :class:`float`
+    gasoline: Optional[:class:`float`]
         The amount of gasoline the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    munitions: :class:`float`
+    munitions: Optional[:class:`float`]
         The amount of munitions the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    steel: :class:`float`
+    steel: Optional[:class:`float`]
         The amount of steel the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    aluminum: :class:`float`
+    aluminum: Optional[:class:`float`]
         The amount of aluminum the nation has. Will return `None` if the querying key cannot see the nation's bank.
-    food: :class:`float`
+    food: Optional[:class:`float`]
         The amount of food the nation has. Will return `None` if the querying key cannot see the nation's bank.
     projects: :class:`int`
         The number of projects the nation has.
+    project_bits: :class:`int`
+        The bitwise representation of the nation's projects.
     ironw: :class:`bool`
         Whether the nation has the Ironworks project or not.
     bauxitew: :class:`bool`
@@ -603,6 +960,14 @@ class Nation(Data):
         Whether the nation has the Specialized Police Training Program project or not.
     adv_engineering_corps: :class:`bool`
         Whether the nation has the Advanced Engineering Corps project or not.
+    wars_won: :class:`int`
+        The number of wars the nation has won.
+    wars_lost: :class:`int`
+        The number of wars the nation has lost.
+    tax_id: :class:`str`
+        The nation's tax bracket ID.
+    alliance_seniority: :class:`int`
+        The nation's alliance seniority.
     """
 
     id: str
@@ -616,8 +981,9 @@ class Nation(Data):
     dompolicy: str
     color: str
     num_cities: int
-    cities: Sequence[City]
+    cities: Tuple[City, ...]
     score: float
+    update_tz: float
     population: int
     flag: str
     vmode: int
@@ -631,24 +997,29 @@ class Nation(Data):
     ships: int
     missiles: int
     nukes: int
-    treasures: Sequence[Treasure]
-    offensive_wars: Sequence[War]
-    defensive_wars: Sequence[War]
-    sent_bankrecs: Sequence[Bankrec]
-    received_bankrecs: Sequence[Bankrec]
-    money: float
-    coal: float
-    oil: float
-    uranium: float
-    iron: float
-    bauxite: float
-    lead: float
-    gasoline: float
-    munitions: float
-    steel: float
-    aluminum: float
-    food: float
+    spies: int
+    discord: str
+    treasures: Tuple[Treasure, ...]
+    wars: Tuple[War, ...]
+    bankrecs: Tuple[Bankrec, ...]
+    taxrecs: Optional[Tuple[Bankrec, ...]]
+    bounties: Tuple[Bounty, ...]
+    turns_since_last_city: int
+    turns_since_last_project: int
+    money: Optional[float]
+    coal: Optional[float]
+    oil: Optional[float]
+    uranium: Optional[float]
+    iron: Optional[float]
+    bauxite: Optional[float]
+    lead: Optional[float]
+    gasoline: Optional[float]
+    munitions: Optional[float]
+    steel: Optional[float]
+    aluminum: Optional[float]
+    food: Optional[float]
     projects: int
+    project_bits: int
     ironw: bool
     bauxitew: bool
     armss: bool
@@ -676,6 +1047,10 @@ class Nation(Data):
     clinical_research_center: bool
     specialized_police_training: bool
     adv_engineering_corps: bool
+    wars_won: int
+    wars_lost: int
+    tax_id: str
+    alliance_seniority: int
 
     __slots__ = (
         "id",
@@ -691,6 +1066,7 @@ class Nation(Data):
         "num_cities",
         "cities",
         "score",
+        "update_tz",
         "population",
         "flag",
         "vmode",
@@ -704,11 +1080,15 @@ class Nation(Data):
         "ships",
         "missiles",
         "nukes",
+        "spies",
+        "discord",
         "treasures",
-        "offensive_wars",
-        "defensive_wars",
-        "sent_bankrecs",
-        "received_bankrecs",
+        "wars",
+        "bankrecs",
+        "taxrecs",
+        "bounties",
+        "turns_since_last_city",
+        "turns_since_last_project",
         "money",
         "coal",
         "oil",
@@ -722,6 +1102,7 @@ class Nation(Data):
         "aluminum",
         "food",
         "projects",
+        "project_bits",
         "ironw",
         "bauxitew",
         "armss",
@@ -749,6 +1130,94 @@ class Nation(Data):
         "clinical_research_center",
         "specialized_police_training",
         "adv_engineering_corps",
+        "wars_won",
+        "wars_lost",
+        "tax_id",
+        "alliance_seniority",
+    )
+
+
+class Radiation(Data):
+    """Represents the radiation index.
+
+    Attributes
+    ----------
+    global_: :class:`float`
+        The global radiation index.
+    north_america: :class:`float`
+        The North America radiation index.
+    south_america: :class:`float`
+        The South America radiation index.
+    europe: :class:`float`
+        The Europe radiation index.
+    africa: :class:`float`
+        The Africa radiation index.
+    asia: :class:`float`
+        The Asia radiation index.
+    australia: :class:`float`
+        The Australia radiation index.
+    antarctica: :class:`float`
+        The Antarctica radiation index.
+    """
+
+    global_: float
+    north_america: float
+    south_america: float
+    europe: float
+    africa: float
+    asia: float
+    australia: float
+    antarctica: float
+
+    __slots__ = (
+        "global_",
+        "north_america",
+        "south_america",
+        "europe",
+        "africa",
+        "asia",
+        "australia",
+        "antarctica",
+    )
+
+
+class TaxBracket(Data):
+    """Represents a tax bracket.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The tax bracket ID.
+    alliance_id: :class:`str`
+        The tax bracket's alliance ID.
+    alliance: :class:`Alliance`
+        The tax bracket's alliance.
+    date: :class:`str`
+        The date the tax bracket was created.
+    date_modified: :class:`str`
+        The date the tax bracket was last modified.
+    last_modifier_id: :class:`str`
+        The ID of the last modifier of the tax bracket.
+    last_modifier: :class:`Nation`
+        The last modifier of the tax bracket.
+    """
+
+    id: str
+    alliance_id: str
+    alliance: Alliance
+    date: str
+    date_modified: str
+    last_modifier_id: str
+    last_modifier: Nation
+
+    __slots__ = (
+        "id",
+        "alliance_id",
+        "alliance",
+        "date",
+        "date_modified",
+        "last_modifier_id",
+        "last_modifier",
     )
 
 
@@ -906,10 +1375,60 @@ class Treasure(Data):
     spawndate: str
     nation: Nation
 
-    __slots__ = ("name", "color", "continent", "bonus", "spawndate", "nation")
+    __slots__ = (
+        "name",
+        "color",
+        "continent",
+        "bonus",
+        "spawndate",
+        "nation",
+    )
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} - {self.name if 'name' in self.__dict__ else -1}"
+        return f"{type(self).__name__} - {getattr(self, 'name', None)}"
+
+
+class Treaty(Data):
+    """Represents a treaty.
+
+    Attributes
+    ----------
+    id: :class:`str`
+        The treaty ID.
+    date: :class:`str`
+        The date and time the treaty was created.
+    treaty_type: :class:`str`
+        The type of treaty.
+    turns_left: :class:`int`
+        The number of turns left in the treaty.
+    alliance1_id: :class:`str`
+        The ID of the alliance who sent the treaty.
+    alliance1: :class:`Alliance`
+        The alliance who sent the treaty.
+    alliance2_id: :class:`str`
+        The ID of the alliance who received the treaty.
+    alliance2: :class:`Alliance`
+        The alliance who received the treaty.
+    """
+
+    date: str
+    treaty_type: str
+    turns_left: int
+    alliance1_id: str
+    alliance1: Alliance
+    alliance2_id: str
+    alliance2: Alliance
+
+    __slots__ = (
+        "id",
+        "date",
+        "treaty_type",
+        "turns_left",
+        "alliance1_id",
+        "alliance1",
+        "alliance2_id",
+        "alliance2",
+    )
 
 
 class War(Data):
@@ -933,7 +1452,7 @@ class War(Data):
         The ID of the nation that has a Naval Blockade.
     winner: :class:`str`
         The ID of the winner of the war.
-    attacks: Sequence[:class:`WarAttack`]
+    attacks: Tuple[:class:`WarAttack`, ...]
         The attacks in the war.
     turnsleft: :class:`int`
         The turns left in the war.
@@ -1027,7 +1546,7 @@ class War(Data):
     airsuperiority: str
     navalblockade: str
     winner: str
-    attacks: Sequence[WarAttack]
+    attacks: Tuple[WarAttack, ...]
     turnsleft: int
     attid: str
     att_alliance_id: str
@@ -1133,8 +1652,20 @@ class WarAttack(Data):
         The attack ID.
     date: :class:`str`
         The date the attack took place.
+    attid: :class:`str`
+        The attacking nation ID.
+    attacker: :class:`Nation`
+        The attacking nation.
+    defid: :class:`str`
+        The defending nation ID.
+    defender: :class:`Nation`
+        The defending nation.
     type: :class:`str`
         The attack type.
+    warid: :class:`str`
+        The war ID.
+    war: :class:`War`
+        The war.
     victor: :class:`str`
         The victor of the attack.
     success: :class:`int`
@@ -1171,11 +1702,19 @@ class WarAttack(Data):
         The amount of gasoline used by the attacker.
     def_gas_used: :class:`float`
         The amount of gasoline used by the defender.
+    aircraft_killed_by+tanks: :class:`int`
+        The amount of aircraft killed by tanks.
     """
 
     id: str
     date: str
+    attid: str
+    attacker: Nation
+    defid: str
+    defender: Nation
     type: str
+    warid: str
+    war: War
     victor: str
     success: int
     attcas1: int
@@ -1194,11 +1733,18 @@ class WarAttack(Data):
     def_mun_used: float
     att_gas_used: float
     def_gas_used: float
+    aircraft_killed_by_tanks: int
 
     __slots__ = (
         "id",
         "date",
+        "attid",
+        "attacker",
+        "defid",
+        "defender",
         "type",
+        "warid",
+        "war",
         "victor",
         "success",
         "attcas1",
@@ -1217,6 +1763,7 @@ class WarAttack(Data):
         "def_mun_used",
         "att_gas_used",
         "def_gas_used",
+        "aircraft_killed_by_tanks",
     )
 
 
@@ -1264,12 +1811,10 @@ class PaginatorInfo(Data):
     )
 
 
-_ATTRIBUTE_MAP: Mapping[str, Type[Data]] = {
+_RELATION_MAP: Mapping[str, Type[Data]] = {
     "alliance": Alliance,
     "cities": City,
     "treasures": Treasure,
-    "sent_bankrecs": Bankrec,
-    "received_bankrecs": Bankrec,
     "attacks": WarAttack,
     "attacker": Nation,
     "defender": Nation,
@@ -1281,4 +1826,19 @@ _ATTRIBUTE_MAP: Mapping[str, Type[Data]] = {
     "taxrecs": Bankrec,
     "offensive_wars": War,
     "defensive_wars": War,
+    "wars": War,
+    "alliance1": Alliance,
+    "alliance2": Alliance,
+    "tax_brackets": TaxBracket,
+    "treaties": Treaty,
+    "home_team": BBTeam,
+    "away_team": BBTeam,
+    "home_nation": Nation,
+    "away_nation": Nation,
+    "team": BBTeam,
+    "games": BBGame,
+    "players": BBPlayer,
+    "last_modifier": Alliance,
+    "bounties": Bounty,
+    "war": War,
 }

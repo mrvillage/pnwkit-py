@@ -14,10 +14,40 @@ Alliance
 .. autoclass:: pnwkit.data.Alliance
     :members: to_dict
 
+ApiKeyDetails
+=============
+.. attributetable:: pnwkit.data.ApiKeyDetails
+.. autoclass:: pnwkit.data.ApiKeyDetails
+    :members: to_dict
+
 Bankrec
 =======
 .. attributetable:: pnwkit.data.Bankrec
 .. autoclass:: pnwkit.data.Bankrec
+    :members: to_dict
+
+BBGame
+======
+.. attributetable:: pnwkit.data.BBGame
+.. autoclass:: pnwkit.data.BBGame
+    :members: to_dict
+
+BBPlayer
+========
+.. attributetable:: pnwkit.data.BBPlayer
+.. autoclass:: pnwkit.data.BBPlayer
+    :members: to_dict
+
+BBTeam
+======
+.. attributetable:: pnwkit.data.BBTeam
+.. autoclass:: pnwkit.data.BBTeam
+    :members: to_dict
+
+Bounty
+======
+.. attributetable:: pnwkit.data.Bounty
+.. autoclass:: pnwkit.data.Bounty
     :members: to_dict
 
 City
@@ -32,10 +62,29 @@ Color
 .. autoclass:: pnwkit.data.Color
     :members: to_dict
 
+GameInfo
+========
+.. attributetable:: pnwkit.data.GameInfo
+.. autoclass:: pnwkit.data.GameInfo
+    :members: to_dict
+
 Nation
 ======
 .. attributetable:: pnwkit.data.Nation
 .. autoclass:: pnwkit.data.Nation
+    :members: to_dict
+
+Radiation
+=========
+.. attributetable:: pnwkit.data.Radiation
+.. autoclass:: pnwkit.data.Radiation
+    :members: to_dict
+
+
+TaxBracket
+==========
+.. attributetable:: pnwkit.data.TaxBracket
+.. autoclass:: pnwkit.data.TaxBracket
     :members: to_dict
 
 Trade
@@ -54,6 +103,12 @@ Treasure
 ========
 .. attributetable:: pnwkit.data.Treasure
 .. autoclass:: pnwkit.data.Treasure
+    :members: to_dict
+
+Treaty
+======
+.. attributetable:: pnwkit.data.Treaty
+.. autoclass:: pnwkit.data.Treaty
     :members: to_dict
 
 War

@@ -8,7 +8,7 @@
   <h3 align="center">pnwkit-py</h3>
 
   <p align="center">
-    Politics & War V3 API Library
+    Politics & War API Library
     <br />
     <a href="https://pnwkit-py.readthedocs.io"><strong>Explore the docs</strong></a>
     <br />
@@ -21,7 +21,7 @@
   </p>
 </p>
 
-PnWKit is here to make interacting with the V3 Politics and War API easy. All you have to do is import the library, add your key, and make a query.
+pnwkit-py is here to make interacting with the V3 Politics and War API easy. All you have to do is import the library, add your key, and make a query.
 
 ## Getting Started
 
@@ -47,25 +47,29 @@ To use pnwkit-py just import the library and add your key, then you can make syn
 
 ```py
 import pnwkit
-pnwkit.set_key("xxxxx");
+pnwkit.set_key("xxxxx")
 
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name")
+nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name")
 
 print(f"Nation name: {nations[0].nation_name}")
 ```
 
-If you want to paginate your query for more results, just enable pagination after your query.
+If you want to paginate your query for more results, just enable pagination after your query. Instead of returning a tuple of results, pnwkit will return a `Paginator` object which you can iterate through. For asynchronous queries you can use `async for` to iterate through the results. In addition, async paginators support batching queries to perform multiple queries simultaneously.
 
 ```py
-nations = pnwkit.nation_query({"id": 100541, "first": 1}, "nation_name", paginator=True)
+# .batch is async only, will perform 2 queries
+# when it runs out of results instead of one at a time
+nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True).batch(10)
 
-print(f"Nation name: {nations.data[0].nation_name}, current page: {nations.paginator_info.currentPage}")
+for nation in nations:
+    print(f"Nation name: {nation.nation_name}")
+print(f"Current page: {nations.paginator_info.currentPage}")
 ```
 
 The queries are written in normal GraphQL, so you can get all the cities in a nation like this
 
 ```py
-nations = pnwkit.nation_query({"id": 100541, "first": 1},
+nations = pnwkit.nation_query({"id": 251584, "first": 1},
   """
   nation_name
   cities {
@@ -73,7 +77,7 @@ nations = pnwkit.nation_query({"id": 100541, "first": 1},
   }
   """)
 
-print(f"First city of ${nations[0].nation_name}: ${nations[0].cities[0].name}");
+print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
 ```
 
 If you want to have multiple copies of pnwkit-py running at the same time, you can use the Kit class export.
@@ -86,20 +90,64 @@ other_kit = Kit(api_key="xxxx");
 // queries...
 ```
 
-Unlike the JavaScript/TypeScript library, the Python library has a few additional features.
+Unlike the JavaScript/TypeScript and Google Apps Script libraries, the Python library has a few additional features.
 
 - To use the asynchronous client (aiohttp as opposed to requests) append async\_ to your queries on the pnwkit module, or import async_pnwkit from pnwkit and run queries as normal, with the addition of an await statement.
-- If the params argument is falsy in a query (i.e. None or an empty dict) then any additional kwargs on the query will be interpreted as params.
+
+```py
+nations = await pnwkit.async_nation_query({"id": 251584, "first": 1}, "nation_name", {"cities": ["id", "name"]},)
+
+print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+```
+
 - Additional arguments on a query will be concatenated with the first to form the query.
 
-You can also do the following queries in pnwkit-py:
+```py
+nations = pnwkit.nation_query({"id", 251584, "first": 1}, "nation_name", {"cities": ["id", "name"]})
 
-- nation_query
+print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+```
+
+- Keyword arguments provided to a query function will be passed in as query variables.
+
+```py
+nations = pnwkit.nation_query({"id": "$id", "first": 1}, "nation_name", {"cities": ["id", "name"]}, id=251584)
+
+print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+```
+
+- Extensions to access the daily data dumps and scrape data from the game.
+- Access to the bankWithdraw and bankDeposit mutations.
+
+```py
+# the API requires a verified bot key to use mutations
+pnwkit.set_bot_key("xxxxx")
+
+deposit = pnwkit.bank_deposit_mutation({"money": 100}, "id")
+
+print(f"Deposited ${deposit.money} as bank record #{deposit.id}")
+```
+
+You can do the following queries in pnwkit-py:
+
 - alliance_query
-- trade_prices_query
-- trade_query
-- war_query
-- treasure_query
+- bankrec_query
+- bbgame_query
+- bbplayer_query
+- bbteam_query
+- bounty_query
+- city_query
 - color_query
+- game_info_query
+- me_query
+- nation_query
+- trade_query
+- tradeprice_query
+- treasure_query
+- treaty_query
+- war_query
+- warattack_query
+- bank_deposit_mutation
+- bank_withdraw_mutation
 
-You can look at the arguments and possible data to collect here at the [docs](https://pnwkit-py.readthedocs.io/).
+You can look at the arguments and possible data to collect here at the [docs](https://pnwkit-py.readthedocs.io/) or by experimenting on the [GraphQL Playground](https://api.politicsandwar.com/graphql-playground).
