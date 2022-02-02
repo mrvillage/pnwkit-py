@@ -37,7 +37,7 @@ class KitBase(metaclass=ABCMeta):
 
     @property
     def graphql_url(self) -> str:
-        return f"http://api.politicsandwar.com/graphql?api_key={self.api_key}"
+        return f"https://api.politicsandwar.com/graphql?api_key={self.api_key}"
 
     def set_key(self, api_key: str) -> None:
         """Sets the API key for this instance.
