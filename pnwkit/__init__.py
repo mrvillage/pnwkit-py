@@ -1,7 +1,7 @@
 from .core import Kit, async_pnwkit, pnwkit  # type: ignore
 from .keys import set_bot_key, set_key  # type: ignore
 
-__version__ = "2.0.1"
+__version__ = "2.0.2"
 
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query
