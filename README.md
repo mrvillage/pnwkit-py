@@ -35,10 +35,10 @@ Install the library using PIP.
 
 ```sh
 # Linux/MacOS
-python3 -m pip install -U pnwkit
+python3 -m pip install -U pnwkit-py
 
 # Windows
-py -3 -m pip install -U pnwkit
+py -3 -m pip install -U pnwkit-py
 ```
 
 ## Usage
