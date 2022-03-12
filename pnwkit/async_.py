@@ -263,7 +263,7 @@ class AsyncKit(KitBase):
         )
 
     @overload
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -273,7 +273,7 @@ class AsyncKit(KitBase):
         ...
 
     @overload
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -282,7 +282,7 @@ class AsyncKit(KitBase):
     ) -> Paginator[BBGame]:
         ...
 
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -290,7 +290,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[BBGame, ...]], Paginator[BBGame]]:
         return self.query(
-            "bbgames",
+            "baseball_games",
             params,
             *args,
             paginator=paginator,
@@ -300,7 +300,7 @@ class AsyncKit(KitBase):
         )
 
     @overload
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -310,7 +310,7 @@ class AsyncKit(KitBase):
         ...
 
     @overload
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -319,7 +319,7 @@ class AsyncKit(KitBase):
     ) -> Paginator[BBPlayer]:
         ...
 
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -327,7 +327,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[BBPlayer, ...]], Paginator[BBPlayer]]:
         return self.query(
-            "bbplayers",
+            "baseball_players",
             params,
             *args,
             paginator=paginator,
@@ -337,7 +337,7 @@ class AsyncKit(KitBase):
         )
 
     @overload
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -347,7 +347,7 @@ class AsyncKit(KitBase):
         ...
 
     @overload
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -356,7 +356,7 @@ class AsyncKit(KitBase):
     ) -> Paginator[BBTeam]:
         ...
 
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -364,7 +364,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[BBTeam, ...]], Paginator[BBTeam]]:
         return self.query(
-            "bbteams",
+            "baseball_teams",
             params,
             *args,
             paginator=paginator,
@@ -401,7 +401,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[Bounty, ...]], Paginator[Bounty]]:
         return self.query(
-            "bountys",
+            "bounties",
             params,
             *args,
             paginator=paginator,
@@ -438,7 +438,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[City, ...]], Paginator[City]]:
         return self.query(
-            "citys",
+            "cities",
             params,
             *args,
             paginator=paginator,
@@ -636,7 +636,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Union[Coroutine[Any, Any, Tuple[Treaty, ...]], Paginator[Treaty]]:
         return self.query(
-            "treatys",
+            "treaties",
             params,
             *args,
             paginator=paginator,
@@ -734,7 +734,6 @@ class AsyncKit(KitBase):
             headers={"X-Bot-Key": self.bot_key},
             **variables,
         )
-
 
     def bank_withdraw_mutation(
         self,

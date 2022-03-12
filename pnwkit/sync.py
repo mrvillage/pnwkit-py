@@ -262,7 +262,7 @@ class SyncKit(KitBase):
         )
 
     @overload
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -272,7 +272,7 @@ class SyncKit(KitBase):
         ...
 
     @overload
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -281,7 +281,7 @@ class SyncKit(KitBase):
     ) -> Paginator[BBGame]:
         ...
 
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -289,7 +289,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[BBGame, ...], Paginator[BBGame]]:
         return self.query(
-            "bbgames",
+            "baseball_games",
             params,
             *args,
             paginator=paginator,
@@ -299,7 +299,7 @@ class SyncKit(KitBase):
         )
 
     @overload
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -309,7 +309,7 @@ class SyncKit(KitBase):
         ...
 
     @overload
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -318,7 +318,7 @@ class SyncKit(KitBase):
     ) -> Paginator[BBPlayer]:
         ...
 
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -326,7 +326,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[BBPlayer, ...], Paginator[BBPlayer]]:
         return self.query(
-            "bbplayers",
+            "baseball_players",
             params,
             *args,
             paginator=paginator,
@@ -336,7 +336,7 @@ class SyncKit(KitBase):
         )
 
     @overload
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -346,7 +346,7 @@ class SyncKit(KitBase):
         ...
 
     @overload
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -355,7 +355,7 @@ class SyncKit(KitBase):
     ) -> Paginator[BBTeam]:
         ...
 
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -363,7 +363,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[BBTeam, ...], Paginator[BBTeam]]:
         return self.query(
-            "bbteams",
+            "baseball_teams",
             params,
             *args,
             paginator=paginator,
@@ -400,7 +400,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[Bounty, ...], Paginator[Bounty]]:
         return self.query(
-            "bountys",
+            "bounties",
             params,
             *args,
             paginator=paginator,
@@ -437,7 +437,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[City, ...], Paginator[City]]:
         return self.query(
-            "citys",
+            "cities",
             params,
             *args,
             paginator=paginator,
@@ -635,7 +635,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Union[Tuple[Treaty, ...], Paginator[Treaty]]:
         return self.query(
-            "treatys",
+            "treaties",
             params,
             *args,
             paginator=paginator,
@@ -733,7 +733,6 @@ class SyncKit(KitBase):
             headers={"X-Bot-Key": self.bot_key},
             **variables,
         )
-
 
     def bank_withdraw_mutation(
         self,

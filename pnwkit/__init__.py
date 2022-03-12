@@ -6,9 +6,9 @@ __version__ = "2.0.2"
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query
 bankrec_query = pnwkit.bankrec_query
-bbgame_query = pnwkit.bbgame_query
-bbplayer_query = pnwkit.bbplayer_query
-bbteam_query = pnwkit.bbteam_query
+baseball_game_query = pnwkit.baseball_game_query
+baseball_player_query = pnwkit.baseball_player_query
+baseball_team_query = pnwkit.baseball_team_query
 bounty_query = pnwkit.bounty_query
 city_query = pnwkit.city_query
 color_query = pnwkit.color_query
@@ -26,9 +26,9 @@ bank_withdraw_mutation = pnwkit.bank_withdraw_mutation
 
 async_alliance_query = async_pnwkit.alliance_query
 async_bankrec_query = async_pnwkit.bankrec_query
-async_bbgame_query = async_pnwkit.bbgame_query
-async_bbplayer_query = async_pnwkit.bbplayer_query
-async_bbteam_query = async_pnwkit.bbteam_query
+async_baseball_game_query = async_pnwkit.baseball_game_query
+async_baseball_player_query = async_pnwkit.baseball_player_query
+async_baseball_team_query = async_pnwkit.baseball_team_query
 async_bounty_query = async_pnwkit.bounty_query
 async_city_query = async_pnwkit.city_query
 async_color_query = async_pnwkit.color_query

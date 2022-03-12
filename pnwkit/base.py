@@ -274,7 +274,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -285,7 +285,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -295,7 +295,7 @@ class KitBase(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def bbgame_query(
+    def baseball_game_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -306,7 +306,7 @@ class KitBase(metaclass=ABCMeta):
         Tuple[BBGame, ...],
         Paginator[BBGame],
     ]:
-        """Makes a query to the bbgames endpoint.
+        """Makes a query to the baseball_games endpoint.
 
         Parameters
         ----------
@@ -328,7 +328,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -339,7 +339,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -349,7 +349,7 @@ class KitBase(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def bbplayer_query(
+    def baseball_player_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -360,7 +360,7 @@ class KitBase(metaclass=ABCMeta):
         Tuple[BBPlayer, ...],
         Paginator[BBPlayer],
     ]:
-        """Makes a query to the bbplayers endpoint.
+        """Makes a query to the baseball_players endpoint.
 
         Parameters
         ----------
@@ -382,7 +382,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -393,7 +393,7 @@ class KitBase(metaclass=ABCMeta):
 
     @overload
     @abstractmethod
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -403,7 +403,7 @@ class KitBase(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def bbteam_query(
+    def baseball_team_query(
         self,
         params: MutableMapping[str, Any],
         *args: Union[str, Mapping[str, Any]],
@@ -414,7 +414,7 @@ class KitBase(metaclass=ABCMeta):
         Tuple[BBTeam, ...],
         Paginator[BBTeam],
     ]:
-        """Makes a query to the bbteams endpoint.
+        """Makes a query to the baseball_teams endpoint.
 
         Parameters
         ----------
@@ -468,7 +468,7 @@ class KitBase(metaclass=ABCMeta):
         Tuple[Bounty, ...],
         Paginator[Bounty],
     ]:
-        """Makes a query to the bountys endpoint.
+        """Makes a query to the bounties endpoint.
 
         Parameters
         ----------
@@ -484,7 +484,7 @@ class KitBase(metaclass=ABCMeta):
         Returns
         -------
         Union[Tuple[Bounty, ...], Paginator[Bounty]]
-            A tuple of Bountys representing the data retrieved. If ``paginator`` is True then will return an Paginator.
+            A tuple of Bounties representing the data retrieved. If ``paginator`` is True then will return an Paginator.
         """
         ...
 
@@ -522,7 +522,7 @@ class KitBase(metaclass=ABCMeta):
         Tuple[City, ...],
         Paginator[City],
     ]:
-        """Makes a query to the citys endpoint.
+        """Makes a query to the cities endpoint.
 
         Parameters
         ----------
@@ -538,7 +538,7 @@ class KitBase(metaclass=ABCMeta):
         Returns
         -------
         Union[Tuple[City, ...], Paginator[City]]
-            A tuple of Citys representing the data retrieved. If ``paginator`` is True then will return an Paginator.
+            A tuple of Cities representing the data retrieved. If ``paginator`` is True then will return an Paginator.
         """
         ...
 
@@ -879,7 +879,7 @@ class KitBase(metaclass=ABCMeta):
         *args: Union[str, Mapping[str, Any]],
         paginator: bool = False,
         **variables: Any,
-    ) -> Union[Coroutine[Any, Any, Tuple[War, ...]], Tuple[War, ...], Paginator[War],]:
+    ) -> Union[Coroutine[Any, Any, Tuple[War, ...]], Tuple[War, ...], Paginator[War]]:
         """Makes a query to the wars endpoint.
 
         Parameters
