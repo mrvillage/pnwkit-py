@@ -59,9 +59,13 @@ If you want to paginate your query for more results, just enable pagination afte
 ```py
 # .batch is async only, will perform 2 queries
 # when it runs out of results instead of one at a time
-nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True).batch(10)
+nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True)
+# async only
+async_nations = pnwkit.async_nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True).batch(2)
 
 for nation in nations:
+    print(f"Nation name: {nation.nation_name}")
+async for nation in nations:
     print(f"Nation name: {nation.nation_name}")
 print(f"Current page: {nations.paginator_info.currentPage}")
 ```
