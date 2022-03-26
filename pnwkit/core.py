@@ -6,7 +6,7 @@ from .async_ import AsyncKit
 from .sync import SyncKit
 
 if TYPE_CHECKING:
-    from typing import Any, Optional, Union
+    from typing import Any, Callable, Optional, Union
 
 
 class Kit:
@@ -26,7 +26,9 @@ class Kit:
         api_key: Optional[str] = ...,
         *,
         async_: Literal[False] = False,
-        **kwargs: Any
+        parse_int: Optional[Callable[[str], Any]] = None,
+        parse_float: Optional[Callable[[str], Any]] = None,
+        **kwargs: Any,
     ) -> SyncKit:
         ...
 
@@ -36,18 +38,30 @@ class Kit:
         api_key: Optional[str] = ...,
         *,
         async_: Literal[True] = True,
-        **kwargs: Any
+        parse_int: Optional[Callable[[str], Any]] = None,
+        parse_float: Optional[Callable[[str], Any]] = None,
+        **kwargs: Any,
     ) -> AsyncKit:
         ...
 
     def __new__(
-        cls, api_key: Optional[str] = None, *, async_: bool = False, **kwargs: Any
+        cls,
+        api_key: Optional[str] = None,
+        *,
+        async_: bool = False,
+        parse_int: Optional[Callable[[str], Any]] = None,
+        parse_float: Optional[Callable[[str], Any]] = None,
+        **kwargs: Any,
     ) -> Union[AsyncKit, SyncKit]:
         if "async" in kwargs:
             async_ = kwargs["async"]
         if async_:
-            return AsyncKit(api_key=api_key, **kwargs)
-        return SyncKit(api_key=api_key, **kwargs)
+            return AsyncKit(
+                api_key=api_key, parse_int=parse_int, parse_float=parse_float, **kwargs
+            )
+        return SyncKit(
+            api_key=api_key, parse_int=parse_int, parse_float=parse_float, **kwargs
+        )
 
 
 pnwkit: SyncKit = Kit()

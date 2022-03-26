@@ -11,6 +11,7 @@ __all__ = ("KitBase",)
 if TYPE_CHECKING:
     from typing import (
         Any,
+        Callable,
         Coroutine,
         List,
         Literal,
@@ -30,10 +31,17 @@ if TYPE_CHECKING:
 
 class KitBase(metaclass=ABCMeta):
     def __init__(
-        self, api_key: Optional[str] = None, bot_key: Optional[str] = None
+        self,
+        api_key: Optional[str] = None,
+        bot_key: Optional[str] = None,
+        *,
+        parse_int: Optional[Callable[[str], Any]] = None,
+        parse_float: Optional[Callable[[str], Any]] = None,
     ) -> None:
         self.api_key: str = api_key or API_KEY
         self.bot_key: str = bot_key or BOT_KEY
+        self.parse_int: Optional[Callable[[str], Any]] = parse_int
+        self.parse_float: Optional[Callable[[str], Any]] = parse_float
 
     @property
     def graphql_url(self) -> str:

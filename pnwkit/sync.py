@@ -68,7 +68,9 @@ class SyncKit(KitBase):
             json={"query": query, "variables": variables},
             headers=headers,
         ) as response:
-            data: Any = response.json()
+            data: Any = response.json(
+                parse_int=self.parse_int, parse_float=self.parse_float
+            )
             try:
                 if "errors" in data[0]:
                     error = (

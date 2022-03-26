@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, overload
 
 import aiohttp
@@ -69,7 +70,11 @@ class AsyncKit(KitBase):
             json={"query": query, "variables": variables},
             headers=headers,
         ) as response:
-            data: Any = await response.json()
+            data: Any = await response.json(
+                loads=lambda x: json.loads(
+                    x, parse_int=self.parse_int, parse_float=self.parse_float
+                )
+            )
             try:
                 if "errors" in data[0]:
                     error = (
