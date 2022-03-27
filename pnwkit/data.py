@@ -1244,6 +1244,8 @@ class Trade(Data):
     ----------
     id: :class:`str`
         The trade ID.
+    type: :class:`str`
+        The type of trade.
     date: :class:`str`
         The date the trade took place.
     sid: :class:`str`
@@ -1269,6 +1271,7 @@ class Trade(Data):
     """
 
     id: str
+    type: str
     date: str
     sid: str
     rid: str
@@ -1283,6 +1286,7 @@ class Trade(Data):
 
     __slots__ = (
         "id",
+        "type",
         "date",
         "sid",
         "rid",
