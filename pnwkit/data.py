@@ -113,6 +113,8 @@ class Alliance(Data):
         The alliance score.
     color: :class:`str`
         The alliance color.
+    date: :class:`str`
+        The date the alliance was created.
     nations: Tuple[:class:`Nation`, ...]
         The alliance's members.
     treaties: Tuple[:class:`Treaty`, ...]
@@ -162,6 +164,7 @@ class Alliance(Data):
     acronym: str
     score: float
     color: str
+    date: str
     nations: Tuple[Nation, ...]
     treaties: Tuple[Treaty, ...]
     acceptmem: bool
