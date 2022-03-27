@@ -193,6 +193,7 @@ class Alliance(Data):
         "acronym",
         "score",
         "color",
+        "date",
         "nations",
         "treaties",
         "acceptmem",
@@ -1203,6 +1204,12 @@ class TaxBracket(Data):
         The ID of the last modifier of the tax bracket.
     last_modifier: :class:`Nation`
         The last modifier of the tax bracket.
+    tax_rate: :class:`int`
+        The tax rate of the tax bracket.
+    resource_tax_rate: :class:`int`
+        The resource tax rate of the tax bracket.
+    bracket_name: :class:`str`
+        The name of the tax bracket.
     """
 
     id: str
@@ -1212,6 +1219,9 @@ class TaxBracket(Data):
     date_modified: str
     last_modifier_id: str
     last_modifier: Nation
+    tax_rate: int
+    resource_tax_rate: int
+    bracket_name: str
 
     __slots__ = (
         "id",
@@ -1221,6 +1231,9 @@ class TaxBracket(Data):
         "date_modified",
         "last_modifier_id",
         "last_modifier",
+        "tax_rate",
+        "resource_tax_rate",
+        "bracket_name",
     )
 
 
