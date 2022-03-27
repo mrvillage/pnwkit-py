@@ -584,8 +584,8 @@ class Bounty(Data):
         The nation the bounty is on.
     amount: :class:`int`
         The amount of the bounty reward.
-    war_type: :class:`str`
-        The type of war the bounty is for.
+    type: :class:`str`
+        The type of bounty is for.
     """
 
     id: str
@@ -593,7 +593,7 @@ class Bounty(Data):
     nation_id: str
     nation: Nation
     amount: int
-    war_type: str
+    type: str
 
     __slots__ = (
         "id",
