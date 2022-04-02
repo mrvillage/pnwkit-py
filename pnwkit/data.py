@@ -602,7 +602,7 @@ class Bounty(Data):
         "nation_id",
         "nation",
         "amount",
-        "war_type",
+        "type",
     )
 
 
