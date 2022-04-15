@@ -57,15 +57,18 @@ class KitBase(metaclass=ABCMeta):
         """
         self.api_key: str = api_key
 
-    def set_bot_key(self, bot_key: str) -> None:
+    def set_bot_key(self, bot_key: str, api_key: str) -> None:
         """Sets the bot key for this instance.
 
         Parameters
         ----------
-        api_key : str
+        bot_key : str
             A Politics and War Verified Bot Key.
+        api_key : str
+            The API Key corresponding to the Bot Key.
         """
         self.bot_key: str = bot_key
+        self.bot_key_api_key: str = api_key
 
     @classmethod
     def _format_sub_query(
