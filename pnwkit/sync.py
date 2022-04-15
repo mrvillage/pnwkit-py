@@ -732,7 +732,7 @@ class SyncKit(KitBase):
             *args,
             type=Bankrec,
             root="mutation",
-            headers={"X-Bot-Key": self.bot_key},
+            headers={"X-Bot-Key": self.bot_key, "X-Api-Key": self.bot_key_api_key},
             **variables,
         )
 
@@ -748,6 +748,6 @@ class SyncKit(KitBase):
             *args,
             type=Bankrec,
             root="mutation",
-            headers={"X-Bot-Key": self.bot_key},
+            headers={"X-Bot-Key": self.bot_key, "X-Api-Key": self.bot_key_api_key},
             **variables,
         )
