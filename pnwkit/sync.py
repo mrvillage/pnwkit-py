@@ -727,7 +727,7 @@ class SyncKit(KitBase):
         **variables: Any,
     ) -> Bankrec:
         return self.single_query(
-            "bankWithdraw",
+            "bankDeposit",
             params,
             *args,
             type=Bankrec,

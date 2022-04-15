@@ -731,7 +731,7 @@ class AsyncKit(KitBase):
         **variables: Any,
     ) -> Coroutine[Any, Any, Bankrec]:
         return self.single_query(
-            "bankWithdraw",
+            "bankDeposit",
             params,
             *args,
             type=Bankrec,
