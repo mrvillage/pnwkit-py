@@ -1,12 +1,13 @@
-from __future__ import annotations
+from __future__ import annotations  # pyright: reportImportCycles=false
 
 import json
 from typing import TYPE_CHECKING, overload
 
 import aiohttp
 
+from ..errors import GraphQLError
 from .base import KitBase
-from .data import (
+from .data import (  # AlliancePosition,
     Alliance,
     ApiKeyDetails,
     Bankrec,
@@ -26,7 +27,6 @@ from .data import (
     War,
     WarAttack,
 )
-from .errors import GraphQLError
 from .paginator import Paginator
 
 if TYPE_CHECKING:

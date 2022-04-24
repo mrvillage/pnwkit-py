@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, overload
 
 import requests
 
+from ..errors import GraphQLError
 from .base import KitBase
 from .data import (
     Alliance,
@@ -25,7 +26,6 @@ from .data import (
     War,
     WarAttack,
 )
-from .errors import GraphQLError
 from .paginator import Paginator
 
 if TYPE_CHECKING:

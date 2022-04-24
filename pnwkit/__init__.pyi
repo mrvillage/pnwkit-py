@@ -1,9 +1,34 @@
+"""
+The MIT License (MIT)
+
+Copyright (c) 2021-present Village
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, overload
 
-from .core import Kit, async_pnwkit, pnwkit  # type: ignore
-from .keys import set_bot_key, set_key
+from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
+from .legacy.keys import set_bot_key, set_key
+from .new import *
 
 __all__ = (
     "set_key",
@@ -63,9 +88,9 @@ if TYPE_CHECKING:
         Union,
     )
 
-    from .data import *
-    from .data import Data
-    from .paginator import *
+    from .legacy.data import *
+    from .legacy.data import Data
+    from .legacy.paginator import *
 
     D = TypeVar("D", bound=Data)
 
@@ -640,7 +665,6 @@ def async_bank_deposit_mutation(
     *args: Union[str, Mapping[str, Any]],
     **variables: Any,
 ) -> Coroutine[Any, Any, Bankrec]: ...
-
 def async_bank_withdraw_mutation(
     params: MutableMapping[str, Any],
     *args: Union[str, Mapping[str, Any]],
