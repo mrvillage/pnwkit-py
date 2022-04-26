@@ -65,21 +65,13 @@ class PaginatorInfo(Data):
     Attributes
     ----------
     count: :class:`int`
-        Count of items available on the page.
     currentPage: :class:`int`
-        The current page number.
     firstItem: :class:`int`
-        The index of the first item on the page.
     hasMorePages: :class:`bool`
-        Whether there are more pages or not.
     lastItem: :class:`int`
-        The index of the last item on the page.
     lastPage: :class:`int`
-        The page number of the last page.
     perPage: :class:`int`
-        The number of items per page.
     total: :class:`int`
-        The total number of items.
     """
 
     count: int  # noqa: N815
