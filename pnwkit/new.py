@@ -70,7 +70,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    FieldLiteral = Literal["nations"]
+    RootFieldLiteral = Literal["nations"]
+    SubscriptionFieldLiteral = Literal["allianceCreate"]
     Argument = Union[str, int, float, bool, "Variable"]
     FieldValue = Union[str, "Field"]
     Callback = Callable[["R"], Coroutine[Any, Any, Any]]
@@ -95,6 +96,33 @@ class QueryKit:
         aiohttp_session: Optional[aiohttp.ClientSession] = None,
         requests_session: Optional[requests.Session] = None,
     ) -> None:
+        """Initialize a QueryKit
+
+        Parameters
+        ----------
+        api_key : :class:`str`
+            The API key to use for queries.
+        bot_key : Optional[:class:`str`], optional
+            The verified bot key to use for queries, by default None
+        bot_key_api_key : Optional[:class:`str`], optional
+            The API key for the account the verified bot key belongs to, by default None
+        parse_int : Optional[Callable[[:class:`str`], Any]], optional
+            A function to use when parsing ints from JSON data, by default None
+        parse_float : Optional[Callable[[:class:`str`], Any]], optional
+            A function to use when parsing floats from JSON data, by default None
+        url : Optional[:class:`str`], optional
+            The GraphQL URL to send queries to, by default ``https://api.politicsandwar.com/graphql``
+        socket_url : Optional[:class:`str`], optional
+            The URL to connect to in order to receive subscription events, by default ``wss://socket-api.politicsandwar.com/app/a22734a47847a64386c8?protocol=7``
+        subscription_auth_url : Optional[:class:`str`], optional
+            The URL to authorize subscribing to a channel, by default ``https://api.politicsandwar.com/graphql/subscriptions/auth``
+        socket : Optional[:class:`Socket`], optional
+            The Socket to use for subscription connections, by default None
+        aiohttp_session : Optional[:class:`aiohttp.ClientSession`], optional
+            The aiohttp session to use for queries, by default None
+        requests_session : Optional[:class:`requests.Session`], optional
+            The requests session to use for queries, by default None
+        """
         self.api_key: str = api_key
         self.bot_key: Optional[str] = bot_key
         self.bot_key_api_key: Optional[str] = bot_key_api_key
@@ -119,37 +147,96 @@ class QueryKit:
 
     def query(
         self,
-        field: FieldLiteral,
+        field: RootFieldLiteral,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
         **variables: MutableMapping[str, Any],
     ) -> Query[Result]:
+        """Create a new query with this QueryKit.
+
+        Parameters
+        ----------
+        field : RootFieldLiteral
+            The name of the root field to query
+        arguments : Dict[str, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the field to filter results
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables: MutableMapping[str, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Query[Result]
+            A Query that can be fetched or have additional queries called on it.
+        """
         return Query[Result](self, variable_values=variables).query(
             field, arguments, *fields
         )
 
     def query_as(
         self,
-        field: FieldLiteral,
+        field: RootFieldLiteral,
         alias: str,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
         **variables: MutableMapping[str, Any],
     ) -> Query[Result]:
+        """Create a new query with this QueryKit.
+
+        Parameters
+        ----------
+        field : RootFieldLiteral
+            The name of the root field to query
+        alias: :class:`str`
+            The name to have to results of this query returned by on the Result
+        arguments : Dict[:class:`str`, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the field to filter results
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables: MutableMapping[:class:`str`, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Query[Result]
+            A Query that can be fetched or have additional queries called on it.
+        """
         return Query[Result](
             self,
             variable_values=variables,
         ).query_as(field, alias, arguments, *fields)
 
-    def subscribe(
+    def subscription(
         self,
-        field: FieldLiteral,
+        field: SubscriptionFieldLiteral,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
         **variables: MutableMapping[str, Any],
     ) -> Subscription[Any]:
+
+        """Create a new subscription with this QueryKit.
+
+        Parameters
+        ----------
+        field : RootFieldLiteral
+            The subscription to query
+        arguments : Dict[:class:`str`, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the subscription to filter the events
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables : MutableMapping[:class:`str`, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Subscription[Any]
+            A Subscription that can be subscribed too.
+        """
+        # SubscriptionFieldLiteral is not compatible with RootFieldLiteral
+        # for simplicity just using type: ignore
         return Subscription[Any](self, variable_values=variables).query(
-            field, arguments, *fields
+            field, arguments, *fields  # type: ignore
         )
 
     async def subscribe_internal(self, subscription: Subscription[Any]) -> None:
@@ -186,6 +273,19 @@ class Query(Generic[R]):
         variable_values: Optional[Dict[str, Any]] = None,
         hash: Optional[str] = None,
     ) -> None:
+        """Represents a GraphQL Query
+
+        Parameters
+        ----------
+        kit : QueryKit
+            The QueryKit this query will use to run
+        variables : Optional[Dict[str, Variable]], optional
+            The variables used in the body of the query, by default None
+        variable_values : Optional[Dict[str, Any]], optional
+            The values for each variable, by default None
+        hash : Optional[str], optional
+            The query hash for use with the API's Automatic Persisted Queries feature, by default None
+        """
         self.kit: QueryKit = kit
         self.fields: MutableSequence[Field] = list(fields)
         self.variables: Dict[str, Variable] = variables or {}
@@ -195,21 +295,57 @@ class Query(Generic[R]):
 
     def query(
         self,
-        field: FieldLiteral,
+        field: RootFieldLiteral,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
     ) -> Self:
+        """Query another field with this Query
+
+        field : RootFieldLiteral
+            The name of the root field to query
+        arguments : Dict[str, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the field to filter results
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables: MutableMapping[str, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Self
+            Returns the Query for support for method chaining
+        """
         self.hash = self.resolved_hash = None
         self.fields.append(Field.add(self, field, arguments, *fields))
         return self
 
     def query_as(
         self,
-        field: FieldLiteral,
+        field: RootFieldLiteral,
         alias: str,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
     ) -> Self:
+        """Query another field with this Query
+
+        Parameters
+        ----------
+        field : RootFieldLiteral
+            The name of the root field to query
+        alias: :class:`str`
+            The name to have to results of this query returned by on the Result
+        arguments : Dict[:class:`str`, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the field to filter results
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables: MutableMapping[:class:`str`, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Self
+            Returns the Query for support for method chaining
+        """
         self.hash = self.resolved_hash = None
         self.fields.append(
             Field.add(
@@ -244,6 +380,18 @@ class Query(Generic[R]):
         raise errors.MaxTriesExceededError()
 
     def get(self, headers: Optional[Dict[str, Any]] = None) -> R:
+        """Fetch the results of the query synchronously using requests
+
+        Parameters
+        ----------
+        headers : Optional[Dict[str, Any]], optional
+            Any additional headers to pass with the query, by default None
+
+        Returns
+        -------
+        R
+            The :class:`Result` of the Query
+        """
         self.check_validity()
         try:
             return self.parse_result(self.actual_sync_request((headers)))
@@ -274,6 +422,18 @@ class Query(Generic[R]):
         raise errors.MaxTriesExceededError()
 
     async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
+        """Fetch the results of the query asynchronously using aiohttp, simply using the ``await`` statement on the Query will also call this method
+
+        Parameters
+        ----------
+        headers : Optional[Dict[str, Any]], optional
+            Any additional headers to pass with the query, by default None
+
+        Returns
+        -------
+        R
+            The :class:`Result` of the Query
+        """
         self.check_validity()
         try:
             return self.parse_result(await self.actual_async_request(headers))
@@ -329,12 +489,25 @@ class Query(Generic[R]):
         return Result.from_data(data["data"])  # type: ignore
 
     def check_validity(self) -> None:
-        if any(i not in self.variable_values for i in self.variables):
+        if any(
+            key not in self.variable_values and value.default is None
+            for key, value in self.variables.items()
+        ):
             raise errors.MissingVariablesError(
                 f"Missing variable values: {', '.join(i for i in self.variables if i not in self.variable_values)}"
             )
 
     def set_variables(self, **variables: Any) -> Self:
+        """Set variable values on the query
+
+        variables : Any
+            The values to set for individual variables
+
+        Returns
+        -------
+        Self
+            The Query for support with method chaining
+        """
         return Query[R](
             self.kit,
             *self.fields,
@@ -355,6 +528,13 @@ class Query(Generic[R]):
         return f"{{{' '.join(field.resolve() for field in self.fields)}}}"
 
     def clone(self) -> Self:
+        """Clone a Query
+
+        Returns
+        -------
+        Self
+            Returns a cloned instance of the query
+        """
         return Query[R](
             self.kit,
             *self.fields,
@@ -364,11 +544,41 @@ class Query(Generic[R]):
         )
 
     def paginate(self, field: str) -> Paginator[Any]:
+        """Get a :class:`Paginator` for paginating through a specific field
+
+        Parameters
+        ----------
+        field : str
+            The field to paginate
+
+        Returns
+        -------
+        Paginator[Any]
+            The Paginator with it's type corresponding to the type of the field provided
+        """
         return Paginator.from_query(self, field)
 
 
 class Result:
-    nations: Tuple["data_classes.Nation"]
+    me: data_classes.ApiKeyDetails
+    treasures: List[data_classes.Treasure]
+    colors: List[data_classes.Color]
+    game_info: List[data_classes.GameInfo]
+    nations: List[data_classes.Nation]
+    alliances: List[data_classes.Alliance]
+    tradeprices: List[data_classes.Tradeprice]
+    trades: List[data_classes.Trade]
+    wars: List[data_classes.War]
+    bounties: List[data_classes.Bounty]
+    warattacks: List[data_classes.WarAttack]
+    treaties: List[data_classes.Treaty]
+    cities: List[data_classes.City]
+    bankrecs: List[data_classes.Bankrec]
+    baseball_games: List[data_classes.BBGame]
+    baseball_teams: List[data_classes.BBTeam]
+    baseball_players: List[data_classes.BBPlayer]
+    treasure_trades: List[data_classes.TreasureTrade]
+    embargoes: List[data_classes.Embargo]
 
     @classmethod
     def from_data(cls, data: Dict[str, Any]) -> Result:
@@ -389,12 +599,23 @@ class Field:
 
     def __init__(
         self,
-        name: FieldLiteral,
+        name: str,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
         alias: Optional[str] = None,
     ) -> None:
-        self.name: FieldLiteral = name
+        """A Field to query
+
+        Parameters
+        ----------
+        name : str
+            The name of the field to query
+        arguments : Dict[str, Union[Argument, Sequence[Argument]]]
+            The arguments to pass to the field
+        alias : Optional[str], optional
+            The alias to query the field by, by default None
+        """
+        self.name: str = name
         self.arguments: Dict[str, Union[Argument, Sequence[Argument]]] = arguments
         self.fields: Sequence[FieldValue] = fields
         self.alias: Optional[str] = alias
@@ -403,7 +624,7 @@ class Field:
     def add(
         cls,
         query: Query[Any],
-        name: FieldLiteral,
+        name: RootFieldLiteral,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
         alias: Optional[str] = None,
@@ -418,6 +639,13 @@ class Field:
         return cls(name, arguments, *fields, alias=alias)
 
     def clone(self) -> Self:
+        """Create a clone of the Field
+
+        Returns
+        -------
+        Self
+            The cloned Field
+        """
         return Field(
             self.name,
             self.arguments.copy(),
@@ -449,6 +677,8 @@ class Field:
 
 
 class Paginator(Generic[P]):
+    """Represents a Paginator for use in fetching paginated values, designed for use in a ``for``/``async for`` loop"""
+
     def __init__(self, kit: QueryKit, query: Query[Result]) -> None:
         self.kit: QueryKit = kit
         self.query: Query[Result] = query
@@ -523,6 +753,18 @@ class Paginator(Generic[P]):
             raise StopAsyncIteration from e
 
     def batch(self, size: int, /) -> Self:
+        """Batch the queries used to fill the paginator, will run multiple queries simultaneously corresponding to the size provided, only works when using asynchronous iteration
+
+        Parameters
+        ----------
+        size : int
+            The size of each batch of requests
+
+        Returns
+        -------
+        Self
+            Returns the Paginator for use in method chaining
+        """
         self.batch_size = size
         return self
 
@@ -538,10 +780,30 @@ class Paginator(Generic[P]):
 
 
 class Mutation(Query[R]):
+    """Supports all methods of :class:`Query` where applicable"""
+
     ROOT: ClassVar[str] = "mutation"
+
+    def get(self, headers: Optional[Dict[str, Any]] = None) -> R:
+        mutation_headers = {
+            "X-Api-Key": self.kit.bot_key_api_key,
+            "X-Bot-Key": self.kit.bot_key,
+        }
+        return super().get(headers | mutation_headers if headers else mutation_headers)
+
+    async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
+        mutation_headers = {
+            "X-Api-Key": self.kit.bot_key_api_key,
+            "X-Bot-Key": self.kit.bot_key,
+        }
+        return await super().get_async(
+            headers | mutation_headers if headers else mutation_headers
+        )
 
 
 class Subscription(Query[R]):
+    """Supports all methods of :class:`Query` where applicable"""
+
     ROOT: ClassVar[str] = "subscription"
 
     def __init__(
@@ -559,13 +821,19 @@ class Subscription(Query[R]):
         self.queue: asyncio.Queue[R] = asyncio.Queue()
         self.succeeded: asyncio.Event = asyncio.Event()
 
-    async def subscribe(self, *callbacks: Callback[R]) -> Self:
+    async def subscribe(self, *callbacks: Callback[R]) -> None:
+        """Subscribe to the subscription, events can be received through asynchronous iteration (an ``async for`` loop) or through the provided callbacks
+
+        Parameters
+        ----------
+        callbacks : Callback[R]
+            A list of async functions to call when an event is received
+        """
         if callbacks:
             self.callbacks[:] = callbacks
         self.name = self.fields[0].name
         self.channel = await self.request_channel()
         await self.kit.subscribe_internal(self)
-        return self
 
     async def request_channel(self) -> str:
         response = self.kit.loads(await self.actual_async_request(None))
@@ -573,6 +841,7 @@ class Subscription(Query[R]):
         return response["extensions"]["lighthouse_subscriptions"]["channel"]
 
     async def unsubscribe(self) -> None:
+        """Unsubscribe from the subscription"""
         if self.channel is not None:
             await self.kit.unsubscribe_internal(self)
             self.channel = None
@@ -600,6 +869,17 @@ class Variable:
     def __init__(
         self, name: str, type: VariableType, default: Optional[Any] = None
     ) -> None:
+        """Represents a Variable, primarily for use in field arguments
+
+        Parameters
+        ----------
+        name : str
+            The name of the variable
+        type : VariableType
+            The type of the variable
+        default : Optional[Any], optional
+            The default value for the variable if no value is provided in the query
+        """
         self.name: str = name
         self.type: VariableType = type
         self.default: Optional[Any] = default

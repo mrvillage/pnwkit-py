@@ -42,11 +42,14 @@ branch = "dev" if version.endswith("a") else "stable"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    # "sphinx_autodoc_typehints",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "attributetable",
 ]
+# autodoc_typehints = "description"
+# autoclass_content = "both"
 
 # autodoc_member_order = "bysource"
 # autodoc_typehints = "none"
