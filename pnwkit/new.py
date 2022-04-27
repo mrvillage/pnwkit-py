@@ -134,6 +134,7 @@ if TYPE_CHECKING:
         "warAttackCreate",
         "warAttackDelete",
     ]
+    MutationFieldLiteral = Literal["bankDeposit", "bankWithdraw"]
     Argument = Union[str, int, float, bool, "Variable"]
     FieldValue = Union[str, "Field"]
     Callback = Callable[["R"], Coroutine[Any, Any, Any]]
@@ -299,6 +300,38 @@ class QueryKit:
         # SubscriptionFieldLiteral is not compatible with RootFieldLiteral
         # for simplicity just using type: ignore
         return Subscription[Any](self, variable_values=variables).query(
+            field, arguments, *fields  # type: ignore
+        )
+
+    def mutation(
+        self,
+        field: MutationFieldLiteral,
+        arguments: Dict[str, Union[Argument, Sequence[Argument]]],
+        *fields: FieldValue,
+        **variables: MutableMapping[str, Any],
+    ) -> Mutation[Result]:
+
+        """Create a new mutation with this QueryKit.
+
+        Parameters
+        ----------
+        field : RootFieldLiteral
+            The subscription to query
+        arguments : Dict[:class:`str`, Union[Argument, Sequence[Argument]]]
+            The parameters to provide to the subscription to filter the events
+        fields: Union[str, :class:`Field`]
+            The fields to fetch in the query
+        variables : MutableMapping[:class:`str`, Any]
+            The values of any variables specified in the query
+
+        Returns
+        -------
+        Mutation[Any]
+            A Mutation that can be subscribed too.
+        """
+        # MutationFieldLiteral is not compatible with RootFieldLiteral
+        # for simplicity just using type: ignore
+        return Mutation[Any](self, variable_values=variables).query(
             field, arguments, *fields  # type: ignore
         )
 
@@ -718,6 +751,8 @@ class Result:
     baseball_players: List[data_classes.BBPlayer]
     treasure_trades: List[data_classes.TreasureTrade]
     embargoes: List[data_classes.Embargo]
+    bankDeposit: data_classes.Bankrec  # noqa: N815
+    bankWithdraw: data_classes.Bankrec  # noqa: N815
 
     @classmethod
     def from_data(cls, data: Dict[str, Any]) -> Result:
