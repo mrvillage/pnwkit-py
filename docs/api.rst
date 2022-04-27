@@ -4,58 +4,56 @@
 API Reference
 **************
 
-pnwkit
-~~~~~~~
-
-.. autodata:: pnwkit.pnwkit
-
-An instance of :class:`SyncKit` for synchronous interactions with the API.
-
-.. note::
-
-    All methods of this instance can be accessed from the root pnwkit module. I.e. ``pnwkit.alliance_query`` as opposed to ``pnwkit.pnwkit.alliance_query``.
-
-async_pnwit
-~~~~~~~~~~~~
-
-.. autodata:: pnwkit.async_pnwkit
-
-An instance of :class:`AsyncKit` for asynchronous interactions with the API.
-
-.. note::
-
-    All methods of this instance can be accessed from the root pnwkit module with prefix ``async_``. I.e. ``pnwkit.async_alliance_query`` as opposed to ``pnwkit.async_pnwkit.alliance_query``.
-
-set_key
-~~~~~~~~
-
-.. autofunction:: pnwkit.set_key
-
-Kit
-~~~~
-
-.. autoclass:: pnwkit.core.Kit
+QueryKit
+========
+.. attributetable:: pnwkit.new.QueryKit
+.. autoclass:: pnwkit.new.QueryKit
     :members:
 
-SyncKit
-~~~~~~~~
-.. attributetable:: pnwkit.sync.SyncKit
-
-.. autoclass:: pnwkit.sync.SyncKit
+Query
+=====
+.. attributetable:: pnwkit.new.Query
+.. autoclass:: pnwkit.new.Query
     :members:
 
-AsyncKit
-~~~~~~~~~
-.. attributetable:: pnwkit.async_.AsyncKit
+Result
+======
+.. attributetable:: pnwkit.new.Result
+.. autoclass:: pnwkit.new.Result
+    :members:
 
-.. autoclass:: pnwkit.async_.AsyncKit
+Field
+=====
+.. attributetable:: pnwkit.new.Field
+.. autoclass:: pnwkit.new.Field
     :members:
 
 Paginator
-~~~~~~~~~
-.. autoclass:: pnwkit.paginator.Paginator
+=========
+.. attributetable:: pnwkit.new.Paginator
+.. autoclass:: pnwkit.new.Paginator
     :members:
 
-.. note::
+Mutation
+========
+.. attributetable:: pnwkit.new.Mutation
+.. autoclass:: pnwkit.new.Mutation
+    :members:
 
-    This class is intended to be used as an iterator with a `for` or `async for` loop.
+Subscription
+============
+.. attributetable:: pnwkit.new.Subscription
+.. autoclass:: pnwkit.new.Subscription
+    :members:
+
+VariableType
+============
+.. attributetable:: pnwkit.new.VariableType
+.. autoclass:: pnwkit.new.VariableType
+    :members:
+
+Variable
+========
+.. attributetable:: pnwkit.new.Variable
+.. autoclass:: pnwkit.new.Variable
+    :members:
