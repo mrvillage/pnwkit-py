@@ -85,6 +85,9 @@ class Data:
 
 class ApiKeyDetails(Data):
     nation: Nation
+    key: str
+    requests: int
+    max_requests: int
 
 
 class AlliancePositionEnum(enum.Enum):
@@ -859,6 +862,49 @@ class Trade(Data):
     accepted: bool
     date_accepted: datetime.datetime
     original_trade_id: int
+
+
+class TreasureTrade(Data):
+    _CONVERTERS = {
+        "id": int,
+        "offer_date": datetime.datetime.fromisoformat,
+        "accept_date": datetime.datetime.fromisoformat,
+        "sender_id": int,
+        "receiver_id": int,
+    }
+
+    id: int
+    offer_date: datetime.datetime
+    accept_date: datetime.datetime
+    sender_id: int
+    sender: Nation
+    receiver_id: int
+    receiver: Nation
+    buying: bool
+    selling: bool
+    treasure: str
+    money: int
+    accepted: bool
+    rejected: bool
+    seller_cancelled: bool
+
+
+class Embargo(Data):
+    _CONVERTERS = {
+        "id": int,
+        "date": datetime.datetime.fromisoformat,
+        "sender_id": int,
+        "receiver_id": int,
+    }
+
+    id: int
+    date: datetime.datetime
+    sender_id: int
+    sender: Nation
+    receiver_id: int
+    receiver: Nation
+    reason: str
+    type: int
 
 
 class PaginatorInfo(Data):
