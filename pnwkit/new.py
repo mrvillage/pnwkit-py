@@ -28,6 +28,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import enum
+import hashlib
 import json
 import time
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
@@ -113,10 +114,6 @@ class QueryKit:
         self.aiohttp_session: Optional[aiohttp.ClientSession] = aiohttp_session
         self.requests_session: Optional[requests.Session] = requests_session
 
-    @property
-    def formatted_url(self) -> str:
-        return f"{self.url}?api_key={self.api_key}"
-
     def loads(self, text: str) -> Dict[str, Any]:
         return json.loads(text, parse_int=self.parse_int, parse_float=self.parse_float)
 
@@ -164,13 +161,18 @@ class QueryKit:
         if self.socket is not None:
             await self.socket.unsubscribe(subscription)
 
-    def check_response_for_errors(self, data: Dict[str, Any]) -> None:
+    def get_response_errors(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
         if isinstance(data, list):
-            # doesn't properly pick up that it's a list
             data = data[0]  # type: ignore
-        if "errors" in data:
-            error = "\n".join(i["message"] for i in data["errors"])
-            raise errors.GraphQLError(error)
+        return data.get("errors", [])
+
+    def check_response_for_errors(self, data: Dict[str, Any]) -> None:
+        response_errors = self.get_response_errors(data)
+        self.raise_response_errors(response_errors)
+
+    def raise_response_errors(self, response_errors: List[Dict[str, Any]]) -> None:
+        if response_errors:
+            raise errors.GraphQLError("\n".join(i["message"] for i in response_errors))
 
 
 class Query(Generic[R]):
@@ -180,13 +182,16 @@ class Query(Generic[R]):
         self,
         kit: QueryKit,
         *fields: Field,
-        variable_values: Dict[str, Any],
+        variables: Optional[Dict[str, Variable]] = None,
+        variable_values: Optional[Dict[str, Any]] = None,
+        hash: Optional[str] = None,
     ) -> None:
         self.kit: QueryKit = kit
         self.fields: MutableSequence[Field] = list(fields)
-        # variables will be assembled from Fields
-        self.variables: Dict[str, Variable] = {}
-        self.variable_values: Dict[str, Any] = variable_values
+        self.variables: Dict[str, Variable] = variables or {}
+        self.variable_values: Dict[str, Any] = variable_values or {}
+        self.hash: Optional[str] = hash
+        self.resolved_hash: Optional[str] = None
 
     def query(
         self,
@@ -194,6 +199,7 @@ class Query(Generic[R]):
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
     ) -> Self:
+        self.hash = self.resolved_hash = None
         self.fields.append(Field.add(self, field, arguments, *fields))
         return self
 
@@ -204,6 +210,7 @@ class Query(Generic[R]):
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
     ) -> Self:
+        self.hash = self.resolved_hash = None
         self.fields.append(
             Field.add(
                 self,
@@ -221,10 +228,9 @@ class Query(Generic[R]):
             time.sleep(wait)
         if self.kit.requests_session is None:
             self.kit.requests_session = requests.Session()
+        request_params = self.request_params(headers)
         for _ in range(5):
-            with self.kit.requests_session.request(
-                **self.request_params(headers)
-            ) as response:
+            with self.kit.requests_session.request(**request_params) as response:
                 if not self.kit.rate_limit.initialized:
                     self.kit.rate_limit.initialize(response.headers)
                 if response.status_code == 429:
@@ -239,7 +245,10 @@ class Query(Generic[R]):
 
     def get(self, headers: Optional[Dict[str, Any]] = None) -> R:
         self.check_validity()
-        return self.parse_result(self.actual_sync_request((headers)))
+        try:
+            return self.parse_result(self.actual_sync_request((headers)))
+        except errors.PersistedQueryNotFound:
+            return self.parse_result(self.actual_sync_request((headers)))
 
     async def actual_async_request(self, headers: Optional[Dict[str, Any]]) -> str:
         wait = self.kit.rate_limit.hit()
@@ -247,9 +256,10 @@ class Query(Generic[R]):
             await asyncio.sleep(wait)
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
+        request_params = self.request_params(headers)
         for _ in range(5):
             async with self.kit.aiohttp_session.request(
-                **self.request_params(headers)
+                **request_params,
             ) as response:
                 if not self.kit.rate_limit.initialized:
                     self.kit.rate_limit.initialize(response.headers)
@@ -265,7 +275,10 @@ class Query(Generic[R]):
 
     async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
         self.check_validity()
-        return self.parse_result(await self.actual_async_request(headers))
+        try:
+            return self.parse_result(await self.actual_async_request(headers))
+        except errors.PersistedQueryNotFound:
+            return self.parse_result(await self.actual_async_request(headers))
 
     def __await__(
         self, headers: Optional[Dict[str, Any]] = None
@@ -273,17 +286,46 @@ class Query(Generic[R]):
         return self.get_async(headers).__await__()
 
     def request_params(self, headers: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        self.resolved_hash = (
+            self.resolved_hash
+            or hashlib.sha256(self.resolve().encode("utf-8")).hexdigest()
+        )
         return {
-            "method": "POST",
-            "url": self.kit.formatted_url,
-            "json": {"query": self.resolve(), "variables": self.variable_values},
+            "method": "POST" if self.hash is None else "GET",
+            "url": self.kit.url,
+            "json": {"query": self.resolve(), "variables": self.variable_values}
+            if self.hash is None
+            else None,
             "headers": headers,
+            "params": {
+                "api_key": self.kit.api_key,
+                "extensions": json.dumps(
+                    {
+                        "persistedQuery": {
+                            "version": 1,
+                            "sha256Hash": self.hash or self.resolved_hash,
+                        }
+                    },
+                    separators=(",", ":"),
+                ),
+            },
         }
 
     def parse_result(self, text: str) -> R:
         data = self.kit.loads(text)
-        self.kit.check_response_for_errors(data)
+        response_errors = self.kit.get_response_errors(data)
+        try:
+            self.kit.raise_response_errors(response_errors)
+        except errors.GraphQLError as e:
+            if any(
+                i["extensions"]["code"] == "PERSISTED_QUERY_NOT_FOUND"
+                for i in response_errors
+            ):
+                self.hash = None
+                raise errors.PersistedQueryNotFound() from e
+            raise e
         # doesn't like the R
+        self.hash = self.resolved_hash
         return Result.from_data(data["data"])  # type: ignore
 
     def check_validity(self) -> None:
@@ -293,11 +335,13 @@ class Query(Generic[R]):
             )
 
     def set_variables(self, **variables: Any) -> Self:
-        query = Query[R](
-            self.kit, *self.fields, variable_values=self.variable_values | variables
+        return Query[R](
+            self.kit,
+            *self.fields,
+            variables=self.variables.copy(),
+            variable_values=self.variable_values | variables,
+            hash=self.hash,
         )
-        query.variables = self.variables.copy()
-        return query
 
     def resolve(self) -> str:
         resolved_variables = self.resolve_variables() if self.variables else ""
@@ -311,11 +355,13 @@ class Query(Generic[R]):
         return f"{{{' '.join(field.resolve() for field in self.fields)}}}"
 
     def clone(self) -> Self:
-        query = Query[R](
-            self.kit, *self.fields, variable_values=self.variable_values.copy()
+        return Query[R](
+            self.kit,
+            *self.fields,
+            variables=self.variables.copy(),
+            variable_values=self.variable_values.copy(),
+            hash=self.hash,
         )
-        query.variables = self.variables.copy()
-        return query
 
     def paginate(self, field: str) -> Paginator[Any]:
         return Paginator.from_query(self, field)
