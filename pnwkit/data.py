@@ -904,7 +904,6 @@ class Embargo(Data):
     receiver_id: int
     receiver: Nation
     reason: str
-    type: int
 
 
 class PaginatorInfo(Data):
