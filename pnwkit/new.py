@@ -31,7 +31,7 @@ import enum
 import hashlib
 import json
 import time
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
 
 import aiohttp
 import requests
@@ -70,14 +70,77 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    RootFieldLiteral = Literal["nations"]
-    SubscriptionFieldLiteral = Literal["allianceCreate"]
+    RootFieldLiteral = Literal[
+        "me",
+        "treasures",
+        "colors",
+        "game_info",
+        "nations",
+        "alliances",
+        "tradeprices",
+        "trades",
+        "wars",
+        "bounties",
+        "warattacks",
+        "treaties",
+        "cities",
+        "bankrecs",
+        "baseball_games",
+        "baseball_teams",
+        "baseball_players",
+        "treasure_trades",
+        "embargoes",
+    ]
+    SubscriptionFieldLiteral = Literal[
+        "allianceCreate",
+        "allianceDelete",
+        "allianceUpdate",
+        "alliancePositionCreate",
+        "alliancePositionDelete",
+        "alliancePositionUpdate",
+        "bankrecCreate",
+        "bbgameCreate",
+        "bbgameDelete",
+        "bbgameUpdate",
+        "bbplayerCreate",
+        "bbplayerDelete",
+        "bbplayerUpdate",
+        "bbteamCreate",
+        "bbteamDelete",
+        "bbteamUpdate",
+        "bountyCreate",
+        "bountyDelete",
+        "bountyUpdate",
+        "cityCreate",
+        "cityDelete",
+        "cityUpdate",
+        "embargoCreate",
+        "embargoDelete",
+        "nationCreate",
+        "nationDelete",
+        "nationUpdate",
+        "taxBracketCreate",
+        "taxBracketDelete",
+        "taxBracketUpdate",
+        "tradeCreate",
+        "tradeDelete",
+        "tradeUpdate",
+        "treasureTradeUpdate",
+        "treatyCreate",
+        "treatyUpdate",
+        "warCreate",
+        "warDelete",
+        "warUpdate",
+        "warAttackCreate",
+        "warAttackDelete",
+    ]
     Argument = Union[str, int, float, bool, "Variable"]
     FieldValue = Union[str, "Field"]
     Callback = Callable[["R"], Coroutine[Any, Any, Any]]
 
 P = TypeVar("P", bound="data_classes.Data")
 R = TypeVar("R", bound="Result")
+T = TypeVar("T", bound="data_classes.Data")
 
 
 class QueryKit:
@@ -543,6 +606,82 @@ class Query(Generic[R]):
             hash=self.hash,
         )
 
+    @overload
+    def paginate(self, field: Literal["nations"]) -> Paginator[data_classes.Nation]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["alliances"]) -> Paginator[data_classes.Alliance]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["tradeprices"]
+    ) -> Paginator[data_classes.Tradeprice]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["trades"]) -> Paginator[data_classes.Trade]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["wars"]) -> Paginator[data_classes.War]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["bounties"]) -> Paginator[data_classes.Bounty]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["warattacks"]
+    ) -> Paginator[data_classes.WarAttack]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["treaties"]) -> Paginator[data_classes.Treaty]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["cities"]) -> Paginator[data_classes.City]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["bankrecs"]) -> Paginator[data_classes.Bankrec]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["baseball_games"]
+    ) -> Paginator[data_classes.BBGame]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["baseball_teams"]
+    ) -> Paginator[data_classes.BBTeam]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["baseball_players"]
+    ) -> Paginator[data_classes.BBPlayer]:
+        ...
+
+    @overload
+    def paginate(
+        self, field: Literal["treasure_trades"]
+    ) -> Paginator[data_classes.TreasureTrade]:
+        ...
+
+    @overload
+    def paginate(self, field: Literal["embargoes"]) -> Paginator[data_classes.Embargo]:
+        ...
+
+    @overload
+    def paginate(self, field: str) -> Paginator[Any]:
+        ...
+
     def paginate(self, field: str) -> Paginator[Any]:
         """Get a :class:`Paginator` for paginating through a specific field
 
@@ -595,7 +734,23 @@ class Result:
 
 
 class Field:
-    PAGINATOR_NAMES: ClassVar[List[str]] = ["nations"]
+    PAGINATOR_NAMES: ClassVar[Set[str]] = {
+        "nations",
+        "alliances",
+        "tradeprices",
+        "trades",
+        "wars",
+        "bounties",
+        "warattacks",
+        "treaties",
+        "cities",
+        "bankrecs",
+        "baseball_games",
+        "baseball_teams",
+        "baseball_players",
+        "treasure_trades",
+        "embargoes",
+    }
 
     def __init__(
         self,
@@ -801,7 +956,7 @@ class Mutation(Query[R]):
         )
 
 
-class Subscription(Query[R]):
+class Subscription(Generic[T], Query[Result]):
     """Supports all methods of :class:`Query` where applicable"""
 
     ROOT: ClassVar[str] = "subscription"
@@ -818,7 +973,7 @@ class Subscription(Query[R]):
         self.channel: Optional[str] = channel
         self.callbacks: List[Callback[R]] = callbacks or []
         self.name: str = ""
-        self.queue: asyncio.Queue[R] = asyncio.Queue()
+        self.queue: asyncio.Queue[T] = asyncio.Queue()
         self.succeeded: asyncio.Event = asyncio.Event()
 
     async def subscribe(self, *callbacks: Callback[R]) -> None:
@@ -856,8 +1011,23 @@ class Subscription(Query[R]):
     def __aiter__(self) -> Self:
         return self
 
-    async def __anext__(self) -> R:
+    async def __anext__(self) -> T:
         return await self.queue.get()
+
+    def as_type(self, type: T) -> Subscription[T]:
+        """Simple returns self, used to change the type of T for strict typing (overloads were like 450 lines, decided this was much better for now)
+
+        Parameters
+        ----------
+        type : T
+            The type to return
+
+        Returns
+        -------
+        Subscription[T]
+            Returns the subscription with a different generic annotation
+        """
+        return self  # type: ignore
 
 
 class VariableType(enum.Enum):
