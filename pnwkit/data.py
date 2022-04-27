@@ -57,6 +57,31 @@ class Data:
             setattr(self, key, value)
         return self
 
+    def __getitem__(self, name: str) -> Any:
+        try:
+            return self.__getattribute__(name)
+        except AttributeError as e:
+            raise KeyError(name) from e
+
+    def get(self, key: str, default: Any = None) -> Any:
+        try:
+            return self.__getattribute__(key)
+        except AttributeError:
+            return default
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Get a dictionary representation of this object.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary of the object.
+        """
+        return {
+            key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)
+        } | self.__dict__
+
 
 class ApiKeyDetails(Data):
     nation: Nation
