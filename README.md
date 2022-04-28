@@ -43,25 +43,31 @@ py -3 -m pip install -U pnwkit-py
 
 ## Usage
 
-To use pnwkit-py just import the library and add your key, then you can make synchronous or asynchronous queries.
+To use pnwkit-py just import the library, create a QueryKit, then you can make synchronous or asynchronous queries.
 
 ```py
 import pnwkit
-pnwkit.set_key("xxxxx")
+kit = pnwkit.QueryKit("YOUR_API_KEY")
 
-nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name")
+query = kit.query("nations"{"id": 251584, "first": 1}, "nation_name")
+# get synchronously
+result = query.get()
+# get asynchronously
+result = await query.async_get()
+# OR
+result = await query
 
-print(f"Nation name: {nations[0].nation_name}")
+print(f"Nation name: {result.nations[0].nation_name}")
 ```
 
-If you want to paginate your query for more results, just enable pagination after your query. Instead of returning a tuple of results, pnwkit will return a `Paginator` object which you can iterate through. For asynchronous queries you can use `async for` to iterate through the results. In addition, async paginators support batching queries to perform multiple queries simultaneously.
+If you want to paginate your query for more results, just ask to paginate the query. Instead of returning a tuple of results, pnwkit will return a `Paginator` object which you can iterate through. For asynchronous queries you can use `async for` to iterate through the results. In addition, async paginators support batching queries to perform multiple queries simultaneously.
 
 ```py
 # .batch is async only, will perform 2 queries
 # when it runs out of results instead of one at a time
-nations = pnwkit.nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True)
+nations = query.paginate("nations")
 # async only
-async_nations = pnwkit.async_nation_query({"id": 251584, "first": 1}, "nation_name", paginator=True).batch(2)
+async_nations = query.paginate("nations").batch(2)
 
 for nation in nations:
     print(f"Nation name: {nation.nation_name}")
@@ -84,40 +90,42 @@ nations = pnwkit.nation_query({"id": 251584, "first": 1},
 print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
 ```
 
-If you want to have multiple copies of pnwkit-py running at the same time, you can use the Kit class export.
-
-```py
-import Kit from pnwkit;
-
-other_kit = Kit(api_key="xxxx");
-
-// queries...
-```
-
 Unlike the JavaScript/TypeScript and Google Apps Script libraries, the Python library has a few additional features.
 
-- To use the asynchronous client (aiohttp as opposed to requests) append async\_ to your queries on the pnwkit module, or import async_pnwkit from pnwkit and run queries as normal, with the addition of an await statement.
+- Support for subscriptions
 
 ```py
-nations = await pnwkit.async_nation_query({"id": 251584, "first": 1}, "nation_name", {"cities": ["id", "name"]},)
+async def callback(nation):
+  ... # this function will be called every time an event is received
+  # nation is a Nation object with the updated fields
 
-print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+query = kit.subscription("nationUpdate", {"id": 251584}, "id soldiers")
+subscription = await query.subscribe(callback)
+async for nation in subscription:
+  ... # here nation is a Nation object with the updated fields
 ```
 
 - Additional arguments on a query will be concatenated with the first to form the query.
+- You can also just pnwkit.Field to get support for nested fields without using raw GraphQL.
 
 ```py
-nations = pnwkit.nation_query({"id", 251584, "first": 1}, "nation_name", {"cities": ["id", "name"]})
+query = kit.query("nations", {"id", 251584, "first": 1}, "nation_name", pnwkit.Field("cities", {}, "name"))
+result = query.get()
 
-print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+print(f"First city of {result.nations[0].nation_name}: {result.nations[0].cities[0].name}")
 ```
 
 - Keyword arguments provided to a query function will be passed in as query variables.
+- When pnwkit.Variable, check the API docs for the correct type for your argument.
 
 ```py
-nations = pnwkit.nation_query({"id": "$id", "first": 1}, "nation_name", {"cities": ["id", "name"]}, id=251584)
+query = kit.query("nations", {"id": pnwkit.Variable("id", pnwkit.VariableType.INT_ARRAY), "first": 1}, "nation_name", pnwkit.Field("cities", {}, "name"), id=251584)
+# variables can also be set with the set_variables method
+query.set_variables(id=251584)
+result = query.get()
 
-print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+
+print(f"First city of {result.nations[0].nation_name}: {result.nations[0].cities[0].name}")
 ```
 
 - Extensions to access the daily data dumps and scrape data from the game.
@@ -125,33 +133,29 @@ print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
 
 ```py
 # the API requires a verified bot key to use mutations
-pnwkit.set_bot_key("xxxxx")
+kit = pnwkit.QueryKit("YOUR_API_KEY", bot_key="YOUR_BOT_KEY", bot_key_api_key="YOUR_BOT_KEY_API_KEY")
 
-deposit = pnwkit.bank_deposit_mutation({"money": 100}, "id")
+query = kit.mutation("bankDeposit", {"money": 100}, "id")
+result = query.get()
 
-print(f"Deposited ${deposit.money} as bank record #{deposit.id}")
+print(f"Deposited ${result.bankDeposit.money} as bank record #{result.bankDeposit.id}")
 ```
 
-You can do the following queries in pnwkit-py:
+- Query fields as aliases
 
-- alliance_query
-- bankrec_query
-- bbgame_query
-- bbplayer_query
-- bbteam_query
-- bounty_query
-- city_query
-- color_query
-- game_info_query
-- me_query
-- nation_query
-- trade_query
-- tradeprice_query
-- treasure_query
-- treaty_query
-- war_query
-- warattack_query
-- bank_deposit_mutation
-- bank_withdraw_mutation
+```py
+query = kit.query_as("nations", "the_nations", {"id": 251584, "first": 1}, "nation_name", pnwkit.Field("cities", {}, "name"))
+result = query.get()
 
-You can look at the arguments and possible data to collect here at the [docs](https://pnwkit-py.readthedocs.io/) or by experimenting on the [GraphQL Playground](https://api.politicsandwar.com/graphql-playground).
+print(f"First city of {result.the_nations[0].nation_name}: {result.the_nations[0].cities[0].name}")
+```
+
+You can look at the arguments and possible data to collect here by experimenting on the [GraphQL Playground](https://api.politicsandwar.com/graphql-playground).
+
+## Moving Forward
+
+- Improved support for query variables
+- Argument typings
+- In-built cache management with subscriptions
+- Support for query fragments
+- Support for orderBy
