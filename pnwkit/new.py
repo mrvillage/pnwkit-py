@@ -375,6 +375,8 @@ class Query(Generic[R]):
         ----------
         kit : QueryKit
             The QueryKit this query will use to run
+        fields : Field
+            The fields to query
         variables : Optional[Dict[str, Variable]], optional
             The variables used in the body of the query, by default None
         variable_values : Optional[Dict[str, Any]], optional
@@ -412,7 +414,7 @@ class Query(Generic[R]):
             Returns the Query for support for method chaining
         """
         self.hash = self.resolved_hash = None
-        self.fields.append(Field.add(self, field, arguments, *fields))
+        self.fields.append(Field.add(self, field, arguments, root=True, *fields))
         return self
 
     def query_as(
@@ -449,7 +451,8 @@ class Query(Generic[R]):
                 field,
                 arguments,
                 *fields,
-                alias,
+                root=True,
+                alias=alias,
             )
         )
         return self
@@ -792,6 +795,7 @@ class Field:
         name: str,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
+        root: bool = False,
         alias: Optional[str] = None,
     ) -> None:
         """A Field to query
@@ -802,12 +806,15 @@ class Field:
             The name of the field to query
         arguments : Dict[str, Union[Argument, Sequence[Argument]]]
             The arguments to pass to the field
+        root : bool, optional
+            Whether or not the Field is on the root query, by default False
         alias : Optional[str], optional
             The alias to query the field by, by default None
         """
         self.name: str = name
         self.arguments: Dict[str, Union[Argument, Sequence[Argument]]] = arguments
         self.fields: Sequence[FieldValue] = fields
+        self.root: bool = root
         self.alias: Optional[str] = alias
 
     @classmethod
@@ -817,8 +824,17 @@ class Field:
         name: RootFieldLiteral,
         arguments: Dict[str, Union[Argument, Sequence[Argument]]],
         *fields: FieldValue,
+        root: bool,
         alias: Optional[str] = None,
     ) -> Self:
+        cls.update_variables(query, arguments)
+        cls.check_fields_for_variables(query, fields)
+        return cls(name, arguments, *fields, root=root, alias=alias)
+
+    @staticmethod
+    def update_variables(
+        query: Query[Any], arguments: Dict[str, Union[Argument, Sequence[Argument]]]
+    ) -> None:
         query.variables.update(
             {
                 i.name: i
@@ -826,7 +842,15 @@ class Field:
                 if isinstance(i, Variable) and i.name not in query.variables
             }
         )
-        return cls(name, arguments, *fields, alias=alias)
+
+    @classmethod
+    def check_fields_for_variables(
+        cls, query: Query[Any], fields: Sequence[FieldValue]
+    ) -> None:
+        for field in fields:
+            if isinstance(field, Field):
+                cls.update_variables(query, field.arguments)
+                cls.check_fields_for_variables(query, field.fields)
 
     def clone(self) -> Self:
         """Create a clone of the Field
@@ -840,6 +864,7 @@ class Field:
             self.name,
             self.arguments.copy(),
             *self.fields,
+            root=self.root,
             alias=self.alias,
         )
 
@@ -848,7 +873,7 @@ class Field:
         resolved_fields = self.resolve_fields() if self.fields else ""
         resolved_fields = (
             f"{{__typename data{resolved_fields} paginatorInfo{{__typename count currentPage firstItem hasMorePages lastItem lastPage perPage total}}}}"
-            if resolved_fields and self.name in self.PAGINATOR_NAMES
+            if resolved_fields and self.name in self.PAGINATOR_NAMES and self.root
             else resolved_fields
         )
         return f"{self.name}{resolved_arguments}{resolved_fields}"
@@ -1068,6 +1093,13 @@ class Subscription(Generic[T], Query[Result]):
 class VariableType(enum.Enum):
     INT = "Int"
     INT_ARRAY = "[Int]"
+    STRING = "String"
+    STRING_ARRAY = "[String]"
+    DATE_TIME = "DateTime"
+    FLOAT = "Float"
+    FLOAT_ARRAY = "[Float]"
+    BOOLEAN = "Boolean"
+    TRADE_TYPE = "TradeType"
 
 
 class Variable:
