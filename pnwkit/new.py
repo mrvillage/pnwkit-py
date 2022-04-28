@@ -177,7 +177,7 @@ class QueryKit:
         url : Optional[:class:`str`], optional
             The GraphQL URL to send queries to, by default ``https://api.politicsandwar.com/graphql``
         socket_url : Optional[:class:`str`], optional
-            The URL to connect to in order to receive subscription events, by default ``wss://socket-api.politicsandwar.com/app/a22734a47847a64386c8?protocol=7``
+            The URL to connect to in order to receive subscription events, by default ``wss://socket.politicsandwar.com/app/a22734a47847a64386c8?protocol=7``
         subscription_auth_url : Optional[:class:`str`], optional
             The URL to authorize subscribing to a channel, by default ``https://api.politicsandwar.com/graphql/subscriptions/auth``
         socket : Optional[:class:`Socket`], optional
@@ -195,7 +195,7 @@ class QueryKit:
         self.url: str = url or "https://api.politicsandwar.com/graphql"
         self.socket_url: str = (
             socket_url
-            or "wss://socket-api.politicsandwar.com/app/a22734a47847a64386c8?protocol=7"
+            or "wss://socket.politicsandwar.com/app/a22734a47847a64386c8?protocol=7"
         )
         self.subscription_auth_url: str = (
             subscription_auth_url
