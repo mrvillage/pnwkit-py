@@ -435,18 +435,20 @@ class City(Data):
     _CONVERTERS = {
         "id": int,
         "nation_id": int,
-        "date": lambda x: None
+        "date": datetime.datetime.fromisoformat,
+        "nukedate": lambda x: None
         if x.startswith("-")
         else datetime.datetime.fromisoformat(x),
-        "nukedate": datetime.datetime.fromisoformat,
-        "nuke_date": datetime.datetime.fromisoformat,
+        "nuke_date": lambda x: None
+        if x.startswith("-")
+        else datetime.datetime.fromisoformat(x),
     }
 
     id: int
     nation_id: int
     nation: Nation
     name: str
-    date: Optional[datetime.datetime]
+    date: datetime.datetime
     infrastructure: float
     land: float
     powered: bool
@@ -495,8 +497,8 @@ class City(Data):
     airforcebase: int
     hangar: int
     drydock: int
-    nukedate: datetime.datetime
-    nuke_date: datetime.date
+    nukedate: Optional[datetime.datetime]
+    nuke_date: Optional[datetime.datetime]
 
 
 class Treasure(Data):
