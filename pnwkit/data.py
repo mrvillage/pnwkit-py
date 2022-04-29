@@ -33,7 +33,7 @@ from . import utils
 __all__ = ("Nation", "PaginatorInfo")
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, ClassVar, Dict, List
+    from typing import Any, Callable, ClassVar, Dict, List, Optional
 
 
 class Data:
@@ -151,7 +151,7 @@ class Nation(Data):
     num_cities: int
     cities: List[City]
     score: float
-    update_tz: float
+    update_tz: Optional[float]
     population: int
     flag: str
     vmode: int
@@ -167,28 +167,28 @@ class Nation(Data):
     ships: int
     missiles: int
     nukes: int
-    spies: int
+    spies: Optional[int]
     discord: str
     treasures: List[Treasure]
     offensive_wars: List[War]
     defensive_wars: List[War]
     wars: List[Bankrec]
-    taxrecs: List[Bankrec]
+    taxrecs: Optional[List[Bankrec]]
     bounties: List[Bounty]
     turns_since_last_city: int
     turns_since_last_project: int
-    money: float
-    coal: float
-    oil: float
-    uranium: float
-    iron: float
-    bauxite: float
-    lead: float
-    gasoline: float
-    munitions: float
-    steel: float
-    aluminum: float
-    food: float
+    money: Optional[float]
+    coal: Optional[float]
+    oil: Optional[float]
+    uranium: Optional[float]
+    iron: Optional[float]
+    bauxite: Optional[float]
+    lead: Optional[float]
+    gasoline: Optional[float]
+    munitions: Optional[float]
+    steel: Optional[float]
+    aluminum: Optional[float]
+    food: Optional[float]
     projects: int
     project_bits: int
     ironw: bool
@@ -310,6 +310,7 @@ class Alliance(Data):
         "id": int,
         "date": datetime.datetime.fromisoformat,
     }
+
     id: int
     name: str
     acronym: str
@@ -330,20 +331,20 @@ class Alliance(Data):
     discord_link: str
     wiki_link: str
     bankrecs: List[Bankrec]
-    taxrecs: List[Bankrec]
+    taxrecs: Optional[List[Bankrec]]
     tax_brackets: List[TaxBracket]
-    money: float
-    coal: float
-    oil: float
-    uranium: float
-    iron: float
-    bauxite: float
-    lead: float
-    gasoline: float
-    munitions: float
-    steel: float
-    aluminum: float
-    food: float
+    money: Optional[float]
+    coal: Optional[float]
+    oil: Optional[float]
+    uranium: Optional[float]
+    iron: Optional[float]
+    bauxite: Optional[float]
+    lead: Optional[float]
+    gasoline: Optional[float]
+    munitions: Optional[float]
+    steel: Optional[float]
+    aluminum: Optional[float]
+    food: Optional[float]
 
 
 class Treaty(Data):
@@ -353,6 +354,7 @@ class Treaty(Data):
         "alliance1_id": int,
         "alliance2_id": int,
     }
+
     id: int
     date: datetime.datetime
     treaty_type: str
@@ -433,7 +435,9 @@ class City(Data):
     _CONVERTERS = {
         "id": int,
         "nation_id": int,
-        "date": datetime.datetime.fromisoformat,
+        "date": lambda x: None
+        if x.startswith("-")
+        else datetime.datetime.fromisoformat(x),
         "nukedate": datetime.datetime.fromisoformat,
         "nuke_date": datetime.datetime.fromisoformat,
     }
@@ -442,7 +446,7 @@ class City(Data):
     nation_id: int
     nation: Nation
     name: str
-    date: datetime.date
+    date: Optional[datetime.datetime]
     infrastructure: float
     land: float
     powered: bool
@@ -809,6 +813,7 @@ class Tradeprice(Data):
         "id": int,
         "date": datetime.datetime.fromisoformat,
     }
+
     id: int
     date: datetime.datetime
     coal: float
@@ -844,6 +849,7 @@ class Trade(Data):
         "date_accepted": datetime.datetime.fromisoformat,
         "original_trade_id": int,
     }
+
     id: int
     type: TradeType
     date: datetime.datetime
