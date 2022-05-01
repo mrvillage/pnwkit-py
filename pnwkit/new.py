@@ -885,7 +885,7 @@ class Field:
         if hasattr(value, "__iter__"):
             # pyright is not picking up the hasattr check
             value = f"[{', '.join(str(i) for i in value)}]"  # type: ignore
-        return value
+        return str(value).lower() if isinstance(value, bool) else value
 
     def resolve_fields(self) -> str:
         return f"{{__typename {' '.join(field.resolve() if isinstance(field, Field) else field.replace('{', '{__typename ') for field in self.fields)}}}"
