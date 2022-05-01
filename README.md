@@ -49,7 +49,7 @@ To use pnwkit-py just import the library, create a QueryKit, then you can make s
 import pnwkit
 kit = pnwkit.QueryKit("YOUR_API_KEY")
 
-query = kit.query("nations"{"id": 251584, "first": 1}, "nation_name")
+query = kit.query("nations", {"id": 251584, "first": 1}, "nation_name")
 # get synchronously
 result = query.get()
 # get asynchronously
@@ -79,15 +79,17 @@ print(f"Current page: {nations.paginator_info.currentPage}")
 The queries are written in normal GraphQL, so you can get all the cities in a nation like this
 
 ```py
-nations = pnwkit.nation_query({"id": 251584, "first": 1},
+query = kit.query("nations", {"id", 251584, "first": 1},
   """
   nation_name
   cities {
     name
   }
-  """)
+  """
+)
+result = query.get()
 
-print(f"First city of {nations[0].nation_name}: {nations[0].cities[0].name}")
+print(f"First city of {result.nations[0].nation_name}: {result.nations[0].cities[0].name}")
 ```
 
 Unlike the JavaScript/TypeScript and Google Apps Script libraries, the Python library has a few additional features.
