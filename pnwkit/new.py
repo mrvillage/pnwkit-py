@@ -458,16 +458,16 @@ class Query(Generic[R]):
         return self
 
     def actual_sync_request(self, headers: Optional[Dict[str, Any]]) -> str:
-        while True:
-            wait = self.kit.rate_limit.hit()
-            if wait > 0:
-                time.sleep(wait)
-            else:
-                break
         if self.kit.requests_session is None:
             self.kit.requests_session = requests.Session()
         request_params = self.request_params(headers)
         for _ in range(5):
+            while True:
+                wait = self.kit.rate_limit.hit()
+                if wait > 0:
+                    time.sleep(wait)
+                else:
+                    break
             with self.kit.requests_session.request(**request_params) as response:
                 if not self.kit.rate_limit.initialized:
                     self.kit.rate_limit.initialize(response.headers)
@@ -501,16 +501,16 @@ class Query(Generic[R]):
             return self.parse_result(self.actual_sync_request((headers)))
 
     async def actual_async_request(self, headers: Optional[Dict[str, Any]]) -> str:
-        while True:
-            wait = self.kit.rate_limit.hit()
-            if wait > 0:
-                await asyncio.sleep(wait)
-            else:
-                break
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
         request_params = self.request_params(headers)
         for _ in range(5):
+            while True:
+                wait = self.kit.rate_limit.hit()
+                if wait > 0:
+                    await asyncio.sleep(wait)
+                else:
+                    break
             async with self.kit.aiohttp_session.request(
                 **request_params,
             ) as response:
