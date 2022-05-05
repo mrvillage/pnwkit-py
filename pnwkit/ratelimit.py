@@ -38,20 +38,20 @@ class RateLimit:
 
     def hit(self) -> int:
         if (
-            self.remaining is None
+            self.limit is None
+            or self.remaining is None
             or self.reset is None
-            or self.limit is None
             or self.interval is None
         ):
             return 0
         current_time = int(time.time())
         if current_time > self.reset:
             self.remaining = self.limit - 1
-            self.reset = int(time.time() + 1 + self.interval)
+            self.reset = int(current_time + 1 + self.interval)
             return 0
-        if self.remaining <= 0:
-            return int(self.reset - time.time())
         self.remaining -= 1
+        if self.remaining <= 0:
+            return int(self.reset - current_time) + 1
         return 0
 
     @classmethod
