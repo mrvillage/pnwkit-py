@@ -691,6 +691,7 @@ class Bounty(Data):
         "id": int,
         "date": datetime.datetime.fromisoformat,
         "nation_id": int,
+        "type": BountyType.__members__.get,
     }
 
     id: int
