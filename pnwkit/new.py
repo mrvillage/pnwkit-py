@@ -920,7 +920,7 @@ class Paginator(Generic[P]):
         field.arguments["page"] = __page
         paginator_query.fields = [field]
         paginator_query.variables["__page"] = __page
-        paginator_query.variable_values["__page"] = 1
+        paginator_query.variable_values["__page"] = 0
         return cls(query.kit, paginator_query)
 
     def __iter__(self) -> Self:
@@ -931,11 +931,9 @@ class Paginator(Generic[P]):
 
     def __next__(self) -> P:
         if self.queue.empty():
-            if self.paginator_info is not None:
-                if not self.paginator_info.hasMorePages:
-                    raise StopIteration
-                else:
-                    self.query.variable_values["__page"] += 1
+            if self.paginator_info is not None and not self.paginator_info.hasMorePages:
+                raise StopIteration
+            self.query.variable_values["__page"] += 1
             self.query.check_validity()
             data, paginator_info = self.parse_result(
                 self.query.actual_sync_request(None)
@@ -954,8 +952,6 @@ class Paginator(Generic[P]):
                 raise StopAsyncIteration
             self.query.check_validity()
             page = self.query.variable_values["__page"]
-            if page == 1:
-                page = 0
             last_page = self.paginator_info.lastPage if self.paginator_info else None
             coros = [
                 self.query.set_variables(__page=page + i).actual_async_request(None)
