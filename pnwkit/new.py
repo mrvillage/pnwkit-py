@@ -613,13 +613,15 @@ class Query(Generic[R]):
         Self
             The Query for support with method chaining
         """
-        return Query[R](
+        query = Query[R](
             self.kit,
             *self.fields,
             variables=self.variables.copy(),
             variable_values=self.variable_values | variables,
             hash=self.hash,
         )
+        query.resolved_hash = self.resolved_hash
+        return query
 
     def resolve(self) -> str:
         resolved_variables = self.resolve_variables() if self.variables else ""
