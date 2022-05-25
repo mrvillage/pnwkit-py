@@ -1151,7 +1151,12 @@ class Socket:
     async def connect(cls, kit: QueryKit) -> Self:
         if kit.aiohttp_session is None:
             kit.aiohttp_session = aiohttp.ClientSession()
-        ws = await kit.aiohttp_session.ws_connect(kit.socket_url)
+        ws = await kit.aiohttp_session.ws_connect(
+            kit.socket_url,
+            max_msg_size=0,
+            autoclose=False,
+            timeout=30,
+        )
         self = cls(kit, ws)
         self.run()
         return self
@@ -1159,7 +1164,12 @@ class Socket:
     async def reconnect(self) -> None:
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
-        self.ws = await self.kit.aiohttp_session.ws_connect(self.kit.socket_url)
+        self.ws = await self.kit.aiohttp_session.ws_connect(
+            self.kit.socket_url,
+            max_msg_size=0,
+            autoclose=False,
+            timeout=30,
+        )
         self.ponged = True
         for subscription in self.subscriptions:
             subscription.succeeded.clear()
