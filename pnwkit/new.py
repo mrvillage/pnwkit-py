@@ -1144,6 +1144,7 @@ class Socket:
         self.last_message: float = 0
         self.last_ping: float = 0
         self.ponged: bool = True
+        self.pinged: bool = False
         self.subscriptions: Set[Subscription[Any]] = set()
         self.channels: Dict[str, Subscription[Any]] = {}
 
@@ -1219,6 +1220,7 @@ class Socket:
                         subscription.handle_event(data["result"])
                     elif event == "pusher:pong":
                         self.ponged = True
+                        self.pinged = False
                     elif event == "pusher:ping":
                         await self.ws.send_json({"event": "pusher:pong", "data": {}})
 
@@ -1235,10 +1237,14 @@ class Socket:
             await asyncio.sleep(
                 self.last_message + self.activity_timeout - time.perf_counter()
             )
-            if self.last_message + self.activity_timeout > time.perf_counter():
+            if (
+                self.last_message + self.activity_timeout > time.perf_counter()
+                and self.pinged
+            ):
                 continue
             await self.ws.send_json({"event": "pusher:ping", "data": {}})
             self.ponged = False
+            self.pinged = True
             self.last_ping = time.perf_counter()
             asyncio.get_running_loop().call_later(30, self.call_later_pong)
 
