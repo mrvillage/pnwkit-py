@@ -137,7 +137,7 @@ if TYPE_CHECKING:
     MutationFieldLiteral = Literal["bankDeposit", "bankWithdraw"]
     Argument = Union[str, int, float, bool, "Variable"]
     FieldValue = Union[str, "Field"]
-    Callback = Callable[["R"], Coroutine[Any, Any, Any]]
+    Callback = Callable[["T"], Coroutine[Any, Any, Any]]
 
 P = TypeVar("P", bound="data_classes.Data")
 R = TypeVar("R", bound="Result")
@@ -1031,21 +1031,21 @@ class Subscription(Generic[T], Query[Result]):
         *fields: Field,
         variable_values: Dict[str, Any],
         channel: Optional[str] = None,
-        callbacks: Optional[List[Callback[R]]] = None,
+        callbacks: Optional[List[Callback[T]]] = None,
     ) -> None:
         super().__init__(kit, *fields, variable_values=variable_values)
         self.channel: Optional[str] = channel
-        self.callbacks: List[Callback[R]] = callbacks or []
+        self.callbacks: List[Callback[T]] = callbacks or []
         self.name: str = ""
         self.queue: asyncio.Queue[T] = asyncio.Queue()
         self.succeeded: asyncio.Event = asyncio.Event()
 
-    async def subscribe(self, *callbacks: Callback[R]) -> None:
+    async def subscribe(self, *callbacks: Callback[T]) -> None:
         """Subscribe to the subscription, events can be received through asynchronous iteration (an ``async for`` loop) or through the provided callbacks
 
         Parameters
         ----------
-        callbacks : Callback[R]
+        callbacks : Callback[T]
             A list of async functions to call when an event is received
         """
         if callbacks:
@@ -1152,7 +1152,7 @@ class Socket:
     async def connect(cls, kit: QueryKit) -> Self:
         if kit.aiohttp_session is None:
             kit.aiohttp_session = aiohttp.ClientSession()
-        ws = await kit.aiohttp_session.ws_connect(
+        ws = await kit.aiohttp_session.ws_connect(  # type: ignore
             kit.socket_url,
             max_msg_size=0,
             autoclose=False,
@@ -1165,7 +1165,7 @@ class Socket:
     async def reconnect(self) -> None:
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
-        self.ws = await self.kit.aiohttp_session.ws_connect(
+        self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
             self.kit.socket_url,
             max_msg_size=0,
             autoclose=False,
