@@ -51,7 +51,7 @@ __all__ = (
     "VariableType",
     "Variable",
 )
-
+COUNT = 0
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence, Sequence
     from typing import (
@@ -135,9 +135,30 @@ if TYPE_CHECKING:
         "warAttackDelete",
     ]
     MutationFieldLiteral = Literal["bankDeposit", "bankWithdraw"]
-    Argument = Union[str, int, float, bool, "Variable"]
+    SubscriptionModelLiteral = Literal[
+        "alliance",
+        "alliance_position",
+        "bankrec",
+        "bbgame",
+        "bbplayer",
+        "bbteam",
+        "bounty",
+        "city",
+        "nation",
+        "tax_bracket",
+        "trade",
+        "treaty",
+        "warattack",
+        "war",
+        "treasure_trade",
+        "embargo",
+    ]
+    SubscriptionEventLiteral = Literal["create", "delete", "update"]
+    BaseArgument = Union[str, int, float, bool]
+    Argument = Union[BaseArgument, "Variable"]
     FieldValue = Union[str, "Field"]
     Callback = Callable[["T"], Coroutine[Any, Any, Any]]
+    SubscriptionFilters = Dict[str, Union[BaseArgument, Sequence[BaseArgument]]]
 
 P = TypeVar("P", bound="data_classes.Data")
 R = TypeVar("R", bound="Result")
@@ -155,6 +176,7 @@ class QueryKit:
         parse_float: Optional[Callable[[str], Any]] = None,
         url: Optional[str] = None,
         socket_url: Optional[str] = None,
+        subscription_url: Optional[str] = None,
         subscription_auth_url: Optional[str] = None,
         socket: Optional[Socket] = None,
         aiohttp_session: Optional[aiohttp.ClientSession] = None,
@@ -178,8 +200,10 @@ class QueryKit:
             The GraphQL URL to send queries to, by default ``https://api.politicsandwar.com/graphql``
         socket_url : Optional[:class:`str`], optional
             The URL to connect to in order to receive subscription events, by default ``wss://socket.politicsandwar.com/app/a22734a47847a64386c8?protocol=7``
+        subscription_url : Optional[:class:`str`], optional
+            The URL to connect to in order to receive subscription events, by default ``https://api.politicsandwar.com/subscriptions/v1/subscribe/{model}/{event}``
         subscription_auth_url : Optional[:class:`str`], optional
-            The URL to authorize subscribing to a channel, by default ``https://api.politicsandwar.com/graphql/subscriptions/auth``
+            The URL to authorize subscribing to a channel, by default ``https://api.politicsandwar.com/subscriptions/v1/auth``
         socket : Optional[:class:`Socket`], optional
             The Socket to use for subscription connections, by default None
         aiohttp_session : Optional[:class:`aiohttp.ClientSession`], optional
@@ -197,9 +221,13 @@ class QueryKit:
             socket_url
             or "wss://socket.politicsandwar.com/app/a22734a47847a64386c8?protocol=7"
         )
+        self.subscription_url: str = (
+            subscription_url
+            or "https://api.politicsandwar.com/subscriptions/v1/subscribe/{model}/{event}"
+        )
         self.subscription_auth_url: str = (
             subscription_auth_url
-            or "https://api.politicsandwar.com/graphql/subscriptions/auth"
+            or "https://api.politicsandwar.com/subscriptions/v1/auth"
         )
         self.rate_limit: RateLimit = RateLimit.get(self.url)
         self.socket: Optional[Socket] = socket
@@ -271,37 +299,164 @@ class QueryKit:
             variable_values=variables,
         ).query_as(field, alias, arguments, *fields)
 
-    def subscription(
+    @overload
+    async def subscribe(
         self,
-        field: SubscriptionFieldLiteral,
-        arguments: Dict[str, Union[Argument, Sequence[Argument]]],
-        *fields: FieldValue,
-        **variables: MutableMapping[str, Any],
+        model: Literal["alliance_position"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.AlliancePosition]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["bankrec"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Bankrec]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["bbgame"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.BBGame]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["bbplayer"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.BBPlayer]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["bbteam"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.BBTeam]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["bounty"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Bounty]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["city"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.City]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["nation"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Nation]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["tax_bracket"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.TaxBracket]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["trade"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Trade]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["treaty"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Treaty]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["warattack"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.WarAttack]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["war"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.War]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["treasure_trade"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.TreasureTrade]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
+        model: Literal["embargo"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[data_classes.Embargo]:
+        ...
+
+    async def subscribe(
+        self,
+        model: SubscriptionModelLiteral,
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = None,
     ) -> Subscription[Any]:
 
         """Create a new subscription with this QueryKit.
 
         Parameters
         ----------
-        field : RootFieldLiteral
-            The subscription to query
-        arguments : Dict[:class:`str`, Union[Argument, Sequence[Argument]]]
+        model : SubscriptionModelLiteral
+            The model to receive events about
+        event : SubscriptionEventLiteral
+        filters : Optional[SubscriptionFilters]
             The parameters to provide to the subscription to filter the events
-        fields: Union[str, :class:`Field`]
-            The fields to fetch in the query
-        variables : MutableMapping[:class:`str`, Any]
-            The values of any variables specified in the query
 
         Returns
         -------
         Subscription[Any]
             A Subscription that can be subscribed too.
         """
-        # SubscriptionFieldLiteral is not compatible with RootFieldLiteral
-        # for simplicity just using type: ignore
-        return Subscription[Any](self, variable_values=variables).query(
-            field, arguments, *fields  # type: ignore
-        )
+        return await Subscription[Any].subscribe(self, model, event, filters or {})
 
     def mutation(
         self,
@@ -1020,27 +1175,35 @@ class Mutation(Query[R]):
         )
 
 
-class Subscription(Generic[T], Query[Result]):
-    """Supports all methods of :class:`Query` where applicable"""
-
-    ROOT: ClassVar[str] = "subscription"
-
+class Subscription(Generic[T]):
     def __init__(
         self,
         kit: QueryKit,
-        *fields: Field,
-        variable_values: Dict[str, Any],
+        model: SubscriptionModelLiteral,
+        event: SubscriptionEventLiteral,
+        filters: SubscriptionFilters,
         channel: Optional[str] = None,
         callbacks: Optional[List[Callback[T]]] = None,
     ) -> None:
-        super().__init__(kit, *fields, variable_values=variable_values)
+        self.kit: QueryKit = kit
+        self.model: SubscriptionModelLiteral = model
+        self.event: SubscriptionEventLiteral = event
+        self.filters: SubscriptionFilters = filters
         self.channel: Optional[str] = channel
         self.callbacks: List[Callback[T]] = callbacks or []
         self.name: str = ""
         self.queue: asyncio.Queue[T] = asyncio.Queue()
         self.succeeded: asyncio.Event = asyncio.Event()
 
-    async def subscribe(self, *callbacks: Callback[T]) -> None:
+    @classmethod
+    async def subscribe(
+        cls,
+        kit: QueryKit,
+        model: SubscriptionModelLiteral,
+        event: SubscriptionEventLiteral,
+        filters: SubscriptionFilters,
+        *callbacks: Callback[T],
+    ) -> Self:
         """Subscribe to the subscription, events can be received through asynchronous iteration (an ``async for`` loop) or through the provided callbacks
 
         Parameters
@@ -1048,16 +1211,37 @@ class Subscription(Generic[T], Query[Result]):
         callbacks : Callback[T]
             A list of async functions to call when an event is received
         """
+        self = cls(kit, model, event, filters)
         if callbacks:
             self.callbacks[:] = callbacks
-        self.name = self.fields[0].name
         self.channel = await self.request_channel()
         await self.kit.subscribe_internal(self)
+        return self
+
+    @property
+    def filters_param(self) -> Dict[str, str]:
+        return {
+            key: ",".join(str(i) for i in value)
+            if isinstance(value, list)
+            else str(value)
+            for key, value in self.filters.items()
+        }
 
     async def request_channel(self) -> str:
-        response = self.kit.loads(await self.actual_async_request(None))
-        self.kit.check_response_for_errors(response)
-        return response["extensions"]["lighthouse_subscriptions"]["channel"]
+        if self.kit.aiohttp_session is None:
+            self.kit.aiohttp_session = aiohttp.ClientSession()
+        async with self.kit.aiohttp_session.request(
+            "GET",
+            self.kit.subscription_url.format(model=self.model, event=self.event),
+            params={
+                "api_key": self.kit.api_key,
+                **self.filters_param,
+            },
+        ) as response:
+            response = await response.json()
+        if response.get("error") is not None:
+            raise errors.SubscribeError(response["error"])
+        return response["channel"]
 
     async def unsubscribe(self) -> None:
         """Unsubscribe from the subscription"""
@@ -1065,33 +1249,29 @@ class Subscription(Generic[T], Query[Result]):
             await self.kit.unsubscribe_internal(self)
             self.channel = None
 
-    def handle_event(self, event: Dict[str, Any]) -> None:
-        event = event["data"][self.name]
-        data = utils.find_data_class(event["__typename"]).from_data(event)
-        self.queue.put_nowait(data)
-        for callback in self.callbacks:
-            asyncio.create_task(callback(data))
+    def handle_event(self, event: str, data: Any) -> None:
+        converter = utils.find_event_data_class(event).from_data
+        global COUNT
+        COUNT += 1
+        print(COUNT)
+        return
+        if event.startswith("BULK_"):
+            for item in data:
+                item = converter(item)
+                self.queue.put_nowait(item)
+                for callback in self.callbacks:
+                    asyncio.create_task(callback(item))
+        else:
+            item = converter(data)
+            self.queue.put_nowait(item)
+            for callback in self.callbacks:
+                asyncio.create_task(callback(item))
 
     def __aiter__(self) -> Self:
         return self
 
     async def __anext__(self) -> T:
         return await self.queue.get()
-
-    def as_type(self, type: T) -> Subscription[T]:
-        """Simple returns self, used to change the type of T for strict typing (overloads were like 450 lines, decided this was much better for now)
-
-        Parameters
-        ----------
-        type : T
-            The type to return
-
-        Returns
-        -------
-        Subscription[T]
-            Returns the subscription with a different generic annotation
-        """
-        return self  # type: ignore
 
 
 class VariableType(enum.Enum):
@@ -1180,49 +1360,60 @@ class Socket:
         while True:
             with contextlib.suppress(asyncio.TimeoutError):
                 async for message in self.ws:
-                    # message.type is Unknown
-                    if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
-                        if self.ws.close_code is None or self.ws.close_code in range(
-                            4000, 4100
-                        ):
-                            raise errors.NoReconnect(
-                                f"WebSocket closed with close code {self.ws.close_code}"
+                    try:
+                        # message.type is Unknown
+                        if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
+                            if (
+                                self.ws.close_code is None
+                                or self.ws.close_code in range(4000, 4100)
+                            ):
+                                raise errors.NoReconnect(
+                                    f"WebSocket closed with close code {self.ws.close_code}"
+                                )
+                            elif self.ws.close_code in range(4100, 4200):
+                                await asyncio.sleep(1)
+                                await self.reconnect()
+                            else:
+                                await self.reconnect()
+                        elif message.type not in {aiohttp.WSMsgType.TEXT, aiohttp.WSMsgType}:  # type: ignore
+                            continue
+                        # message.data is Unknown
+                        ws_event = self.kit.loads(message.data)  # type: ignore
+                        event = ws_event["event"]
+                        self.last_message = time.perf_counter()
+                        print(event)
+                        if event == "pusher:connection_established":
+                            data = self.kit.loads(ws_event["data"])
+                            self.socket_id = data["socket_id"]
+                            self.activity_timeout = min(
+                                self.activity_timeout, data["activity_timeout"]
                             )
-                        elif self.ws.close_code in range(4100, 4200):
-                            await asyncio.sleep(1)
-                            await self.reconnect()
+                            self.established.set()
+                        elif event == "pusher_internal:subscription_succeeded":
+                            subscription = self.channels.get(ws_event["channel"])
+                            if subscription is None:
+                                continue
+                            subscription.succeeded.set()
+                        elif event == "pusher:pong":
+                            self.ponged = True
+                            self.pinged = False
+                        elif event == "pusher:ping":
+                            await self.ws.send_json(
+                                {"event": "pusher:pong", "data": {}}
+                            )
                         else:
-                            await self.reconnect()
-                    elif message.type not in {aiohttp.WSMsgType.TEXT, aiohttp.WSMsgType}:  # type: ignore
-                        continue
-                    # message.data is Unknown
-                    ws_event = self.kit.loads(message.data)  # type: ignore
-                    event = ws_event["event"]
-                    self.last_message = time.perf_counter()
-                    if event == "pusher:connection_established":
-                        data = self.kit.loads(ws_event["data"])
-                        self.socket_id = data["socket_id"]
-                        self.activity_timeout = min(
-                            self.activity_timeout, data["activity_timeout"]
+                            data = self.kit.loads(ws_event["data"])
+                            channel = ws_event["channel"]
+                            subscription = self.channels.get(channel)
+                            if subscription is None:
+                                continue
+                            subscription.handle_event(event, data)
+                    except asyncio.TimeoutError as e:
+                        raise e
+                    except Exception as e:
+                        utils.print_exception_with_header(
+                            "Ignoring exception when parsing WebSocket message", e
                         )
-                        self.established.set()
-                    elif event == "pusher_internal:subscription_succeeded":
-                        subscription = self.channels.get(ws_event["channel"])
-                        if subscription is None:
-                            continue
-                        subscription.succeeded.set()
-                    elif event == "lighthouse-subscription":
-                        data = self.kit.loads(ws_event["data"])
-                        channel = ws_event["channel"]
-                        subscription = self.channels.get(channel)
-                        if subscription is None:
-                            continue
-                        subscription.handle_event(data["result"])
-                    elif event == "pusher:pong":
-                        self.ponged = True
-                        self.pinged = False
-                    elif event == "pusher:ping":
-                        await self.ws.send_json({"event": "pusher:pong", "data": {}})
 
     async def async_call_later_pong(self) -> None:
         await self.ws.close(code=1002, message=b"Pong timeout")
@@ -1239,7 +1430,7 @@ class Socket:
             )
             if (
                 self.last_message + self.activity_timeout > time.perf_counter()
-                and self.pinged
+                or self.pinged
             ):
                 continue
             await self.ws.send_json({"event": "pusher:ping", "data": {}})
@@ -1274,7 +1465,7 @@ class Socket:
         try:
             auth = await self.authorize_subscription(subscription)
         except errors.Unauthorized:
-            await subscription.request_channel()
+            self.channel = await subscription.request_channel()
             auth = await self.authorize_subscription(subscription)
         await self.send(
             "pusher:subscribe", {"auth": auth, "channel": subscription.channel}

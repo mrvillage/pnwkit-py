@@ -25,6 +25,8 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import datetime
+import sys
+import traceback
 from typing import TYPE_CHECKING
 
 from . import data
@@ -35,6 +37,9 @@ __all__ = (
     "convert_data_array",
     "convert_data_dict",
     "find_data_class",
+    "find_event_data_class",
+    "print_exception_with_header",
+    "print_exception",
 )
 
 if TYPE_CHECKING:
@@ -64,3 +69,23 @@ def convert_data_dict(data: Dict[Any, Any]) -> Union[Any, List[Any]]:
 
 def find_data_class(name: str) -> Any:
     return getattr(data, name)
+
+
+def find_event_data_class(name: str) -> Any:
+    name = (
+        name.removeprefix("BULK_")
+        .removesuffix("_CREATE")
+        .removesuffix("_DELETE")
+        .removesuffix("_UPDATE")
+    )
+    name = "".join(i.capitalize() for i in name.split("_"))
+    return getattr(data, name)
+
+
+def print_exception_with_header(header: str, error: Exception) -> None:
+    print(header, file=sys.stderr)
+    print_exception(error)
+
+
+def print_exception(error: Exception) -> None:
+    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)

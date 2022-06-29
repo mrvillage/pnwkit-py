@@ -10,6 +10,7 @@ __all__ = (
     "Unauthorized",
     "SubscriptionDidNotSucceed",
     "PersistedQueryNotFound",
+    "SubscribeError",
 )
 
 
@@ -46,4 +47,8 @@ class SubscriptionDidNotSucceed(SocketError):
 
 
 class PersistedQueryNotFound(PnWKitException):
+    ...
+
+
+class SubscribeError(PnWKitException):
     ...
