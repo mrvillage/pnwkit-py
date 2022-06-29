@@ -1251,10 +1251,6 @@ class Subscription(Generic[T]):
 
     def handle_event(self, event: str, data: Any) -> None:
         converter = utils.find_event_data_class(event).from_data
-        global COUNT
-        COUNT += 1
-        print(COUNT)
-        return
         if event.startswith("BULK_"):
             for item in data:
                 item = converter(item)
@@ -1381,7 +1377,6 @@ class Socket:
                         ws_event = self.kit.loads(message.data)  # type: ignore
                         event = ws_event["event"]
                         self.last_message = time.perf_counter()
-                        print(event)
                         if event == "pusher:connection_established":
                             data = self.kit.loads(ws_event["data"])
                             self.socket_id = data["socket_id"]
