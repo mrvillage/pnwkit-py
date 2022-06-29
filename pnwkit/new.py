@@ -51,7 +51,7 @@ __all__ = (
     "VariableType",
     "Variable",
 )
-COUNT = 0
+
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence, Sequence
     from typing import (
