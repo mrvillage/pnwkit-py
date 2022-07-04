@@ -140,7 +140,7 @@ if TYPE_CHECKING:
         "alliance_position",
         "bankrec",
         "bbgame",
-        "bbplayer",
+        # "bbplayer",
         "bbteam",
         "bounty",
         "city",
@@ -326,14 +326,14 @@ class QueryKit:
     ) -> Subscription[data_classes.BBGame]:
         ...
 
-    @overload
-    async def subscribe(
-        self,
-        model: Literal["bbplayer"],
-        event: SubscriptionEventLiteral,
-        filters: Optional[SubscriptionFilters] = ...,
-    ) -> Subscription[data_classes.BBPlayer]:
-        ...
+    # @overload
+    # async def subscribe(
+    #     self,
+    #     model: Literal["bbplayer"],
+    #     event: SubscriptionEventLiteral,
+    #     filters: Optional[SubscriptionFilters] = ...,
+    # ) -> Subscription[data_classes.BBPlayer]:
+    #     ...
 
     @overload
     async def subscribe(
