@@ -901,7 +901,7 @@ class Result:
     me: data_classes.ApiKeyDetails
     treasures: List[data_classes.Treasure]
     colors: List[data_classes.Color]
-    game_info: List[data_classes.GameInfo]
+    game_info: data_classes.GameInfo
     nations: List[data_classes.Nation]
     alliances: List[data_classes.Alliance]
     tradeprices: List[data_classes.Tradeprice]
