@@ -1447,7 +1447,7 @@ class Socket:
             self.kit.subscription_auth_url,
             data={"socket_id": self.socket_id, "channel_name": subscription.channel},
         ) as response:
-            if response.status == 403:
+            if response.status != 200:
                 raise errors.Unauthorized()
             data = await response.json()
             self.kit.check_response_for_errors(data)
