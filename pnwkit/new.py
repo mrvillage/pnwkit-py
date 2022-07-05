@@ -434,6 +434,16 @@ class QueryKit:
     ) -> Subscription[data_classes.Embargo]:
         ...
 
+    @overload
+    async def subscribe(
+        self,
+        model: SubscriptionModelLiteral,
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+    ) -> Subscription[Any]:
+        ...
+
+
     async def subscribe(
         self,
         model: SubscriptionModelLiteral,
