@@ -437,10 +437,10 @@ class City(Data):
         "nation_id": int,
         "date": datetime.datetime.fromisoformat,
         "nukedate": lambda x: None
-        if x.startswith("-")
+        if x.startswith("-") or "0000-00-00" in x
         else datetime.datetime.fromisoformat(x),
         "nuke_date": lambda x: None
-        if x.startswith("-")
+        if x.startswith("-") or "0000-00-00" in x
         else datetime.datetime.fromisoformat(x),
     }
 
