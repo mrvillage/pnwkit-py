@@ -443,7 +443,6 @@ class QueryKit:
     ) -> Subscription[Any]:
         ...
 
-
     async def subscribe(
         self,
         model: SubscriptionModelLiteral,
@@ -622,7 +621,7 @@ class Query(Generic[R]):
         )
         return self
 
-    def actual_sync_request(self, headers: Optional[Dict[str, Any]]) -> str:
+    def actual_sync_request(self, headers: Optional[Dict[str, Any]]) -> Tuple[str, int]:
         if self.kit.requests_session is None:
             self.kit.requests_session = requests.Session()
         request_params = self.request_params(headers)
@@ -643,7 +642,7 @@ class Query(Generic[R]):
                     if wait is not None:
                         time.sleep(wait)
                         continue
-                return response.text
+                return response.text, response.status_code
         raise errors.MaxTriesExceededError()
 
     def get(self, headers: Optional[Dict[str, Any]] = None) -> R:
@@ -661,11 +660,13 @@ class Query(Generic[R]):
         """
         self.check_validity()
         try:
-            return self.parse_result(self.actual_sync_request((headers)))
+            return self.parse_result(*self.actual_sync_request((headers)))
         except errors.PersistedQueryNotFound:
-            return self.parse_result(self.actual_sync_request((headers)))
+            return self.parse_result(*self.actual_sync_request((headers)))
 
-    async def actual_async_request(self, headers: Optional[Dict[str, Any]]) -> str:
+    async def actual_async_request(
+        self, headers: Optional[Dict[str, Any]]
+    ) -> Tuple[str, int]:
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
         request_params = self.request_params(headers)
@@ -688,7 +689,7 @@ class Query(Generic[R]):
                     if wait is not None:
                         await asyncio.sleep(wait)
                         continue
-                return await response.text()
+                return await response.text(), response.status
         raise errors.MaxTriesExceededError()
 
     async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
@@ -706,9 +707,9 @@ class Query(Generic[R]):
         """
         self.check_validity()
         try:
-            return self.parse_result(await self.actual_async_request(headers))
+            return self.parse_result(*(await self.actual_async_request(headers)))
         except errors.PersistedQueryNotFound:
-            return self.parse_result(await self.actual_async_request(headers))
+            return self.parse_result(*(await self.actual_async_request(headers)))
 
     def __await__(
         self, headers: Optional[Dict[str, Any]] = None
@@ -741,8 +742,11 @@ class Query(Generic[R]):
             },
         }
 
-    def parse_result(self, text: str) -> R:
-        data = self.kit.loads(text)
+    def parse_result(self, text: str, status: int) -> R:
+        try:
+            data = self.kit.loads(text)
+        except json.JSONDecodeError as e:
+            raise errors.InvalidResponse(text, status) from e
         response_errors = self.kit.get_response_errors(data)
         try:
             self.kit.raise_response_errors(response_errors)
@@ -1103,7 +1107,7 @@ class Paginator(Generic[P]):
             self.query.variable_values["__page"] += 1
             self.query.check_validity()
             data, paginator_info = self.parse_result(
-                self.query.actual_sync_request(None)
+                *self.query.actual_sync_request(None)
             )
             self.paginator_info = paginator_info
             for item in data:
@@ -1120,16 +1124,17 @@ class Paginator(Generic[P]):
             self.query.check_validity()
             page = self.query.variable_values["__page"]
             last_page = self.paginator_info.lastPage if self.paginator_info else None
-            coros = [
+            coros: List[Coroutine[Any, Any, Tuple[str, int]]] = [
                 self.query.set_variables(__page=page + i).actual_async_request(None)
                 for i in range(1, self.batch_size + 1)
                 if last_page is None or page + i <= last_page
             ]
             self.query.variable_values["__page"] = page + self.batch_size
-            responses = [self.parse_result(i) for i in await asyncio.gather(*coros)]
+            # it's being really cranky about Never and stuff
+            responses = [self.parse_result(*i) for i in await asyncio.gather(*coros)] # type: ignore
             self.paginator_info = responses[-1][1]
-            for data_, _ in responses:
-                for item in data_:
+            for data, _ in responses:
+                for item in data:
                     self.queue.put_nowait(item)
         try:
             return self.queue.get_nowait()
@@ -1152,8 +1157,13 @@ class Paginator(Generic[P]):
         self.batch_size = size
         return self
 
-    def parse_result(self, text: str) -> Tuple[List[Any], data_classes.PaginatorInfo]:
-        response = self.kit.loads(text)
+    def parse_result(
+        self, text: str, status: int
+    ) -> Tuple[List[Any], data_classes.PaginatorInfo]:
+        try:
+            response = self.kit.loads(text)
+        except json.JSONDecodeError as e:
+            raise errors.InvalidResponse(text, status) from e
         self.kit.check_response_for_errors(response)
         # from_data returns Data, not PaginatorInfo
         return utils.convert_data_array(  # type: ignore
@@ -1248,10 +1258,11 @@ class Subscription(Generic[T]):
                 **self.filters_param,
             },
         ) as response:
-            response = await response.json()
-        if response.get("error") is not None:
-            raise errors.SubscribeError(response["error"])
-        return response["channel"]
+            data = await response.json()
+            if data.get("error") is not None:
+                raise errors.SubscribeError(data["error"])
+            return data["channel"]
+        raise errors.SubscribeError("Failed to request channel")
 
     async def unsubscribe(self) -> None:
         """Unsubscribe from the subscription"""
@@ -1462,6 +1473,9 @@ class Socket:
             data = await response.json()
             self.kit.check_response_for_errors(data)
             return data["auth"]
+        raise errors.SubscribeError(
+            f"Failed to authorize subscription to {subscription.channel}"
+        )
 
     async def send(self, event: str, data: Dict[str, Any]) -> None:
         await self.ws.send_json({"event": event, "data": data})

@@ -11,6 +11,7 @@ __all__ = (
     "SubscriptionDidNotSucceed",
     "PersistedQueryNotFound",
     "SubscribeError",
+    "InvalidResponse",
 )
 
 
@@ -51,4 +52,8 @@ class PersistedQueryNotFound(PnWKitException):
 
 
 class SubscribeError(PnWKitException):
+    ...
+
+
+class InvalidResponse(PnWKitException):
     ...
