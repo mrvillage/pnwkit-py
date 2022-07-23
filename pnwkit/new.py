@@ -689,7 +689,9 @@ class Query(Generic[R]):
                     if wait is not None:
                         await asyncio.sleep(wait)
                         continue
-                return await response.text(), response.status
+                text = await response.text()
+                status = response.status
+                return text, status
         raise errors.MaxTriesExceededError()
 
     async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
@@ -786,7 +788,7 @@ class Query(Generic[R]):
             self.kit,
             *self.fields,
             variables=self.variables.copy(),
-            variable_values=self.variable_values | variables,
+            variable_values={**self.variable_values, **variables},
             hash=self.hash,
         )
         query.resolved_hash = self.resolved_hash
@@ -1131,7 +1133,7 @@ class Paginator(Generic[P]):
             ]
             self.query.variable_values["__page"] = page + self.batch_size
             # it's being really cranky about Never and stuff
-            responses = [self.parse_result(*i) for i in await asyncio.gather(*coros)] # type: ignore
+            responses = [self.parse_result(*i) for i in await asyncio.gather(*coros)]  # type: ignore
             self.paginator_info = responses[-1][1]
             for data, _ in responses:
                 for item in data:
@@ -1183,7 +1185,9 @@ class Mutation(Query[R]):
             "X-Api-Key": self.kit.bot_key_api_key,
             "X-Bot-Key": self.kit.bot_key,
         }
-        return super().get(headers | mutation_headers if headers else mutation_headers)
+        return super().get(
+            {**headers, **mutation_headers} if headers else mutation_headers
+        )
 
     async def get_async(self, headers: Optional[Dict[str, Any]] = None) -> R:
         mutation_headers = {
@@ -1191,7 +1195,7 @@ class Mutation(Query[R]):
             "X-Bot-Key": self.kit.bot_key,
         }
         return await super().get_async(
-            headers | mutation_headers if headers else mutation_headers
+            {**headers, **mutation_headers} if headers else mutation_headers
         )
 
 
