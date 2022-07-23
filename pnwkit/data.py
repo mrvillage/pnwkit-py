@@ -78,9 +78,9 @@ class Data:
         Dict[str, Any]
             A dictionary of the object.
         """
-        return {
+        return {**{
             key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)
-        } | self.__dict__
+         }, **self.__dict__}
 
 
 class ApiKeyDetails(Data):
