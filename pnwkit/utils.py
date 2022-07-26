@@ -79,7 +79,7 @@ def find_event_data_class(name: str) -> Any:
         .removesuffix("_UPDATE")
     )
     name = "".join(i.capitalize() for i in name.split("_"))
-    if name == "Warattack":
+    if name.lower() == "warattack":
         name = "WarAttack"
     return getattr(data, name)
 
