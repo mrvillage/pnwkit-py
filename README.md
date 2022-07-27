@@ -152,6 +152,15 @@ result = query.get()
 print(f"First city of {result.the_nations[0].nation_name}: {result.the_nations[0].cities[0].name}")
 ```
 
+- Ordering results
+
+```py
+query = kit.query("nations", {}, "nation_name", pnwkit.OrderBy("date", pnwkit.Order.DESC))
+result = query.get()
+
+print(f"Oldest nation {result.the_nations[0].nation_name}")
+```
+
 You can look at the arguments and possible data to collect here by experimenting on the [GraphQL Playground](https://api.politicsandwar.com/graphql-playground).
 
 ## Moving Forward
@@ -160,4 +169,3 @@ You can look at the arguments and possible data to collect here by experimenting
 - Argument typings
 - In-built cache management with subscriptions
 - Support for query fragments
-- Support for orderBy

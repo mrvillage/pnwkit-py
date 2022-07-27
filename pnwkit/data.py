@@ -30,7 +30,38 @@ from typing import TYPE_CHECKING
 
 from . import utils
 
-__all__ = ("Nation", "PaginatorInfo")
+__all__ = (
+    "ApiKeyDetails",
+    "AlliancePositionEnum",
+    "WarPolicy",
+    "DomesticPolicy",
+    "Nation",
+    "AlliancePosition",
+    "Alliance",
+    "Treaty",
+    "Bankrec",
+    "TaxBracket",
+    "City",
+    "Treasure",
+    "WarType",
+    "War",
+    "AttackType",
+    "WarAttack",
+    "BountyType",
+    "Bounty",
+    "BBTeam",
+    "BBGame",
+    "BBPlayer",
+    "Color",
+    "GameInfo",
+    "Radiation",
+    "Tradeprice",
+    "TradeType",
+    "Trade",
+    "TreasureTrade",
+    "Embargo",
+    "PaginatorInfo",
+)
 
 if TYPE_CHECKING:
     from typing import Any, Callable, ClassVar, Dict, List, Optional
@@ -78,9 +109,10 @@ class Data:
         Dict[str, Any]
             A dictionary of the object.
         """
-        return {**{
-            key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)
-         }, **self.__dict__}
+        return {
+            **{key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)},
+            **self.__dict__,
+        }
 
 
 class ApiKeyDetails(Data):
@@ -849,8 +881,10 @@ class Trade(Data):
         "rid": int,
         "recipient_id": int,
         "receiver_id": int,
-        "date_accepted": datetime.datetime.fromisoformat,
-        "original_trade_id": int,
+        "date_accepted": lambda x: None
+        if x is None
+        else datetime.datetime.fromisoformat(x),
+        "original_trade_id": lambda x: None if x is None else int(x),
     }
 
     id: int

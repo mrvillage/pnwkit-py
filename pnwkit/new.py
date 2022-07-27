@@ -44,6 +44,8 @@ __all__ = (
     "QueryKit",
     "Query",
     "Result",
+    "Order",
+    "OrderBy",
     "Field",
     "Paginator",
     "Mutation",
@@ -60,6 +62,7 @@ if TYPE_CHECKING:
         Coroutine,
         Dict,
         Generator,
+        Iterable,
         List,
         Literal,
         Optional,
@@ -155,7 +158,7 @@ if TYPE_CHECKING:
     ]
     SubscriptionEventLiteral = Literal["create", "delete", "update"]
     BaseArgument = Union[str, int, float, bool]
-    Argument = Union[BaseArgument, "Variable"]
+    Argument = Union[BaseArgument, "Variable", "OrderBy", "Iterable[OrderBy]"]
     FieldValue = Union[str, "Field"]
     Callback = Callable[["T"], Coroutine[Any, Any, Any]]
     SubscriptionFilters = Dict[str, Union[BaseArgument, Sequence[BaseArgument]]]
@@ -950,6 +953,24 @@ class Result:
         return self
 
 
+class Order(enum.Enum):
+    ASC = "ASC"
+    ASCENDING = "ASC"
+    DESC = "DESC"
+    DESCENDING = "DESC"
+
+
+class OrderBy:
+    __slots__ = ("column", "order")
+
+    def __init__(self, column: str, order: Order) -> None:
+        self.column: str = column.upper()
+        self.order: Order = order
+
+    def __str__(self) -> str:
+        return f"{{column:{self.column},order:{self.order.value}}}"
+
+
 class Field:
     PAGINATOR_NAMES: ClassVar[Set[str]] = {
         "nations",
@@ -1063,8 +1084,12 @@ class Field:
     def resolve_argument(self, value: Union[Argument, Sequence[Argument]]) -> Any:
         if hasattr(value, "__iter__") and not isinstance(value, str):
             # pyright is not picking up the hasattr check
-            value = f"[{', '.join(str(i) for i in value)}]"  # type: ignore
-        return str(value).lower() if isinstance(value, bool) else value
+            return f"[{', '.join(self.resolve_argument(i) for i in value)}]"  # type: ignore
+        elif isinstance(value, bool):
+            return str(value).lower()
+        elif isinstance(value, str):
+            return f'"{value}"'
+        return str(value)
 
     def resolve_fields(self) -> str:
         return f"{{__typename {' '.join(field.resolve() if isinstance(field, Field) else field.replace('{', '{__typename ') for field in self.fields)}}}"
