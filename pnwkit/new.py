@@ -451,6 +451,7 @@ class QueryKit:
         model: SubscriptionModelLiteral,
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = None,
+        *callbacks: Callback[T],
     ) -> Subscription[Any]:
 
         """Create a new subscription with this QueryKit.
@@ -460,15 +461,20 @@ class QueryKit:
         model : SubscriptionModelLiteral
             The model to receive events about
         event : SubscriptionEventLiteral
+            The event type to receive events for
         filters : Optional[SubscriptionFilters]
             The parameters to provide to the subscription to filter the events
+        callbacks : Callback[T]
+            A list of async functions to call when an event is received
 
         Returns
         -------
         Subscription[Any]
             A Subscription that can be subscribed too.
         """
-        return await Subscription[Any].subscribe(self, model, event, filters or {})
+        return await Subscription[Any].subscribe(
+            self, model, event, filters or {}, *callbacks
+        )
 
     def mutation(
         self,
