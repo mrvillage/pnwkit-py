@@ -72,12 +72,8 @@ def find_data_class(name: str) -> Any:
 
 
 def find_event_data_class(name: str) -> Any:
-    name = (
-        name.removeprefix("BULK_")
-        .removesuffix("_CREATE")
-        .removesuffix("_DELETE")
-        .removesuffix("_UPDATE")
-    )
+    name = remove_prefix(name, "BULK_")
+    name = remove_suffix(name, "_CREATE", "_UPDATE", "_DELETE")
     name = "".join(i.capitalize() for i in name.split("_"))
     if name.lower() == "warattack":
         name = "WarAttack"
@@ -91,3 +87,17 @@ def print_exception_with_header(header: str, error: Exception) -> None:
 
 def print_exception(error: Exception) -> None:
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+
+def remove_prefix(s: str, *prefixes: str) -> str:
+    for prefix in prefixes:
+        if s.startswith(prefix):
+            return s[len(prefix) :]
+    return s
+
+
+def remove_suffix(s: str, *suffixes: str) -> str:
+    for suffix in suffixes:
+        if s.endswith(suffix):
+            return s[: -len(suffix)]
+    return s
