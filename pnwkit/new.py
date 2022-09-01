@@ -1133,46 +1133,55 @@ class Paginator(Generic[P]):
     def __aiter__(self) -> Self:
         return self
 
+    def fill(self) -> None:
+        """Fills the queue with the next page of data"""
+        if self.paginator_info is not None and not self.paginator_info.hasMorePages:
+            return
+        self.query.variable_values["__page"] += 1
+        self.query.check_validity()
+        data, paginator_info = self.parse_result(*self.query.actual_sync_request(None))
+        self.paginator_info = paginator_info
+        for item in data:
+            self.queue.put_nowait(item)
+
     def __next__(self) -> P:
         if self.queue.empty():
-            if self.paginator_info is not None and not self.paginator_info.hasMorePages:
-                raise StopIteration
-            self.query.variable_values["__page"] += 1
-            self.query.check_validity()
-            data, paginator_info = self.parse_result(
-                *self.query.actual_sync_request(None)
-            )
-            self.paginator_info = paginator_info
-            for item in data:
-                self.queue.put_nowait(item)
+            self.fill()
         try:
             return self.queue.get_nowait()
         except asyncio.QueueEmpty as e:
             raise StopIteration from e
 
+    async def fill_async(self) -> None:
+        """Fills the queue with the next page of data"""
+        if self.paginator_info is not None and not self.paginator_info.hasMorePages:
+            return
+        self.query.check_validity()
+        page = self.query.variable_values["__page"]
+        last_page = self.paginator_info.lastPage if self.paginator_info else None
+        coros: List[Coroutine[Any, Any, Tuple[str, int]]] = [
+            self.query.set_variables(__page=page + i).actual_async_request(None)
+            for i in range(1, self.batch_size + 1)
+            if last_page is None or page + i <= last_page
+        ]
+        self.query.variable_values["__page"] = page + self.batch_size
+        # it's being really cranky about Never and stuff
+        responses = [self.parse_result(*i) for i in await asyncio.gather(*coros)]  # type: ignore
+        self.paginator_info = responses[-1][1]
+        for data, _ in responses:
+            for item in data:
+                self.queue.put_nowait(item)
+
     async def __anext__(self) -> P:
         if self.queue.empty():
-            if self.paginator_info is not None and not self.paginator_info.hasMorePages:
-                raise StopAsyncIteration
-            self.query.check_validity()
-            page = self.query.variable_values["__page"]
-            last_page = self.paginator_info.lastPage if self.paginator_info else None
-            coros: List[Coroutine[Any, Any, Tuple[str, int]]] = [
-                self.query.set_variables(__page=page + i).actual_async_request(None)
-                for i in range(1, self.batch_size + 1)
-                if last_page is None or page + i <= last_page
-            ]
-            self.query.variable_values["__page"] = page + self.batch_size
-            # it's being really cranky about Never and stuff
-            responses = [self.parse_result(*i) for i in await asyncio.gather(*coros)]  # type: ignore
-            self.paginator_info = responses[-1][1]
-            for data, _ in responses:
-                for item in data:
-                    self.queue.put_nowait(item)
+            await self.fill_async()
         try:
             return self.queue.get_nowait()
         except asyncio.QueueEmpty as e:
             raise StopAsyncIteration from e
+
+    def __await__(self) -> Generator[Any, None, None]:
+        return self.fill_async().__await__()
 
     def batch(self, size: int, /) -> Self:
         """Batch the queries used to fill the paginator, will run multiple queries simultaneously corresponding to the size provided, only works when using asynchronous iteration
