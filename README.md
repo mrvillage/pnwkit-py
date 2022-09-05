@@ -101,8 +101,7 @@ async def callback(nation):
   ... # this function will be called every time an event is received
   # nation is a Nation object with the updated fields
 
-query = kit.subscription("nationUpdate", {"id": 251584}, "id soldiers")
-subscription = await query.subscribe(callback)
+subscription = await kit.subscribe("nation", "update")
 async for nation in subscription:
   ... # here nation is a Nation object with the updated fields
 ```
