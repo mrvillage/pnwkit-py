@@ -763,7 +763,7 @@ class Query(Generic[R]):
             self.kit.raise_response_errors(response_errors)
         except errors.GraphQLError as e:
             if any(
-                i["extensions"]["code"] == "PERSISTED_QUERY_NOT_FOUND"
+                (code := i["extensions"].get("code")) is not None and code ==  "PERSISTED_QUERY_NOT_FOUND"
                 for i in response_errors
             ):
                 self.hash = None
