@@ -564,6 +564,12 @@ class Query(Generic[R]):
         self.hash: Optional[str] = hash
         self.resolved_hash: Optional[str] = None
 
+        match hash:
+            case None:
+                self.resolved_hash = None
+            case _:
+                self.resolved_hash = hash
+
     def query(
         self,
         field: RootFieldLiteral,
@@ -763,7 +769,8 @@ class Query(Generic[R]):
             self.kit.raise_response_errors(response_errors)
         except errors.GraphQLError as e:
             if any(
-                (code := i["extensions"].get("code")) is not None and code ==  "PERSISTED_QUERY_NOT_FOUND"
+                (code := i["extensions"].get("code")) is not None
+                and code == "PERSISTED_QUERY_NOT_FOUND"
                 for i in response_errors
             ):
                 self.hash = None
@@ -1088,13 +1095,13 @@ class Field:
         return f"({', '.join(f'{name}:{self.resolve_argument(value)}' for name, value in self.arguments.items())})"
 
     def resolve_argument(self, value: Union[Argument, Sequence[Argument]]) -> Any:
-        if hasattr(value, "__iter__") and not isinstance(value, str):
+        if isinstance(value, str):
+            return f'"{value}"'
+        elif hasattr(value, "__iter__"):
             # pyright is not picking up the hasattr check
             return f"[{', '.join(self.resolve_argument(i) for i in value)}]"  # type: ignore
         elif isinstance(value, bool):
             return str(value).lower()
-        elif isinstance(value, str):
-            return f'"{value}"'
         return str(value)
 
     def resolve_fields(self) -> str:
