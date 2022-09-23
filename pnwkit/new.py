@@ -564,12 +564,6 @@ class Query(Generic[R]):
         self.hash: Optional[str] = hash
         self.resolved_hash: Optional[str] = None
 
-        match hash:
-            case None:
-                self.resolved_hash = None
-            case _:
-                self.resolved_hash = hash
-
     def query(
         self,
         field: RootFieldLiteral,
