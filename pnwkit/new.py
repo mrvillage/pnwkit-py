@@ -1549,4 +1549,4 @@ class Socket:
         if subscription.channel is not None:
             self.channels.pop(subscription.channel, None)
             self.subscriptions.remove(subscription)
-            await self.send("pusher:subscribe", {"channel": subscription.channel})
+            await self.send("pusher:unsubscribe", {"channel": subscription.channel})
