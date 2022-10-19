@@ -1,6 +1,10 @@
 from setuptools import setup
 
-requirements = ["aiohttp>=3.7.0,<3.8.", "requests>=2.25.0,<2.26.0"]
+requirements = [
+    "aiohttp>=3.7.0,<3.9.0",
+    "requests>=2.25.0,<2.29.0",
+    "beautifulsoup4>=4.10.0,<4.12.0",
+]
 
 version = ""
 with open("pnwkit/__init__.py") as f:
