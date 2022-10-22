@@ -763,7 +763,8 @@ class Query(Generic[R]):
             self.kit.raise_response_errors(response_errors)
         except errors.GraphQLError as e:
             if any(
-                (code := i["extensions"].get("code")) is not None
+                (extensions := i.get("extensions")) is not None
+                and (code := extensions.get("code")) is not None
                 and code == "PERSISTED_QUERY_NOT_FOUND"
                 for i in response_errors
             ):
@@ -920,7 +921,7 @@ class Query(Generic[R]):
         Paginator[Any]
             The Paginator with it's type corresponding to the type of the field provided
         """
-        return Paginator.from_query(self, field)
+        return Paginator[Any].from_query(self, field)
 
 
 class Result:
