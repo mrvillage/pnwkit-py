@@ -53,7 +53,7 @@ query = kit.query("nations", {"id": 251584, "first": 1}, "nation_name")
 # get synchronously
 result = query.get()
 # get asynchronously
-result = await query.async_get()
+result = await query.get_async()
 # OR
 result = await query
 
