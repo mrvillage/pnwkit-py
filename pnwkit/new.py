@@ -307,6 +307,7 @@ class QueryKit:
         model: Literal["alliance_position"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.AlliancePosition]:
         ...
 
@@ -316,6 +317,7 @@ class QueryKit:
         model: Literal["bankrec"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Bankrec]:
         ...
 
@@ -325,6 +327,7 @@ class QueryKit:
         model: Literal["bbgame"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.BBGame]:
         ...
 
@@ -334,6 +337,8 @@ class QueryKit:
     #     model: Literal["bbplayer"],
     #     event: SubscriptionEventLiteral,
     #     filters: Optional[SubscriptionFilters] = ...,
+    #     *callbacks: Callback[T],
+
     # ) -> Subscription[data_classes.BBPlayer]:
     #     ...
 
@@ -343,6 +348,7 @@ class QueryKit:
         model: Literal["bbteam"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.BBTeam]:
         ...
 
@@ -352,6 +358,7 @@ class QueryKit:
         model: Literal["bounty"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Bounty]:
         ...
 
@@ -361,6 +368,7 @@ class QueryKit:
         model: Literal["city"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.City]:
         ...
 
@@ -370,6 +378,7 @@ class QueryKit:
         model: Literal["nation"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Nation]:
         ...
 
@@ -379,6 +388,7 @@ class QueryKit:
         model: Literal["tax_bracket"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.TaxBracket]:
         ...
 
@@ -388,6 +398,7 @@ class QueryKit:
         model: Literal["trade"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Trade]:
         ...
 
@@ -397,6 +408,7 @@ class QueryKit:
         model: Literal["treaty"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Treaty]:
         ...
 
@@ -406,6 +418,7 @@ class QueryKit:
         model: Literal["warattack"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.WarAttack]:
         ...
 
@@ -415,6 +428,7 @@ class QueryKit:
         model: Literal["war"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.War]:
         ...
 
@@ -424,6 +438,7 @@ class QueryKit:
         model: Literal["treasure_trade"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.TreasureTrade]:
         ...
 
@@ -433,6 +448,7 @@ class QueryKit:
         model: Literal["embargo"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[data_classes.Embargo]:
         ...
 
@@ -442,6 +458,7 @@ class QueryKit:
         model: SubscriptionModelLiteral,
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
     ) -> Subscription[Any]:
         ...
 
@@ -1425,8 +1442,9 @@ class Socket:
                     try:
                         # message.type is Unknown
                         if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
-                            if self.ws.close_code is None or self.ws.close_code in range(
-                                4000, 4100
+                            if (
+                                self.ws.close_code is None
+                                or self.ws.close_code in range(4000, 4100)
                             ):
                                 raise errors.NoReconnect(
                                     f"WebSocket closed with close code {self.ws.close_code}"
@@ -1458,7 +1476,9 @@ class Socket:
                             self.ponged = True
                             self.pinged = False
                         elif event == "pusher:ping":
-                            await self.ws.send_json({"event": "pusher:pong", "data": {}})
+                            await self.ws.send_json(
+                                {"event": "pusher:pong", "data": {}}
+                            )
                         else:
                             data = self.kit.loads(ws_event["data"])
                             channel = ws_event["channel"]
