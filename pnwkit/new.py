@@ -26,7 +26,6 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import enum
 import hashlib
 import json
@@ -1421,14 +1420,13 @@ class Socket:
 
     async def actual_run(self) -> None:
         while True:
-            with contextlib.suppress(asyncio.TimeoutError):
+            try:
                 async for message in self.ws:
                     try:
                         # message.type is Unknown
                         if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
-                            if (
-                                self.ws.close_code is None
-                                or self.ws.close_code in range(4000, 4100)
+                            if self.ws.close_code is None or self.ws.close_code in range(
+                                4000, 4100
                             ):
                                 raise errors.NoReconnect(
                                     f"WebSocket closed with close code {self.ws.close_code}"
@@ -1460,9 +1458,7 @@ class Socket:
                             self.ponged = True
                             self.pinged = False
                         elif event == "pusher:ping":
-                            await self.ws.send_json(
-                                {"event": "pusher:pong", "data": {}}
-                            )
+                            await self.ws.send_json({"event": "pusher:pong", "data": {}})
                         else:
                             data = self.kit.loads(ws_event["data"])
                             channel = ws_event["channel"]
@@ -1470,12 +1466,13 @@ class Socket:
                             if subscription is None:
                                 continue
                             subscription.handle_event(event, data)
-                    except asyncio.TimeoutError as e:
-                        raise e
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
                         )
+            except asyncio.TimeoutError as e:
+                utils.print_exception_with_header("Encountered exception in socket", e)
+                raise e
 
     async def async_call_later_pong(self) -> None:
         await self.ws.close(code=1002, message=b"Pong timeout")
