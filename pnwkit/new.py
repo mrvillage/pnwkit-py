@@ -1434,6 +1434,12 @@ class Socket:
         for subscription in self.subscriptions:
             subscription.succeeded.clear()
             await self.subscribe(subscription)
+            
+    async def close(self) -> None:
+        if self.kit.aiohttp_session is None or self.ws.closed == True):
+            return
+        self.ws.close()
+        self.task.cancel() # might need a try except on this to handle task exception.
 
     async def actual_run(self) -> None:
         while True:
@@ -1486,6 +1492,8 @@ class Socket:
                             if subscription is None:
                                 continue
                             subscription.handle_event(event, data)
+                    except errors.NoReconnect as e:
+                        raise e # propegate the error to be handled later.
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
