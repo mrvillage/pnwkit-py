@@ -1438,8 +1438,8 @@ class Socket:
     async def close(self) -> None:
         if self.kit.aiohttp_session is None or self.ws.closed == True):
             return
-        self.ws.close()
-        self.task.cancel() # might need a try except on this to handle task exception.
+        await self.ws.close()
+        await self.task.cancel() # might need a try except on this to handle task exception.
 
     async def actual_run(self) -> None:
         while True:
