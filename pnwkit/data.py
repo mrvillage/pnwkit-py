@@ -124,11 +124,12 @@ class ApiKeyDetails(Data):
 class Account(Data):
     _CONVERTERS = {
         "last_active": datetime.datetime.fromisoformat,
+        "discord_id": lambda x: int(x) if x is not None else None,
     }
     id: int
     last_active: int
     credits: Optional[int]
-    discord_id: Optional[str]
+    discord_id: Optional[int]
 
 
 class AlliancePositionEnum(enum.Enum):
