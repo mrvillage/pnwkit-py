@@ -128,7 +128,7 @@ class Account(Data):
     id: int
     last_active: int
     credits: Optional[int]
-    discord_id: Optional[int]
+    discord_id: Optional[str]
 
 
 class AlliancePositionEnum(enum.Enum):
