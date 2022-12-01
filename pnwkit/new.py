@@ -1493,7 +1493,7 @@ class Socket:
                                 continue
                             subscription.handle_event(event, data)
                     except errors.NoReconnect as e:
-                        raise e # propegate the error to be handled later.
+                        raise e
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
