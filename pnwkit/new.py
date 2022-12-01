@@ -385,6 +385,16 @@ class QueryKit:
     @overload
     async def subscribe(
         self,
+        model: Literal["account"],
+        event: SubscriptionEventLiteral,
+        filters: Optional[SubscriptionFilters] = ...,
+        *callbacks: Callback[T],
+    ) -> Subscription[data_classes.Account]:
+        ...
+
+    @overload
+    async def subscribe(
+        self,
         model: Literal["tax_bracket"],
         event: SubscriptionEventLiteral,
         filters: Optional[SubscriptionFilters] = ...,

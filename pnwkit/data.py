@@ -121,6 +121,15 @@ class ApiKeyDetails(Data):
     requests: int
     max_requests: int
 
+class Account(Data):
+    _CONVERTERS = {
+        "last_active": datetime.datetime.fromisoformat,
+    }
+    id: int
+    last_active: int
+    credits: Optional[int]
+    discord_id: Optional[int]
+
 
 class AlliancePositionEnum(enum.Enum):
     NOALLIANCE = 0
