@@ -135,6 +135,9 @@ if TYPE_CHECKING:
         "warUpdate",
         "warAttackCreate",
         "warAttackDelete",
+        "accountCreate",
+        "accountDelete",
+        "accountUpdate",
     ]
     MutationFieldLiteral = Literal["bankDeposit", "bankWithdraw"]
     SubscriptionModelLiteral = Literal[
@@ -154,6 +157,7 @@ if TYPE_CHECKING:
         "war",
         "treasure_trade",
         "embargo",
+        "account",
     ]
     SubscriptionEventLiteral = Literal["create", "delete", "update"]
     BaseArgument = Union[str, int, float, bool]

@@ -127,7 +127,7 @@ class Account(Data):
         "discord_id": lambda x: int(x) if x is not None else None,
     }
     id: int
-    last_active: int
+    last_active: datetime.datetime
     credits: Optional[int]
     discord_id: Optional[int]
 
