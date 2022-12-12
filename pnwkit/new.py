@@ -1456,18 +1456,7 @@ class Socket:
                     try:
                         # message.type is Unknown
                         if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
-                            if (
-                                self.ws.close_code is None
-                                or self.ws.close_code in range(4000, 4100)
-                            ):
-                                raise errors.NoReconnect(
-                                    f"WebSocket closed with close code {self.ws.close_code}"
-                                )
-                            elif self.ws.close_code in range(4100, 4200):
-                                await asyncio.sleep(1)
-                                await self.reconnect()
-                            else:
-                                await self.reconnect()
+                            await self.handle_socket_close()
                         elif message.type not in {aiohttp.WSMsgType.TEXT, aiohttp.WSMsgType}:  # type: ignore
                             continue
                         # message.data is Unknown
@@ -1504,9 +1493,22 @@ class Socket:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
                         )
+                if self.ws.closed:
+                    await self.handle_socket_close()
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
                 raise e
+
+    async def handle_socket_close(self) -> None:
+        if self.ws.close_code is None or self.ws.close_code in range(4000, 4100):
+            raise errors.NoReconnect(
+                f"WebSocket closed with close code {self.ws.close_code}"
+            )
+        elif self.ws.close_code in range(4100, 4200):
+            await asyncio.sleep(1)
+            await self.reconnect()
+        else:
+            await self.reconnect()
 
     async def async_call_later_pong(self) -> None:
         await self.ws.close(code=1002, message=b"Pong timeout")
