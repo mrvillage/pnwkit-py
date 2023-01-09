@@ -27,7 +27,7 @@ from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
 from .legacy.keys import set_bot_key, set_key  # type: ignore
 from .new import *
 
-__version__ = "2.6.1"
+__version__ = "2.6.2"
 
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query

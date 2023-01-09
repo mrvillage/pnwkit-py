@@ -1420,6 +1420,7 @@ class Socket:
         self.pinged: bool = False
         self.subscriptions: Set[Subscription[Any]] = set()
         self.channels: Dict[str, Subscription[Any]] = {}
+        self.close_code: Optional[int] = None
 
     @classmethod
     async def connect(cls, kit: QueryKit) -> Self:
@@ -1438,6 +1439,7 @@ class Socket:
     async def reconnect(self) -> None:
         if self.kit.aiohttp_session is None:
             self.kit.aiohttp_session = aiohttp.ClientSession()
+        self.close_code = None
         self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
             self.kit.socket_url,
             max_msg_size=0,
@@ -1495,22 +1497,25 @@ class Socket:
                         )
                 if self.ws.closed:
                     await self.handle_socket_close()
+                    print("socket closed")
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
                 raise e
 
     async def handle_socket_close(self) -> None:
-        if self.ws.close_code is None or self.ws.close_code in range(4000, 4100):
+        close_code = self.ws.close_code or self.close_code
+        if close_code is None or close_code in range(4000, 4100):
             raise errors.NoReconnect(
-                f"WebSocket closed with close code {self.ws.close_code}"
+                f"WebSocket closed with close code {close_code}"
             )
-        elif self.ws.close_code in range(4100, 4200):
+        elif close_code in range(4100, 4200):
             await asyncio.sleep(1)
             await self.reconnect()
         else:
             await self.reconnect()
 
     async def async_call_later_pong(self) -> None:
+        self.close_code = 1002
         await self.ws.close(code=1002, message=b"Pong timeout")
         await self.reconnect()
 
@@ -1574,7 +1579,7 @@ class Socket:
         try:
             await asyncio.wait_for(subscription.succeeded.wait(), timeout=60)
         except asyncio.TimeoutError as e:
-            self.subscriptions.remove(subscription)
+            self.subscriptions.discard(subscription)
             if subscription.channel is not None:
                 self.channels.pop(subscription.channel, None)
             raise errors.SubscriptionDidNotSucceed() from e
@@ -1582,5 +1587,5 @@ class Socket:
     async def unsubscribe(self, subscription: Subscription[Any]) -> None:
         if subscription.channel is not None:
             self.channels.pop(subscription.channel, None)
-            self.subscriptions.remove(subscription)
+            self.subscriptions.discard(subscription)
             await self.send("pusher:unsubscribe", {"channel": subscription.channel})
