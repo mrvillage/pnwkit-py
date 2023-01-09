@@ -1506,7 +1506,6 @@ class Socket:
                         )
                 if self.ws.closed:
                     await self.handle_socket_close()
-                    print("socket closed")
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
                 raise e
