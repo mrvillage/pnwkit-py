@@ -1421,6 +1421,7 @@ class Socket:
         self.subscriptions: Set[Subscription[Any]] = set()
         self.channels: Dict[str, Subscription[Any]] = {}
         self.close_code: Optional[int] = None
+        self.reconnecting: bool = False
 
     @classmethod
     async def connect(cls, kit: QueryKit) -> Self:
@@ -1437,19 +1438,27 @@ class Socket:
         return self
 
     async def reconnect(self) -> None:
-        if self.kit.aiohttp_session is None:
-            self.kit.aiohttp_session = aiohttp.ClientSession()
-        self.close_code = None
-        self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
-            self.kit.socket_url,
-            max_msg_size=0,
-            autoclose=False,
-            timeout=30,
-        )
-        self.ponged = True
-        for subscription in self.subscriptions:
-            subscription.succeeded.clear()
-            await self.subscribe(subscription)
+        if self.reconnecting:
+            return
+        else:
+            self.reconnecting = True
+        try:
+            if self.kit.aiohttp_session is None:
+                self.kit.aiohttp_session = aiohttp.ClientSession()
+            self.close_code = None
+            self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
+                self.kit.socket_url,
+                max_msg_size=0,
+                autoclose=False,
+                timeout=30,
+            )
+            self.ponged = True
+            for subscription in self.subscriptions:
+                subscription.succeeded.clear()
+                await self.subscribe(subscription)
+        except BaseException as e:
+            self.reconnecting = False
+            raise e
 
     async def actual_run(self) -> None:
         while True:
