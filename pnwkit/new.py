@@ -1576,7 +1576,7 @@ class Socket:
         try:
             auth = await self.authorize_subscription(subscription)
         except errors.Unauthorized:
-            self.channel = await subscription.request_channel()
+            subscription.channel = await subscription.request_channel()
             auth = await self.authorize_subscription(subscription)
         await self.send(
             "pusher:subscribe", {"auth": auth, "channel": subscription.channel}
