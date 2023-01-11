@@ -26,6 +26,7 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import enum
 import hashlib
 import json
@@ -1504,7 +1505,7 @@ class Socket:
                         utils.print_exception_with_header(
                             "Encountered ConnectionResetError in socket", e
                         )
-                        await self.ws.close()
+                        await self.close_and_reconnect()
                         break
                     except Exception as e:
                         utils.print_exception_with_header(
@@ -1519,42 +1520,47 @@ class Socket:
     async def handle_socket_close(self) -> None:
         close_code = self.ws.close_code or self.close_code
         if close_code is None or close_code in range(4000, 4100):
-            raise errors.NoReconnect(
-                f"WebSocket closed with close code {close_code}"
-            )
+            raise errors.NoReconnect(f"WebSocket closed with close code {close_code}")
         elif close_code in range(4100, 4200):
             await asyncio.sleep(1)
             await self.reconnect()
         else:
             await self.reconnect()
 
-    async def async_call_later_pong(self) -> None:
+    async def close_and_reconnect(self, message: bytes = b"Pong timeout") -> None:
         self.close_code = 1002
-        await self.ws.close(code=1002, message=b"Pong timeout")
+        with contextlib.suppress(ConnectionResetError):
+            await self.ws.close(code=1002, message=message)
         await self.reconnect()
 
     def call_later_pong(self) -> None:
         if not self.ponged:
-            asyncio.create_task(self.async_call_later_pong())
+            asyncio.create_task(self.close_and_reconnect())
 
     async def ping_pong(self) -> None:
         while True:
-            await asyncio.sleep(
-                self.last_message + self.activity_timeout - time.perf_counter()
-            )
-            if (
-                self.last_message + self.activity_timeout > time.perf_counter()
-                or self.pinged
-            ):
-                continue
-            await self.ws.send_json({"event": "pusher:ping", "data": {}})
-            self.ponged = False
-            self.pinged = True
-            self.last_ping = time.perf_counter()
-            asyncio.get_running_loop().call_later(30, self.call_later_pong)
+            try:
+                await asyncio.sleep(
+                    self.last_message + self.activity_timeout - time.perf_counter()
+                )
+                if (
+                    self.last_message + self.activity_timeout > time.perf_counter()
+                    or self.pinged
+                ):
+                    continue
+                await self.ws.send_json({"event": "pusher:ping", "data": {}})
+                self.ponged = False
+                self.pinged = True
+                self.last_ping = time.perf_counter()
+                asyncio.get_running_loop().call_later(
+                    self.activity_timeout, self.call_later_pong
+                )
+            except ConnectionResetError:
+                asyncio.create_task(self.close_and_reconnect(b"Connection reset"))
 
     def run(self) -> None:
         self.task = asyncio.create_task(self.actual_run())
+        self.task.exception()
         self.ping_pong_task = asyncio.create_task(self.ping_pong())
 
     async def authorize_subscription(self, subscription: Subscription[Any]) -> str:
@@ -1576,7 +1582,13 @@ class Socket:
         )
 
     async def send(self, event: str, data: Dict[str, Any]) -> None:
-        await self.ws.send_json({"event": event, "data": data})
+        if self.ws.closed:
+            await self.close_and_reconnect()
+        try:
+            await self.ws.send_json({"event": event, "data": data})
+        except ConnectionResetError:
+            await self.close_and_reconnect()
+            await self.ws.send_json({"event": event, "data": data})
 
     async def subscribe(self, subscription: Subscription[Any]) -> None:
         try:

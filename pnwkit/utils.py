@@ -83,11 +83,11 @@ def find_event_data_class(name: str) -> Any:
 def print_exception_with_header(header: str, error: Exception) -> None:
     print(header, file=sys.stderr)
     print_exception(error)
-    sys.stderr.flush()
 
 
 def print_exception(error: Exception) -> None:
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+    sys.stderr.flush()
 
 
 def remove_prefix(s: str, *prefixes: str) -> str:
