@@ -1500,6 +1500,12 @@ class Socket:
                             if subscription is None:
                                 continue
                             subscription.handle_event(event, data)
+                    except ConnectionResetError as e:
+                        utils.print_exception_with_header(
+                            "Encountered ConnectionResetError in socket", e
+                        )
+                        await self.ws.close()
+                        break
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
