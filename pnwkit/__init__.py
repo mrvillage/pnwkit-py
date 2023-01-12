@@ -22,12 +22,38 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
+import logging
+from logging import NullHandler
+from typing import TextIO
+
 from .data import *
 from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
 from .legacy.keys import set_bot_key, set_key  # type: ignore
 from .new import *
 
 __version__ = "2.6.6"
+
+# Set default logging handler to avoid "No handler found" warnings.
+logging.getLogger(__name__).addHandler(NullHandler())
+
+def add_stderr_logger(level: int = logging.DEBUG) -> logging.StreamHandler[TextIO]:
+    """
+    Helper for quickly adding a StreamHandler to the logger. Useful for
+    debugging.
+    Returns the handler after adding it.
+    """
+    # This method needs to be in this __init__.py to get the __name__ correct
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(level)
+    logger.debug(f"Added a stderr logging handler to logger: {__name__}")
+    return handler
+
+# ... Clean up.
+del NullHandler
+
 
 # shortcuts for pnwkit.xxx syntax as opposed to pnwkit.pnwkit.xxx
 alliance_query = pnwkit.alliance_query
