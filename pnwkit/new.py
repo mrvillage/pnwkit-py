@@ -1417,8 +1417,7 @@ class Socket:
         self.activity_timeout: int = 120
         self.last_message: float = 0
         self.last_ping: float = 0
-        self.ponged: bool = True
-        self.pinged: bool = False
+        self.last_pong: float = 0
         self.subscriptions: Set[Subscription[Any]] = set()
         self.channels: Dict[str, Subscription[Any]] = {}
         self.close_code: Optional[int] = None
@@ -1443,6 +1442,10 @@ class Socket:
             return
         else:
             self.reconnecting = True
+        # ensure the ping, pong loop doesn't close the connection due to thinking it timed out when the connection was broken and needs to be reconnected
+        self.last_message = time.perf_counter()
+        self.last_ping = time.perf_counter()
+        self.last_pong = time.perf_counter() + 1
         try:
             if self.kit.aiohttp_session is None:
                 self.kit.aiohttp_session = aiohttp.ClientSession()
@@ -1453,7 +1456,6 @@ class Socket:
                 autoclose=False,
                 timeout=30,
             )
-            self.ponged = True
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
@@ -1488,8 +1490,7 @@ class Socket:
                                 continue
                             subscription.succeeded.set()
                         elif event == "pusher:pong":
-                            self.ponged = True
-                            self.pinged = False
+                            self.last_pong = time.perf_counter()
                         elif event == "pusher:ping":
                             await self.ws.send_json(
                                 {"event": "pusher:pong", "data": {}}
@@ -1533,28 +1534,27 @@ class Socket:
             await self.ws.close(code=1002, message=message)
         await self.reconnect()
 
-    def call_later_pong(self) -> None:
-        if not self.ponged:
-            asyncio.create_task(self.close_and_reconnect())
-
     async def ping_pong(self) -> None:
         while True:
             try:
+                # sleeps until next ping
                 await asyncio.sleep(
                     self.last_message + self.activity_timeout - time.perf_counter()
                 )
-                if (
-                    self.last_message + self.activity_timeout > time.perf_counter()
-                    or self.pinged
-                ):
+                # if received a message within activity timeout, continue to next iteration since we do not need to ping
+                if self.last_message + self.activity_timeout > time.perf_counter():
+                    continue
+                if self.last_ping > self.last_pong:
+                    # if pinged, not received pong, passed timeout, close and reconnect
+                    if self.last_ping + self.activity_timeout > time.perf_counter():
+                        # has pinged, has not received pong, and has not received any other messages in activity_timeout
+                        # therefore, connection is dead and should be closed and reconnected
+                        await self.close_and_reconnect()
+                        await asyncio.sleep(self.activity_timeout)
+                    # otherwise just continue to next iteration
                     continue
                 await self.ws.send_json({"event": "pusher:ping", "data": {}})
-                self.ponged = False
-                self.pinged = True
                 self.last_ping = time.perf_counter()
-                asyncio.get_running_loop().call_later(
-                    self.activity_timeout, self.call_later_pong
-                )
             except ConnectionResetError:
                 asyncio.create_task(self.close_and_reconnect(b"Connection reset"))
 
