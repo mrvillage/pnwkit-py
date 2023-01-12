@@ -45,7 +45,7 @@ def add_stderr_logger(level: int = logging.DEBUG) -> logging.StreamHandler[TextI
     # This method needs to be in this __init__.py to get the __name__ correct
     logger = logging.getLogger(__name__)
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"))
     logger.addHandler(handler)
     logger.setLevel(level)
     logger.debug(f"Added a stderr logging handler to logger: {__name__}")
