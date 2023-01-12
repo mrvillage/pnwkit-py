@@ -1578,9 +1578,9 @@ class Socket:
                 # if received a message within activity timeout, continue to next iteration since we do not need to ping
                 if self.last_message + self.activity_timeout > time.perf_counter():
                     continue
-                if self.last_ping + self.activity_timeout > self.last_pong:
+                if self.last_ping > self.last_pong:
                     # if pinged, not received pong, passed timeout, close and reconnect
-                    if self.last_ping + self.activity_timeout > time.perf_counter():
+                    if time.perf_counter() > self.last_ping + self.activity_timeout:
                         logger.debug("ping_pong - Pong timeout")
                         # has pinged, has not received pong, and has not received any other messages in activity_timeout
                         # therefore, connection is dead and should be closed and reconnected
