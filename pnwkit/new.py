@@ -1417,7 +1417,7 @@ class Socket:
         self.activity_timeout: int = 120
         self.last_message: float = 0
         self.last_ping: float = 0
-        self.last_pong: float = 0
+        self.last_pong: float = 1
         self.subscriptions: Set[Subscription[Any]] = set()
         self.channels: Dict[str, Subscription[Any]] = {}
         self.close_code: Optional[int] = None
@@ -1553,8 +1553,15 @@ class Socket:
                         await asyncio.sleep(self.activity_timeout)
                     # otherwise just continue to next iteration
                     continue
+                # don't send ping if last ping was within activity_timeout
+                if self.last_ping + self.activity_timeout > time.perf_counter():
+                    continue
+                # don't send ping if last ping was not ponged
+                if self.last_pong < self.last_ping:
+                    continue
                 await self.ws.send_json({"event": "pusher:ping", "data": {}})
                 self.last_ping = time.perf_counter()
+
             except ConnectionResetError:
                 asyncio.create_task(self.close_and_reconnect(b"Connection reset"))
 
