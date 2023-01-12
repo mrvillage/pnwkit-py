@@ -543,7 +543,7 @@ class QueryKit:
         )
 
     async def subscribe_internal(self, subscription: Subscription[Any]) -> None:
-        logger.debug("Subscribing to %s", subscription)
+        logger.debug("subscribe_internal -> Subscribing to %s", subscription)
         if self.socket is None:
             logger.debug("Creating new socket")
             self.socket = await Socket.connect(self)
@@ -1316,7 +1316,7 @@ class Subscription(Generic[T]):
         callbacks : Callback[T]
             A list of async functions to call when an event is received
         """
-        logging.debug("Subscribing to %s %s %s", model, event, filters)
+        logging.debug("subscribe -> Subscribing to %s %s %s", model, event, filters)
         self = cls(kit, model, event, filters)
         if callbacks:
             logging.debug("Adding callbacks %s", callbacks)
