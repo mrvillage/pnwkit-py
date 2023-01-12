@@ -4,3 +4,5 @@ _build
 dist
 /build
 test.py
+.venv
+.python-version
