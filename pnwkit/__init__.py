@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+from __future__ import annotations
 
 import logging
 from logging import NullHandler
@@ -31,7 +32,7 @@ from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
 from .legacy.keys import set_bot_key, set_key  # type: ignore
 from .new import *
 
-__version__ = "2.6.7"
+__version__ = "2.6.8"
 
 # Set default logging handler to avoid "No handler found" warnings.
 logging.getLogger(__name__).addHandler(NullHandler())
