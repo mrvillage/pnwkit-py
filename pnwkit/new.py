@@ -35,10 +35,13 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
 
 import aiohttp
 import requests
+import logging
 
 from . import data as data_classes
 from . import errors, utils
 from .ratelimit import RateLimit
+
+logger = logging.getLogger(__name__)
 
 __all__ = (
     "QueryKit",
@@ -540,13 +543,18 @@ class QueryKit:
         )
 
     async def subscribe_internal(self, subscription: Subscription[Any]) -> None:
+        logger.debug("Subscribing to %s", subscription)
         if self.socket is None:
+            logger.debug("Creating new socket")
             self.socket = await Socket.connect(self)
         await self.socket.subscribe(subscription)
 
     async def unsubscribe_internal(self, subscription: Subscription[Any]) -> None:
+        logger.debug("Unsubscribing from %s", subscription)
         if self.socket is not None:
             await self.socket.unsubscribe(subscription)
+        else:
+            logger.debug("No socket to unsubscribe from")
 
     def get_response_errors(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
         if isinstance(data, list):
@@ -1308,8 +1316,10 @@ class Subscription(Generic[T]):
         callbacks : Callback[T]
             A list of async functions to call when an event is received
         """
+        logging.debug("Subscribing to %s %s %s", model, event, filters)
         self = cls(kit, model, event, filters)
         if callbacks:
+            logging.debug("Adding callbacks %s", callbacks)
             self.callbacks[:] = callbacks
         self.channel = await self.request_channel()
         await self.kit.subscribe_internal(self)
@@ -1326,6 +1336,7 @@ class Subscription(Generic[T]):
 
     async def request_channel(self) -> str:
         if self.kit.aiohttp_session is None:
+            logger.debug("Creating aiohttp session")
             self.kit.aiohttp_session = aiohttp.ClientSession()
         async with self.kit.aiohttp_session.request(
             "GET",
@@ -1335,6 +1346,7 @@ class Subscription(Generic[T]):
                 **self.filters_param,
             },
         ) as response:
+            logger.debug("Got response %s while requesting subscription channel", response)
             data = await response.json()
             if data.get("error") is not None:
                 raise errors.SubscribeError(data["error"])
@@ -1425,7 +1437,9 @@ class Socket:
 
     @classmethod
     async def connect(cls, kit: QueryKit) -> Self:
+        logger.debug("Connecting to socket")
         if kit.aiohttp_session is None:
+            logger.debug("Creating aiohttp session")
             kit.aiohttp_session = aiohttp.ClientSession()
         ws = await kit.aiohttp_session.ws_connect(  # type: ignore
             kit.socket_url,
@@ -1442,12 +1456,15 @@ class Socket:
             return
         else:
             self.reconnecting = True
+        logger.debug("Attempting to reconnect socket")
+        
         # ensure the ping, pong loop doesn't close the connection due to thinking it timed out when the connection was broken and needs to be reconnected
         self.last_message = time.perf_counter()
         self.last_ping = time.perf_counter()
         self.last_pong = time.perf_counter() + 1
         try:
             if self.kit.aiohttp_session is None:
+                logger.debug("Creating aiohttp session")
                 self.kit.aiohttp_session = aiohttp.ClientSession()
             self.close_code = None
             self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
@@ -1506,16 +1523,19 @@ class Socket:
                         utils.print_exception_with_header(
                             "Encountered ConnectionResetError in socket", e
                         )
+                        logging.warning("Encountered ConnectionResetError in socket", exc_info=e)
                         await self.close_and_reconnect()
                         break
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
                         )
+                        logging.warning("Ignoring exception when parsing WebSocket message", exc_info=e)
                 if self.ws.closed:
                     await self.handle_socket_close()
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
+                logging.warning("Encountered exception in socket", exc_info=e)
                 raise e
 
     async def handle_socket_close(self) -> None:
