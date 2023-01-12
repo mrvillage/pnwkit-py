@@ -31,10 +31,11 @@ from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
 from .legacy.keys import set_bot_key, set_key  # type: ignore
 from .new import *
 
-__version__ = "2.6.6"
+__version__ = "2.6.7"
 
 # Set default logging handler to avoid "No handler found" warnings.
 logging.getLogger(__name__).addHandler(NullHandler())
+
 
 def add_stderr_logger(level: int = logging.DEBUG) -> logging.StreamHandler[TextIO]:
     """
@@ -45,11 +46,16 @@ def add_stderr_logger(level: int = logging.DEBUG) -> logging.StreamHandler[TextI
     # This method needs to be in this __init__.py to get the __name__ correct
     logger = logging.getLogger(__name__)
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"))
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s %(levelname)s [%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+        )
+    )
     logger.addHandler(handler)
     logger.setLevel(level)
     logger.debug(f"Added a stderr logging handler to logger: {__name__}")
     return handler
+
 
 # ... Clean up.
 del NullHandler

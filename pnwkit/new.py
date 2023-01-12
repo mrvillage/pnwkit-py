@@ -30,12 +30,12 @@ import contextlib
 import enum
 import hashlib
 import json
+import logging
 import time
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
 
 import aiohttp
 import requests
-import logging
 
 from . import data as data_classes
 from . import errors, utils
@@ -543,7 +543,7 @@ class QueryKit:
         )
 
     async def subscribe_internal(self, subscription: Subscription[Any]) -> None:
-        logger.debug("subscribe_internal -> Subscribing to %s", subscription)
+        logger.debug("subscribe_internal - Subscribing to %s", subscription)
         if self.socket is None:
             logger.debug("Creating new socket")
             self.socket = await Socket.connect(self)
@@ -1346,7 +1346,9 @@ class Subscription(Generic[T]):
                 **self.filters_param,
             },
         ) as response:
-            logger.debug("Got response %s while requesting subscription channel", response)
+            logger.debug(
+                "Got response %s while requesting subscription channel", response
+            )
             data = await response.json()
             if data.get("error") is not None:
                 raise errors.SubscribeError(data["error"])
@@ -1449,15 +1451,17 @@ class Socket:
         )
         self = cls(kit, ws)
         self.run()
+        logger.debug("Socket connected")
         return self
 
     async def reconnect(self) -> None:
         if self.reconnecting:
+            logger.debug("Already reconnecting, ignoring")
             return
         else:
             self.reconnecting = True
         logger.debug("Attempting to reconnect socket")
-        
+
         # ensure the ping, pong loop doesn't close the connection due to thinking it timed out when the connection was broken and needs to be reconnected
         self.last_message = time.perf_counter()
         self.last_ping = time.perf_counter()
@@ -1467,6 +1471,7 @@ class Socket:
                 logger.debug("Creating aiohttp session")
                 self.kit.aiohttp_session = aiohttp.ClientSession()
             self.close_code = None
+            self.established.clear()
             self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
                 self.kit.socket_url,
                 max_msg_size=0,
@@ -1477,6 +1482,7 @@ class Socket:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
         except BaseException as e:
+            logger.debug("Failed to reconnect socket", exc_info=e)
             self.reconnecting = False
             raise e
 
@@ -1488,7 +1494,7 @@ class Socket:
                         # message.type is Unknown
                         if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
                             await self.handle_socket_close()
-                        elif message.type not in {aiohttp.WSMsgType.TEXT, aiohttp.WSMsgType}:  # type: ignore
+                        elif message.type not in {aiohttp.WSMsgType.TEXT}:  # type: ignore
                             continue
                         # message.data is Unknown
                         ws_event = self.kit.loads(message.data)  # type: ignore
@@ -1523,15 +1529,21 @@ class Socket:
                         utils.print_exception_with_header(
                             "Encountered ConnectionResetError in socket", e
                         )
-                        logging.warning("Encountered ConnectionResetError in socket", exc_info=e)
+                        logging.warning(
+                            "Encountered ConnectionResetError in socket", exc_info=e
+                        )
                         await self.close_and_reconnect()
                         break
                     except Exception as e:
                         utils.print_exception_with_header(
                             "Ignoring exception when parsing WebSocket message", e
                         )
-                        logging.warning("Ignoring exception when parsing WebSocket message", exc_info=e)
+                        logging.warning(
+                            "Ignoring exception when parsing WebSocket message",
+                            exc_info=e,
+                        )
                 if self.ws.closed:
+                    logger.debug("actual_run -> Socket closed")
                     await self.handle_socket_close()
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
@@ -1540,6 +1552,7 @@ class Socket:
 
     async def handle_socket_close(self) -> None:
         close_code = self.ws.close_code or self.close_code
+        logger.debug("Socket closed with code %s", close_code)
         if close_code is None or close_code in range(4000, 4100):
             raise errors.NoReconnect(f"WebSocket closed with close code {close_code}")
         elif close_code in range(4100, 4200):
@@ -1549,6 +1562,7 @@ class Socket:
             await self.reconnect()
 
     async def close_and_reconnect(self, message: bytes = b"Pong timeout") -> None:
+        logger.debug("Closing and reconnecting")
         self.close_code = 1002
         with contextlib.suppress(ConnectionResetError):
             await self.ws.close(code=1002, message=message)
@@ -1567,6 +1581,7 @@ class Socket:
                 if self.last_ping > self.last_pong:
                     # if pinged, not received pong, passed timeout, close and reconnect
                     if self.last_ping + self.activity_timeout > time.perf_counter():
+                        logger.debug("ping_pong - Pong timeout")
                         # has pinged, has not received pong, and has not received any other messages in activity_timeout
                         # therefore, connection is dead and should be closed and reconnected
                         await self.close_and_reconnect()
@@ -1579,10 +1594,11 @@ class Socket:
                 # don't send ping if last ping was not ponged
                 if self.last_pong < self.last_ping:
                     continue
+                logger.debug("ping_pong - Sending ping")
                 await self.ws.send_json({"event": "pusher:ping", "data": {}})
                 self.last_ping = time.perf_counter()
-
             except ConnectionResetError:
+                logger.debug("ping_pong - Connection reset")
                 asyncio.create_task(self.close_and_reconnect(b"Connection reset"))
 
     def run(self) -> None:
@@ -1590,8 +1606,11 @@ class Socket:
         self.ping_pong_task = asyncio.create_task(self.ping_pong())
 
     async def authorize_subscription(self, subscription: Subscription[Any]) -> str:
+        if not self.established.is_set():
+            logger.debug("authorize_subscription - Waiting for connection to be spcket")
         await self.established.wait()
         if self.kit.aiohttp_session is None:
+            logger.debug("authorize_subscription - Creating aiohttp session")
             self.kit.aiohttp_session = aiohttp.ClientSession()
         async with self.kit.aiohttp_session.request(
             "POST",
@@ -1608,18 +1627,26 @@ class Socket:
         )
 
     async def send(self, event: str, data: Dict[str, Any]) -> None:
-        if self.ws.closed:
+        if self.closed:
+            logger.debug("Attempting to send but socket is closed")
             await self.close_and_reconnect()
         try:
             await self.ws.send_json({"event": event, "data": data})
         except ConnectionResetError:
+            logger.debug(
+                "Encountered ConnectionResetError while sending", exc_info=True
+            )
             await self.close_and_reconnect()
             await self.ws.send_json({"event": event, "data": data})
 
     async def subscribe(self, subscription: Subscription[Any]) -> None:
+        if self.closed:
+            logger.debug("Attempting to subscribe but socket is closed")
+            await self.close_and_reconnect()
         try:
             auth = await self.authorize_subscription(subscription)
         except errors.Unauthorized:
+            logger.debug("Channel is expired")
             subscription.channel = await subscription.request_channel()
             auth = await self.authorize_subscription(subscription)
         await self.send(
@@ -1634,10 +1661,16 @@ class Socket:
             self.subscriptions.discard(subscription)
             if subscription.channel is not None:
                 self.channels.pop(subscription.channel, None)
+            logger.debug("Subscription to %s did not succeed", subscription, exc_info=e)
             raise errors.SubscriptionDidNotSucceed() from e
+        logger.debug("Successfully subscribed to subscription %s", subscription)
 
     async def unsubscribe(self, subscription: Subscription[Any]) -> None:
         if subscription.channel is not None:
             self.channels.pop(subscription.channel, None)
             self.subscriptions.discard(subscription)
             await self.send("pusher:unsubscribe", {"channel": subscription.channel})
+
+    @property
+    def closed(self) -> bool:
+        return self.ws.closed or self.close_code is not None
