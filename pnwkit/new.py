@@ -1567,7 +1567,6 @@ class Socket:
 
     def run(self) -> None:
         self.task = asyncio.create_task(self.actual_run())
-        self.task.exception()
         self.ping_pong_task = asyncio.create_task(self.ping_pong())
 
     async def authorize_subscription(self, subscription: Subscription[Any]) -> str:
