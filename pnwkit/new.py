@@ -1578,7 +1578,7 @@ class Socket:
                 # if received a message within activity timeout, continue to next iteration since we do not need to ping
                 if self.last_message + self.activity_timeout > time.perf_counter():
                     continue
-                if self.last_ping > self.last_pong:
+                if self.last_ping + self.activity_timeout > self.last_pong:
                     # if pinged, not received pong, passed timeout, close and reconnect
                     if self.last_ping + self.activity_timeout > time.perf_counter():
                         logger.debug("ping_pong - Pong timeout")
@@ -1607,8 +1607,11 @@ class Socket:
 
     async def authorize_subscription(self, subscription: Subscription[Any]) -> str:
         if not self.established.is_set():
-            logger.debug("authorize_subscription - Waiting for connection to be spcket")
+            logger.debug(
+                "authorize_subscription - Waiting for connection to be established"
+            )
         await self.established.wait()
+        logger.debug("authorized_subscription - connection is established")
         if self.kit.aiohttp_session is None:
             logger.debug("authorize_subscription - Creating aiohttp session")
             self.kit.aiohttp_session = aiohttp.ClientSession()
@@ -1617,6 +1620,7 @@ class Socket:
             self.kit.subscription_auth_url,
             data={"socket_id": self.socket_id, "channel_name": subscription.channel},
         ) as response:
+            logger.debug("authorize_subscription - Got response %s", response)
             if response.status != 200:
                 raise errors.Unauthorized()
             data = await response.json()

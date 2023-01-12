@@ -64,7 +64,9 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, ClassVar, Dict, List, Optional
+    from typing import Any, Callable, ClassVar, Dict, List, Optional, Type, TypeVar
+
+    T = TypeVar("T", bound="Data")
 
 
 class Data:
@@ -72,7 +74,7 @@ class Data:
     __slots__ = ("__dict__",)
 
     @classmethod
-    def from_data(cls, data: Dict[str, Any]) -> Data:
+    def from_data(cls: Type[T], data: Dict[str, Any]) -> T:
         self = cls()
         for key, value in data.items():
             if key == "global":
