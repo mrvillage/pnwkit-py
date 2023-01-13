@@ -1492,13 +1492,14 @@ class Socket:
     async def actual_run(self) -> None:
         while True:
             try:
+                logger.debug("Waiting for connected WS %s", self.ws)
                 await self.connected.wait()
                 logger.debug("Listening for messages WS %s", self.ws)
                 async for message in self.ws:
                     try:
                         # message.type is Unknown
                         if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE}:  # type: ignore
-                            await self.handle_socket_close()
+                            asyncio.create_task(self.handle_socket_close())
                         elif message.type not in {aiohttp.WSMsgType.TEXT}:  # type: ignore
                             continue
                         # message.data is Unknown
@@ -1538,7 +1539,7 @@ class Socket:
                         logging.warning(
                             "Encountered ConnectionResetError in socket", exc_info=e
                         )
-                        await self.close_and_reconnect()
+                        asyncio.create_task(self.close_and_reconnect())
                         break
                     except Exception as e:
                         utils.print_exception_with_header(
@@ -1551,7 +1552,7 @@ class Socket:
                 if self.ws.closed:
                     self.connected.clear()
                     logger.debug("actual_run -> Socket closed WS %s", self.ws)
-                    await self.handle_socket_close()
+                    asyncio.create_task(self.handle_socket_close())
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
                 logging.warning("Encountered exception in socket", exc_info=e)
