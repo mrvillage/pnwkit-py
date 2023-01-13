@@ -1346,10 +1346,8 @@ class Subscription(Generic[T]):
                 **self.filters_param,
             },
         ) as response:
-            logger.debug(
-                "Got response %s while requesting subscription channel", response
-            )
             data = await response.json()
+            logger.debug("Got response %s while requesting subscription channel", data)
             if data.get("error") is not None:
                 raise errors.SubscribeError(data["error"])
             return data["channel"]
@@ -1630,10 +1628,10 @@ class Socket:
             self.kit.subscription_auth_url,
             data={"socket_id": self.socket_id, "channel_name": subscription.channel},
         ) as response:
-            logger.debug("authorize_subscription - Got response %s", response)
             if response.status != 200:
                 raise errors.Unauthorized()
             data = await response.json()
+            logger.debug("authorize_subscription - Got response %s", data)
             self.kit.check_response_for_errors(data)
             return data["auth"]
         raise errors.SubscribeError(
