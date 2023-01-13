@@ -1484,7 +1484,7 @@ class Socket:
             )
                 
             self.connected.set()
-            logger.debug("Connected to socket")
+            logger.debug("Connected to socket %s", self.ws)
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
