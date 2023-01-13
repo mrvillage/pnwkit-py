@@ -1427,6 +1427,7 @@ class Socket:
         self.ws: aiohttp.ClientWebSocketResponse = ws
         self.task: Optional[asyncio.Task[None]] = None
         self.established: asyncio.Event = asyncio.Event()
+        self.connected: asyncio.Event = asyncio.Event()
         self.socket_id: Optional[str] = None
         self.activity_timeout: int = 120
         self.last_message: float = 0
@@ -1450,6 +1451,7 @@ class Socket:
             timeout=30,
         )
         self = cls(kit, ws)
+        self.connected.set()
         self.run()
         logger.debug("Socket connected")
         return self
@@ -1467,6 +1469,7 @@ class Socket:
         self.last_ping = time.perf_counter()
         self.last_pong = time.perf_counter() + 1
         try:
+            self.connected.clear()
             if self.kit.aiohttp_session is None:
                 logger.debug("Creating aiohttp session")
                 self.kit.aiohttp_session = aiohttp.ClientSession()
@@ -1478,6 +1481,7 @@ class Socket:
                 autoclose=False,
                 timeout=30,
             )
+            self.connected.set()
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
@@ -1489,6 +1493,7 @@ class Socket:
     async def actual_run(self) -> None:
         while True:
             try:
+                await self.connected.wait()
                 async for message in self.ws:
                     try:
                         # message.type is Unknown
@@ -1543,6 +1548,7 @@ class Socket:
                             exc_info=e,
                         )
                 if self.ws.closed:
+                    self.connected.clear()
                     logger.debug("actual_run -> Socket closed")
                     await self.handle_socket_close()
             except asyncio.TimeoutError as e:
