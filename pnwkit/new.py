@@ -1470,21 +1470,25 @@ class Socket:
         self.last_pong = time.perf_counter() + 1
         try:
             self.connected.clear()
-            if self.kit.aiohttp_session is None:
+            if self.kit.aiohttp_session is None or self.kit.aiohttp_session.closed:
                 logger.debug("Creating aiohttp session")
                 self.kit.aiohttp_session = aiohttp.ClientSession()
             self.close_code = None
             self.established.clear()
+            logger.debug("Connecting to socket...")
             self.ws = await self.kit.aiohttp_session.ws_connect(  # type: ignore
                 self.kit.socket_url,
                 max_msg_size=0,
                 autoclose=False,
                 timeout=30,
             )
+                
             self.connected.set()
+            logger.debug("Connected to socket")
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
+                logger.debug("Resubscribed to %s", subscription)
         except BaseException as e:
             logger.debug("Failed to reconnect socket", exc_info=e)
             self.reconnecting = False
