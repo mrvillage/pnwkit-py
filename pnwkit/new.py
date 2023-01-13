@@ -1481,6 +1481,7 @@ class Socket:
                 autoclose=False,
                 timeout=30,
             )
+            logger.debug("Reconnected WS %s", self.ws)
             self.connected.set()
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
@@ -1494,6 +1495,7 @@ class Socket:
         while True:
             try:
                 await self.connected.wait()
+                logger.debug("Listening for messages WS %s", self.ws)
                 async for message in self.ws:
                     try:
                         # message.type is Unknown
@@ -1506,6 +1508,7 @@ class Socket:
                         event = ws_event["event"]
                         self.last_message = time.perf_counter()
                         if event == "pusher:connection_established":
+                            logger.debug("Received connection established")
                             data = self.kit.loads(ws_event["data"])
                             self.socket_id = data["socket_id"]
                             self.activity_timeout = min(
@@ -1549,7 +1552,7 @@ class Socket:
                         )
                 if self.ws.closed:
                     self.connected.clear()
-                    logger.debug("actual_run -> Socket closed")
+                    logger.debug("actual_run -> Socket closed WS %s", self.ws)
                     await self.handle_socket_close()
             except asyncio.TimeoutError as e:
                 utils.print_exception_with_header("Encountered exception in socket", e)
@@ -1571,6 +1574,7 @@ class Socket:
         logger.debug("Closing and reconnecting")
         self.close_code = 1002
         with contextlib.suppress(ConnectionResetError):
+            logger.debug("Closing WS %s", self.ws)
             await self.ws.close(code=1002, message=message)
         await self.reconnect()
 
@@ -1600,7 +1604,7 @@ class Socket:
                 # don't send ping if last ping was not ponged
                 if self.last_pong < self.last_ping:
                     continue
-                logger.debug("ping_pong - Sending ping")
+                logger.debug("ping_pong - Sending ping WS %s", self.ws)
                 await self.ws.send_json({"event": "pusher:ping", "data": {}})
                 self.last_ping = time.perf_counter()
             except ConnectionResetError:
