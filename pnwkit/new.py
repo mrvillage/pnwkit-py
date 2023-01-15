@@ -1608,7 +1608,8 @@ class Socket:
                 self.last_ping = time.perf_counter()
             except ConnectionResetError:
                 logger.debug("ping_pong - Connection reset")
-                asyncio.create_task(self.close_and_reconnect(b"Connection reset"))
+                await self.close_and_reconnect(b"Connection reset")
+                await asyncio.sleep(self.activity_timeout)
 
     def run(self) -> None:
         self.task = asyncio.create_task(self.actual_run())
