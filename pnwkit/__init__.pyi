@@ -24,7 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, overload, TextIO
+import logging
 
 from .data import *
 from .legacy.core import Kit, async_pnwkit, pnwkit  # type: ignore
@@ -97,6 +98,8 @@ if TYPE_CHECKING:
 
 __version__ = "1.3.0"
 
+
+def add_stderr_logger(level: int = logging.INFO) -> logging.StreamHandler[TextIO]: ...
 @overload
 def alliance_query(
     params: MutableMapping[str, Any],
