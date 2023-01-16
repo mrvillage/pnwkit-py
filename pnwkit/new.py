@@ -1571,6 +1571,9 @@ class Socket:
 
     async def close_and_reconnect(self, message: bytes = b"Pong timeout") -> None:
         logger.debug("Closing and reconnecting")
+        if self.reconnecting:
+            logger.debug("Already reconnecting, ignoring")
+            return
         self.close_code = 1002
         with contextlib.suppress(ConnectionResetError):
             logger.debug("Closing WS %s", self.ws)
