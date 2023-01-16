@@ -1454,13 +1454,19 @@ class Socket:
         logger.debug("Socket connected")
         return self
 
-    async def reconnect(self) -> None:
+    async def reconnect(self, message: Optional[bytes] = None) -> None:
         if self.reconnecting:
             logger.debug("Already reconnecting, ignoring")
             return
         else:
             self.reconnecting = True
         logger.debug("Attempting to reconnect socket")
+        if not self.closed:
+            logger.debug("Socket not closed, closing WS %s", self.ws)
+            self.close_code = 1002
+            with contextlib.suppress(ConnectionResetError):
+                logger.debug("Closing WS %s", self.ws)
+                await self.ws.close(code=1002, message=message or b"")
 
         # ensure the ping, pong loop doesn't close the connection due to thinking it timed out when the connection was broken and needs to be reconnected
         self.last_message = time.perf_counter()
@@ -1570,15 +1576,7 @@ class Socket:
             await self.reconnect()
 
     async def close_and_reconnect(self, message: bytes = b"Pong timeout") -> None:
-        logger.debug("Closing and reconnecting")
-        if self.reconnecting:
-            logger.debug("Already reconnecting, ignoring")
-            return
-        self.close_code = 1002
-        with contextlib.suppress(ConnectionResetError):
-            logger.debug("Closing WS %s", self.ws)
-            await self.ws.close(code=1002, message=message)
-        await self.reconnect()
+        await self.reconnect(message)
 
     async def ping_pong(self) -> None:
         while True:
