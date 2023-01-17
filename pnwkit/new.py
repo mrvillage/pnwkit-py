@@ -1488,13 +1488,13 @@ class Socket:
             logger.debug("Reconnected WS %s", self.ws)
             self.reconnecting = False
             self.connected.set()
-            for subscription in self.subscriptions:
-                subscription.succeeded.clear()
-                await self.subscribe(subscription)
         except BaseException as e:
             logger.debug("Failed to reconnect socket", exc_info=e)
             self.reconnecting = False
             raise e
+        for subscription in self.subscriptions:
+            subscription.succeeded.clear()
+            await self.subscribe(subscription)
 
     async def actual_run(self) -> None:
         while True:
