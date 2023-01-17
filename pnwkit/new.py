@@ -1490,6 +1490,7 @@ class Socket:
             for subscription in self.subscriptions:
                 subscription.succeeded.clear()
                 await self.subscribe(subscription)
+            self.reconnecting = False
         except BaseException as e:
             logger.debug("Failed to reconnect socket", exc_info=e)
             self.reconnecting = False
