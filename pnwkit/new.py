@@ -1495,6 +1495,7 @@ class Socket:
         for subscription in self.subscriptions:
             subscription.succeeded.clear()
             await self.subscribe(subscription)
+        logger.debug("Socket resubscribed")
 
     async def actual_run(self) -> None:
         while True:
