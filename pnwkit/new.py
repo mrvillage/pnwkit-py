@@ -1353,9 +1353,8 @@ class Subscription(Generic[T]):
                 if data.get("error") is not None:
                     raise errors.SubscribeError(data["error"])
                 return data["channel"]
-            except aiohttp.client_exceptions.ContentTypeError:
-                logger.exception("Failed to get json from response.")
-                raise errors.SubscribeError("Failed to get json from response.")
+            except aiohttp.client_exceptions.ContentTypeError as e:
+                raise errors.SubscribeError(e.message)
 
     async def unsubscribe(self) -> None:
         """Unsubscribe from the subscription"""
