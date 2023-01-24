@@ -244,7 +244,6 @@ class Nation(Data):
     egr: bool
     emergency_gasoline_reserve: bool
     fallout_shelter: bool
-    fallouts: bool
     massirr: bool
     mass_irrigation: bool
     itc: bool
@@ -252,7 +251,6 @@ class Nation(Data):
     mlp: bool
     missile_launch_pad: bool
     military_salvage: bool
-    militarys: bool
     nrf: bool
     nuclear_research_facility: bool
     irond: bool
@@ -271,7 +269,6 @@ class Nation(Data):
     urban_planning: bool
     adv_city_planning: bool
     advanced_urban_planning: bool
-    metro_planning: bool
     metropolitan_planning: bool
     space_program: bool
     spy_satellite: bool
