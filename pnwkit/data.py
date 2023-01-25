@@ -182,60 +182,115 @@ class Nation(Data):
         "date": datetime.datetime.fromisoformat,
     }
 
+    #: ID of the nation
     id: int
+    #: ID of the alliance the nation is currently in
     alliance_id: int
+    #: Enumeration representing the position of the nation in their alliance ("NOALLIANCE", "APPLICANT", "MEMBER", "OFFICER", "HEIR", or "LEADER")
     alliance_position: AlliancePositionEnum
+    #: ID of the nation's position in their alliance
     alliance_position_id: int
+    #: The nation's alliance position
     alliance_position_info: AlliancePosition
+    #: The nation's alliance
     alliance: Alliance
+    #: Name of the nation
     nation_name: str
+    #: Name of the nation's leader
     leader_name: str
+    #: Abbreviation/acronym for the continent the nation is on ("na" for North America, "sa" for South America, "as" for Asia, "an" for Antarctica, "eu" for Europe, "af" for Africa, "au" for Australia)
     continent: str
+    #: The war policy the nation is on [deprecated]
     warpolicy: str
+    #: The war policy the nation is on
     war_policy: WarPolicy
+    #: The domestic policy the nation is on [deprecated]
     dompolicy: str
+    #: The domestic policy the nation is one
     domestic_policy: DomesticPolicy
+    #: The color the nation is on ("white", "green", etc.)
     color: str
+    #: Number of cities the nation has
     num_cities: int
+    #: List of the nation's cities
     cities: List[City]
+    #: The nation's score
     score: float
+    #: The nation's update timezone. This field will return null unless you are an officer or higher in the same alliance as this nation and this nation allows alliance bank access or you are this nation.
     update_tz: Optional[float]
+    #: Population of the nation
     population: int
+    #: Link to the nation's flag in-game
     flag: str
+    #: Number of turns the nation has left in vacation mode [deprecated]
     vmode: int
+    #: Number of turns the nation has left in vacation mode
     vacation_mode_turns: int
+    #: Number of turns the nation has left in beige [deprecated]
     beigeturns: int
+    #: Number of turns the nation has left in beige
     beige_turns: int
+    #: Whether or not the nation can have an espionage operation performed on them
     espionage_available: bool
+    #: The date and time that the nation was last active
     last_active: datetime.datetime
+    #: The date and time that the nation was founded
     date: datetime.datetime
+    #: Number of soldiers the nation has
     soldiers: int
+    #: Number of tanks the nation has
     tanks: int
+    #: Number of aircraft the nation has
     aircraft: int
+    #: Number of ships the nation has
     ships: int
+    #: Number of missiles the nation has
     missiles: int
+    #: Number of nukes the nation has
     nukes: int
+    #: Number of spies the nation has. This field will return null unless you are an officer or higher in the same alliance as this nation and this nation allows alliance bank access or you are this nation
     spies: Optional[int]
+    #: The Discord username of the nation
     discord: str
+    #: List of treasures the nation has
     treasures: List[Treasure]
+    #: List of offensive wars the nation has been involved in within the past 14 days [deprecated]
     offensive_wars: List[War]
+    #: List of defensive wars the nation has been involved in within the past 14 days [deprecated]
     defensive_wars: List[War]
+    #: List of wars the nation has been involved in within the past 14 days
     wars: List[Bankrec]
+    #: List of the nation's tax records within the last 14 days, this field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     taxrecs: Optional[List[Bankrec]]
+    #: List of bounties currently on the nation
     bounties: List[Bounty]
+    #: Number of turns since the nation has last purchased a city
     turns_since_last_city: int
+    #: Number of turns sine the nation has last purchased a project
     turns_since_last_project: int
+    #: Amount of money currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     money: Optional[float]
+    #: Amount of coal currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     coal: Optional[float]
+    #: Amount of oil currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     oil: Optional[float]
+    #: Amount of uranium currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     uranium: Optional[float]
+    #: Amount of iron currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     iron: Optional[float]
+    #: Amount of bauxite currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     bauxite: Optional[float]
+    #: Amount of lead currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     lead: Optional[float]
+    #: Amount of gasoline currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     gasoline: Optional[float]
+    #: Amount of munitions currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     munitions: Optional[float]
+    #: Amount of steel currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     steel: Optional[float]
+    #: Amount of aluminum currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     aluminum: Optional[float]
+    #: Amount of food currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     food: Optional[float]
     projects: int
     project_bits: int
