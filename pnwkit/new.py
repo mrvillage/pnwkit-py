@@ -1129,7 +1129,9 @@ class Field:
         return f"({', '.join(f'{name}:{self.resolve_argument(value)}' for name, value in self.arguments.items())})"
 
     def resolve_argument(self, value: Union[Argument, Sequence[Argument]]) -> Any:
-        if isinstance(value, str):
+        if isinstance(value, enum.Enum):
+            return value.name
+        elif isinstance(value, str):
             return f'"{value}"'
         elif hasattr(value, "__iter__"):
             # pyright is not picking up the hasattr check
