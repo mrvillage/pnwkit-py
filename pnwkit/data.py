@@ -467,12 +467,17 @@ class Treaty(Data):
         "alliance1_id": int,
         "alliance2_id": int,
     }
-
+    #: ID of the treaty
     id: int
+    #: Date and time the treaty was (proposed or accepted?)
     date: datetime.datetime
+    #: What type of treaty it is (MDP, ODP, protectorate etc.)
     treaty_type: str
+    #: Link to the treaty if provided
     treaty_url: str
+    #: Number of turns the treaty has left until it expires
     turns_left: int
+    # One is the sender and the other is the receiver, maybe specify that like with trades?
     alliance1_id: int
     alliance1: Alliance
     alliance2_id: int
@@ -968,23 +973,41 @@ class Trade(Data):
         "original_trade_id": lambda x: None if x is None else int(x),
     }
 
+    #: ID of the trade
     id: int
+    #: An enumeration representing the type of trade (returns the "GLOBAL", "PERSONAL", or "ALLIANCE")
     type: TradeType
+    #: Date and time the trade was posted
     date: datetime.datetime
+    #: ID of the nation posting the trade [deprecated]
     sid: int
+    #: ID of the nation posting the trade
     sender_id: int
+    #: ID of the nation receiving the trade [deprecated]
     rid: int
+    #: ID of the nation receiving the trade [deprecated]
     recipient_id: int
+    #: ID of the nation receiving the trade
     receiver_id: int
+    #: Nation of the sender
     sender: Nation
+    #: Nation of the receiver
     receiver: Nation
+    #: Which resource the offer is for
     offer_resource: str
+    #: Amount of the resource being sold/bought
     offer_amount: int
-    buy_or_sell: str
+    #: Whether the offer is a buy offer or a sell offer ("buy" or "sell")
+    buy_or_sell: str # perhaps this could be chance to two separate bools like TreasureTrade? or change TreasureTrade to match for consistency?
+    #: Price per unit (PPU) that the resource is being sold/bought for [deprecated]
     total: int
+    #: Price per unit (PPU) that the resource is being sold/bought for
     price: int
+    #: Whether or not the offer has been accepted
     accepted: bool
+    #: Date and time the offer was accepted
     date_accepted: datetime.datetime
+    #: ID of the trade before it was accepted
     original_trade_id: int
 
 
@@ -997,19 +1020,33 @@ class TreasureTrade(Data):
         "receiver_id": int,
     }
 
+    #: ID of the treasure trade
     id: int
+    #: Date and time that the treasure trade was created
     offer_date: datetime.datetime
+    #: Date and time that the treasure trade was accepted
     accept_date: datetime.datetime
+    #: ID of the nation sending the trade offer
     sender_id: int
+    #: Nation of the sender
     sender: Nation
+    #: ID of the nation receiving the trade offer
     receiver_id: int
+    #: Nation of the receiver
     receiver: Nation
+    #: Whether or not the offer is to buy a treasure
     buying: bool
+    #: Whether or not the offer is to sell a treasure
     selling: bool
-    treasure: str
+    #: The name of the treasure to be sold
+    treasure: str # this should totally be converted to a Treasure object later
+    #: Proposed amount to buy/sell the treasure for
     money: int
+    #: Whether or not the offer was accepted
     accepted: bool
+    #: Whether or not the offer was rejected
     rejected: bool
+    #: Whether or not the seller cancelled the offer
     seller_cancelled: bool
 
 
@@ -1020,13 +1057,20 @@ class Embargo(Data):
         "sender_id": int,
         "receiver_id": int,
     }
-
+    
+    #: ID of the embargo
     id: int
+    #: Date and time the embargo was placed
     date: datetime.datetime
+    #: The nation ID of the embargoing nation
     sender_id: int
+    #: Nation of the embargoer
     sender: Nation
+    #: The nation ID of the nation being embargoed
     receiver_id: int
+    #: Nation of the embargoed
     receiver: Nation
+    #: The provided reason for the embargo
     reason: str
 
 
