@@ -358,39 +358,73 @@ class Alliance(Data):
         "date": datetime.datetime.fromisoformat,
     }
 
+    #: The alliance's id
     id: int
+    #: The alliance's name
     name: str
+    #: The alliance's acronym
     acronym: str
+    #: The alliance's current score
     score: float
+    #: The color bloc the alliance is on
     color: str
+    #: The date and time the alliance was founded
     date: datetime.datetime
+    #: List of nations in the alliance (includes applicants)
     nations: List[Nation]
+    #: Treaties the alliance has sent (includes pending) [deprecated]
     sent_treaties: List[Treaty]
+    #: Treaties the alliance has received (includes pending) [deprecated]
     received_treaties: List[Treaty]
+    #: Treaties the alliance has active or pending
     treaties: List[Treaty]
+    #: All positions in the alliance
     alliance_positions: List[AlliancePosition]
+    #: Whether or not the alliance is accepting memebers [deprecated]
     acceptmem: bool
+    #: Whether or not the alliance is accepting members
     accept_members: bool
+    #: Link to the alliance's flag in Politics and War
     flag: str
+    #: Link to the alliance's forum [deprecated]
     forumlink: str
+    #: Link to the alliance's forum
     forum_link: str
+    #: Linke to the alliance's Internet Relay Chat (IRC) [deprecated]
     irclink: str
+    #: Link to the alliance's Discord server
     discord_link: str
+    #: Link to the alliance's wiki page
     wiki_link: str
+    #: List of the alliance's bank records
     bankrecs: List[Bankrec]
+    #: List of the alliance's tax records
     taxrecs: Optional[List[Bankrec]]
+    #: List of the alliance's tax brackets
     tax_brackets: List[TaxBracket]
+    #: How much money the alliance has in its bank
     money: Optional[float]
+    #: How much coal the alliance has in its bank
     coal: Optional[float]
+    #: How much oil the alliance has in its bank
     oil: Optional[float]
+    #: How much uranium the alliance has in its bank
     uranium: Optional[float]
+    #: How much iron the alliance has in its bank
     iron: Optional[float]
+    #: How much bauxite the alliance has in its bank
     bauxite: Optional[float]
+    #: How much lead the alliance has in its bank
     lead: Optional[float]
+    #: How much gasoline the alliance has in its bank
     gasoline: Optional[float]
+    #: How much munitions the alliance has in its bank
     munitions: Optional[float]
+    #: How much steel the alliance has in its bank
     steel: Optional[float]
+    #: How much aluminum the alliance has in its bank
     aluminum: Optional[float]
+    #: How much food the alliance has in its bank
     food: Optional[float]
 
 
