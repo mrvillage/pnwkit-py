@@ -1354,7 +1354,7 @@ class Subscription(Generic[T]):
                     raise errors.SubscribeError(data["error"])
                 return data["channel"]
             except aiohttp.client_exceptions.ContentTypeError as e:
-                raise errors.SubscribeError(e.message)
+                raise errors.SubscribeError(e.message) from e
 
     async def unsubscribe(self) -> None:
         """Unsubscribe from the subscription"""
