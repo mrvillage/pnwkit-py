@@ -35,6 +35,7 @@ import time
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, overload
 
 import aiohttp
+import aiohttp.client_exceptions
 import requests
 
 from . import data as data_classes
@@ -1348,12 +1349,14 @@ class Subscription(Generic[T]):
                 **self.filters_param,
             },
         ) as response:
-            data = await response.json()
-            logger.debug("Got response %s while requesting subscription channel", data)
-            if data.get("error") is not None:
-                raise errors.SubscribeError(data["error"])
-            return data["channel"]
-        raise errors.SubscribeError("Failed to request channel")
+            try:
+                data = await response.json()
+                logger.debug("Got response %s while requesting subscription channel", data)
+                if data.get("error") is not None:
+                    raise errors.SubscribeError(data["error"])
+                return data["channel"]
+            except aiohttp.client_exceptions.ContentTypeError as e:
+                raise errors.SubscribeError(e.message) from e
 
     async def unsubscribe(self) -> None:
         """Unsubscribe from the subscription"""
