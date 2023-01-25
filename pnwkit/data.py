@@ -812,11 +812,17 @@ class Bounty(Data):
         "type": BountyType.__members__.get,
     }
 
+    #: ID of the bounty
     id: int
+    #: Date and time the bounty was posted
     date: datetime.datetime
+    #: ID of the nation the bounty is on
     nation_id: int
+    #: Nation the bounty is on
     nation: Nation
+    #: Amount of the bounty
     amount: int
+    #: An enumeration representing the bounty's type ("ORDINARY", "ATTRITION", "RAID", or "NUCLEAR")
     type: BountyType
 
 
@@ -906,26 +912,39 @@ class BBPlayer(Data):
 
 
 class Color(Data):
+    #: The color itself ("white", "green", etc.)
     color: str
+    #: The current name of the color bloc
     bloc_name: str
+    #: The turn bonus for nations currently on the color bloc
     turn_bonus: int
 
 
 class GameInfo(Data):
     _CONVERTERS = {"game_date": datetime.datetime.fromisoformat}
 
+    #: The current date and time in-game
     game_date: datetime.datetime
+    #: Current radiation figures in-game
     radiation: Radiation
 
 
 class Radiation(Data):
+    #: Global radiation levels
     global_: float
+    #: Radiation levels in North America
     north_america: float
+    #: Radiation levels in South America
     south_america: float
+    #: Radiation levels in Europe
     europe: float
+    #: Radiation levels in Africa
     africa: float
+    #: Radiation levels in Asia
     asia: float
+    #: Radiation levels in Australis
     australia: float
+    #: Radiation levels in Antarctica
     antarctica: float
 
 
@@ -935,19 +954,33 @@ class Tradeprice(Data):
         "date": datetime.datetime.fromisoformat,
     }
 
+    #: ID of the trade price data
     id: int
+    #: Date the data was pulled (generall once a dat)
     date: datetime.datetime
+    #: Average price of coal
     coal: float
+    #: Average price of oil
     oil: float
+    #: Average price of uranium
     uranium: float
+    #: Average price of iron
     iron: float
+    #: Average price of bauxite
     bauxite: float
+    #: Average price of lead
     lead: float
+    #: Average price of gasoline
     gasoline: float
+    #: Average price of munitions
     munitions: float
+    #: Average price of steel
     steel: float
+    #: Average price of aluminum
     aluminum: float
+    #: Average price of food
     food: float
+    #: Average price of credits
     credits: float
 
 
