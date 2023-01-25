@@ -350,8 +350,14 @@ class DumpNation(DumpData):
         Whether the nation has the Arms Stockpile project or not.
     emergency_gasoline_reserve_np: :class:`bool`
         Whether the nation has the Emergency Gasoline Reserve project or not.
+    fallout_shelter_np: :class:`bool`
+        Whether the nation has the Fallout Shelter project or not.
     mass_irrigation_np: :class:`bool`
         Whether the nation has the Mass Irrigation project or not.
+    military_salvage_np: :class:`bool`
+        Whether the nation has the Military Salvage project or not.
+    metropolitan_planning_np: :class:`bool`
+        Whether the nation has the Metropolitan Planning project or not.
     international_trade_center_np: :class:`bool`
         Whether the nation has the International Trade Center project or not.
     missile_launch_pad_np: :class:`bool`
