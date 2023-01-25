@@ -118,9 +118,13 @@ class Data:
 
 
 class ApiKeyDetails(Data):
+    #: Nation the API key belongs to
     nation: Nation
+    #: The API key itself
     key: str
+    #: The number of requests made to the API using the key for the day
     requests: int
+    #: Max requests per day the key is allowed (generally 2,000 for non-VIP nations and 15,000 for VIP nations)
     max_requests: int
 
 class Account(Data):
@@ -322,33 +326,61 @@ class AlliancePosition(Data):
         "date_modified": datetime.datetime.fromisoformat,
     }
 
+    #: ID of the position (0 = default applicant, 232 = default member, 231 = default officer, 230 = default heir, 229 = default leader)
     id: int
+    #: Date and time the position was created
     date: datetime.datetime
+    #: ID of the alliance the position belongs to
     alliance_id: int
+    #: Name of the position
     name: str
+    #: The nation ID of the nation that created the position
     creator_id: int
+    #: The nation ID of the nation the last edited the position
     last_editor_id: int
+    #: Date and time the position was last modified
     date_modified: datetime.datetime
+    #: Integer value corresponding to the position's level (0-9; 3 = default member, 5 = default officer, 8 = default heir, 9 = default leader)
     position_level: int
+    #: Whether or not the position is the game's default leader position
     leader: bool
+    #: Whether or not the position is the game's default heir position
     heir: bool
+    #: Whether or not the position is the game's default officer position
     officer: bool
+    #: Whether or not the position is the game's default member position
     member: bool
+    #: Integer representation of the binary permissions (read right to left in the Alliance Positions table; checked = 1, unchecked = 0)
     permissions: int
+    #: Whether or not nations with the position can view the bank
     view_bank: bool
+    #: Whether or not nations with the position can withdraw from the bank
     withdraw_bank: bool
+    #: Whether or not nations with the position can edit the permissions of other positions
     change_permissions: bool
+    #: Whether or not nations with the position can view spy counts of members
     see_spies: bool
+    #: Whether or not nations with the position can view military reset times of members
     see_reset_timers: bool
+    #: Whether or not nations with the position can view and edit tax brackets
     tax_brackets: bool
+    #: Whether or not nations with the position can post announcements
     post_announcements: bool
+    #: Whether or not nations with the position can manage announcements
     manage_announcements: bool
+    #: Whether or not nations with the position can accept applicants into the alliance
     accept_applicants: bool
+    #: Whether or not nations with the position can remove members from the alliance
     remove_members: bool
+    #: Whether or not nations with the position can edit the alliance's information (description, flag, links, etc.)
     edit_alliance_info: bool
+    #: Whether or not nations with the position can view, send, cancel, and reject treaties
     manage_treaties: bool
+    #: Whether or not nations with the position can view, propose, and cancel market sharing agreements
     manage_market_share: bool
+    #: Whether or not nations with the position can start and end embargoes
     manage_embargoes: bool
+    #: Whether or not nations with the position can promote themselves to leader
     promote_self_to_leader: bool
 
 
