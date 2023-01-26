@@ -154,10 +154,10 @@ print(f"First city of {result.the_nations[0].nation_name}: {result.the_nations[0
 - Ordering results
 
 ```py
-query = kit.query("nations", {}, "nation_name", pnwkit.OrderBy("date", pnwkit.Order.DESC))
+query = kit.query("nations", {"orderBy": pnwkit.OrderBy("date", pnwkit.Order.ASC)}, "nation_name")
 result = query.get()
 
-print(f"Oldest nation {result.the_nations[0].nation_name}")
+print(f"Oldest nation {result.nations[0].nation_name}")
 ```
 
 You can look at the arguments and possible data to collect here by experimenting on the [GraphQL Playground](https://api.politicsandwar.com/graphql-playground).
