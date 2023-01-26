@@ -613,13 +613,13 @@ class Treaty(Data):
     treaty_url: str
     #: Number of turns the treaty has left until it expires
     turns_left: int
-    # ID of the alliance sending the treaty
+    #: ID of the alliance sending the treaty
     alliance1_id: int
-    # Alliance sending the treaty
+    #: Alliance sending the treaty
     alliance1: Alliance
-    # ID of the alliance receiving the treaty
+    #: ID of the alliance receiving the treaty
     alliance2_id: int
-    # Alliance receiving the treaty
+    #: Alliance receiving the treaty
     alliance2: Alliance
 
 
@@ -986,9 +986,9 @@ class War(Data):
     #: How much aluminum the defender has used
     def_alum_used: int
     #: How much steel the attacker has used
-    att_steel_used: int # needs to be updated to float
+    att_steel_used: int
     #: How much steel the defender has used
-    def_steel_used: int # needs to be updated to float
+    def_steel_used: int
     #: How much infrastructure the attacker has destroyed
     att_infra_destroyed: float
     #: How much infrastructure the defender has destroyed
@@ -1085,11 +1085,17 @@ class WarAttack(Data):
     war_id: int
     #: War the attack was performed in
     war: War
+    #: ID of the nation that won the attack (defender if utter failure, attacker otherwise)
     victor: int
+    #: Number representing the level of success of the attack (0 - utter failure, 1 - pyrrhic victory, 2 - moderate success, 3 - immense triumph)
     success: int
+    #: Number of main units lost by the attacker (soldiers if ground attack, planes if airstrike, ships if naval attack)
     attcas1: int
+    #: Number of main units lost by the defender (soldiers if ground attack, planes if airstrike, ships if naval attack)
     defcas1: int
+    #: Number of secondary units lost by the attacker (only used for tanks in ground attacks)
     attcas2: int
+    #: Number of secondary units lost by the defender (only used for tanks in ground attacks)
     defcas2: int
     #: ID of the city the attack affected [deprecated]
     cityid: int
@@ -1099,18 +1105,31 @@ class WarAttack(Data):
     infradestroyed: float
     #: Infrastrucutre destroyed in the affected city
     infra_destroyed: float
+    #: Number of improvements destroyed in the attack (0-2) [deprecated]
     improvementslost: int
+    #: Number of improvements destroyed in the attack (0-2)
     improvements_lost: int
+    #: Money stolen in the attack [deprecated]
     moneystolen: float
+    #: Money stolen in the attack
     money_stolen: float
+    #: String containing the entire text stating what the winner looted (note: contains "\r" and "\n" for HTML formatting)
     loot_info: str
+    #: Resistance eliminated by the attack
     resistance_eliminated: int
+    #: How much infrastructure was in the city prior to the attack
     city_infra_before: float
+    #: Value of infrastructure destroyed in the attack
     infra_destroyed_value: float
+    #: How many munitions the attacker used in the attack
     att_mun_used: float
+    #: How many munitions the defender used in the attack
     def_mun_used: float
+    #: How much gasoline the attacker used in the attack
     att_gas_used: float
+    #: How much gasoline the defender used in the attack
     def_gas_used: float
+    #: How many aircraft the attacker destroyed in the attack using tanks (only applies to ground attacks when the attacker has ground control, otherwise 0)
     aircraft_killed_by_tanks: int
 
 
@@ -1404,7 +1423,7 @@ class Trade(Data):
     #: Amount of the resource being sold/bought
     offer_amount: int
     #: Whether the offer is a buy offer or a sell offer ("buy" or "sell")
-    buy_or_sell: str # perhaps this could be changed to two separate bools like TreasureTrade? or change TreasureTrade to match for consistency?
+    buy_or_sell: str
     #: Price per unit (PPU) that the resource is being sold/bought for [deprecated]
     total: int
     #: Price per unit (PPU) that the resource is being sold/bought for
@@ -1445,7 +1464,7 @@ class TreasureTrade(Data):
     #: Whether or not the offer is to sell a treasure
     selling: bool
     #: The name of the treasure to be sold
-    treasure: str # this should totally be converted to a Treasure object later
+    treasure: str
     #: Proposed amount to buy/sell the treasure for
     money: int
     #: Whether or not the offer was accepted
