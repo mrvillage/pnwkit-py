@@ -1061,17 +1061,29 @@ class WarAttack(Data):
         "city_id": int,
     }
 
+    #: ID of the attack
     id: int
+    #: Date and time of the attack
     date: datetime.datetime
+    #: ID of the nation performing the attack [deprecated]
     attid: int
+    #: ID of the nation performing the attack
     att_id: int
+    #: Nation that performed the attack
     attacker: Nation
+    #: ID of the nation the attack was against [deprecated]
     defid: int
+    #: ID of the nation the attack was against
     def_id: int
+    #: Nation the attack was against
     defender: Nation
+    #: Enumeration representing the type of attack performed ("AIRVINFRA", "AIRVSOLDIERS", "AIRVTANKS", "AIRVMONEY", "AIRVSHIPS", "AIRVAIR", "GROUND", "MISSILE", "MISSILEFAIL", "NUKE", "NUKEFAIL", "NAVAL", "FORTIFY", "PEACE", "VICTORY", "ALLIANCELOOT")
     type: AttackType
+    #: ID of the war the attack was performed in [deprecated]
     warid: int
+    #: ID of the war the attack was performed in
     war_id: int
+    #: War the attack was performed in
     war: War
     victor: int
     success: int
@@ -1079,9 +1091,13 @@ class WarAttack(Data):
     defcas1: int
     attcas2: int
     defcas2: int
+    #: ID of the city the attack affected [deprecated]
     cityid: int
+    #: ID of the city the attack affected
     city_id: int
+    #: Infrastrucutre destroyed in the affected city [deprecated]
     infradestroyed: float
+    #: Infrastrucutre destroyed in the affected city
     infra_destroyed: float
     improvementslost: int
     improvements_lost: int
@@ -1134,25 +1150,45 @@ class BBTeam(Data):
         "nation_id": int,
     }
 
+    #: ID of the team
     id: int
+    #: Date and time the team was founded
     date: datetime.datetime
+    #: ID of the nation the team belongs to
     nation_id: int
+    #: Nation the team belongs to
     nation: Nation
+    #: Name of the team
     name: str
+    #: Link to the team's logo
     logo: str
+    #: Link to the team's home jersey
     home_jersey: str
+    #: Link to the team's away jersey
     away_jersey: str
+    #: Name of the home stadium of the team
     stadium: str
+    #: Quality level of the team's home stadium
     quality: int
+    #: Seating level of the team's home stadium
     seating: int
+    #: Average overall rating of the players on the team
     rating: float
+    #: How many games the team has won
     wins: int
+    #: How many games the team has lost
     glosses: int
+    #: How many runs the team has scored
     runs: int
+    #: How many home runs the team has hit
     homers: int
+    #: How many times the team made opponents strike out
     strikeouts: int
+    #: Number of games the team has played
     games_played: int
+    #: List of games the team has played
     games: List[BBGame]
+    #: List of players on the team
     players: List[BBPlayer]
 
 
