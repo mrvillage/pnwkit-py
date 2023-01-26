@@ -613,10 +613,13 @@ class Treaty(Data):
     treaty_url: str
     #: Number of turns the treaty has left until it expires
     turns_left: int
-    # One is the sender and the other is the receiver, maybe specify that like with trades?
+    # ID of the alliance sending the treaty
     alliance1_id: int
+    # Alliance sending the treaty
     alliance1: Alliance
+    # ID of the alliance receiving the treaty
     alliance2_id: int
+    # Alliance receiving the treaty
     alliance2: Alliance
 
 
@@ -900,66 +903,127 @@ class War(Data):
         "def_alliance_id": int,
     }
 
+    #: ID of the war
     id: int
+    #: Date and time the war was declared
     date: datetime.datetime
+    #: Reason given for the war
     reason: str
+    #: Enumeration representing the war's type ("ORDINARY", "ATTRITION", or "RAID")
     war_type: WarType
+    #: ID of the nation that currently has ground control (0 if neither) [deprecated]
     groundcontrol: int
+    #: ID of the nation that currently has ground control (0 if neither)
     ground_control: int
+    #: ID of the nation that currently has air superiority (0 if neither) [deprecated]
     airsuperiority: int
+    #: ID of the nation that currently has air superiority (0 if neither)
     air_superiority: int
+    #: ID of the nation that currently has the other blockaded (0 if neither) [deprecated]
     navalblockade: int
+    #: ID of the nation that currently has the other blockaded (0 if neither)
     naval_blockade: int
+    #: ID of the nation that won the war (0 if neither due to peace or expiration) [deprecated]
     winner: int
+    #: ID of the nation that won the war (0 if neither due to peace or expiration)
     winner_id: int
+    #: List of attacks performed
     attacks: List[WarAttack]
+    #: How many turns are left until the war expires [deprecated]
     turnsleft: int
+    #: How many turns are left until the war expires
     turns_left: int
+    #: ID of the attacking nation [deprecated]
     attid: int
+    #: ID of the attacking nation
     att_id: int
+    #: ID of the alliance the attacking nation belongs to
     att_alliance_id: int
+    #: Attacking nation
     attacker: Nation
+    #: ID of the defending nation [deprecated]
     defid: int
+    #: ID of the defending nation
     def_id: int
+    #: ID of the alliance the defending nation belongs to
     def_alliance_id: int
+    #: Defending nation
     defender: Nation
+    #: How many Military Action Points (MAPs) the attacker has [deprecated]
     attpoints: int
+    #: How many Military Action Points (MAPs) the attacker has
     att_points: int
+    #: How many Military Action Points (MAPs) the defender has [deprecated]
     defpoints: int
+    #: How many Military Action Points (MAPs) the defender has
     def_points: int
+    #: Whether or not the attacker is offering peace [deprecated]
     attpeace: bool
+    #: Whether or not the attacker is offering peace
     att_peace: bool
+    #: Whether or not the defender is offering peace [deprecated]
     defpeace: bool
+    #: Whether or not the defender is offering peace
     def_peace: bool
+    #: Remaining attacker resistance
     att_resistance: int
+    #: Remaining defender resistance
     def_resistance: int
+    #: Whether or not the attacker has fortified
     att_fortify: bool
+    #: Whether or not the defender has fortified
     def_fortify: bool
+    #: How much gasoline the attacker has used
     att_gas_used: float
+    #: How much gasoline the defender has used
     def_gas_used: float
+    #: How many munitions the attacker has used
     att_mun_used: float
+    #: How many munitions the defender has used
     def_mun_used: float
+    #: How much aluminum the attacker has used
     att_alum_used: int
+    #: How much aluminum the defender has used
     def_alum_used: int
-    att_steel_used: int
-    def_steel_used: int
+    #: How much steel the attacker has used
+    att_steel_used: int # needs to be updated to float
+    #: How much steel the defender has used
+    def_steel_used: int # needs to be updated to float
+    #: How much infrastructure the attacker has destroyed
     att_infra_destroyed: float
+    #: How much infrastructure the defender has destroyed
     def_infra_destroyed: float
+    #: How much money the attacker has looted
     att_money_looted: float
+    #: How much money the defender has looted
     def_money_looted: float
+    #: How many soldiers the attacker has killed
     att_soldiers_killed: int
+    #: How many soldiers the defender has killed
     def_soldiers_killed: int
+    #: How many tanks the attacker has destroyed
     att_tanks_killed: int
+    #: How many tanks the defender has destroyed
     def_tanks_killed: int
+    #: How many aircraft the attacker has destroyed
     att_aircraft_killed: int
+    #: How many aircraft the defender has destroyed
     def_aircraft_killed: int
+    #: How many ships the attacker has destroyed
     att_ships_killed: int
+    #: How many ships the defender has destroyed
     def_ships_killed: int
+    #: How many missiles the attacker has launched
     att_missiles_used: int
+    #: How many missiles the defender has launched
     def_missiles_used: int
+    #: How many nukes the attacker has launched
     att_nukes_used: int
+    #: How many nukes the defender has launched
     def_nukes_used: int
+    #: The value of infrastructure destroyed by the attacker
     att_infra_destroyed_value: float
+    #: The value of infrastructure destroyed by the defender
     def_infra_destroyed_value: float
 
 
@@ -1102,24 +1166,43 @@ class BBGame(Data):
         "away_nation_id": int,
     }
 
+    #: ID of the baseball game
     id: int
+    #: Date and time that the game was played
     date: datetime.datetime
+    #: ID of the home team
     home_id: int
+    #: ID of the away team
     away_id: int
+    #: The home team
     home_team: BBTeam
+    #: The away team
     away_team: BBTeam
+    #: ID of the nation hosting the game
     home_nation_id: int
+    #: ID of the nation visiting
     away_nation_id: int
+    #: Nation hosting the game
     home_nation: Nation
+    #: Nation visiting
     away_nation: Nation
+    #: Name of the stadium the game was played in (the home stadium)
     stadium_name: str
+    #: Number of runs scored by the home team
     home_score: int
+    #: Number of runs scored by the away team
     away_score: int
+    #: Seems to be just a string that states "Game simulated."
     sim_text: str
+    #: Entire HTML table of the game's results
     highlights: str
+    #: Revenue made by the home team from their stadium
     home_revenue: float
+    #: How much the winning team earned
     spoils: float
+    #: Whether the game is open (1) or not (0)
     open: int
+    #: How much was wagered on the game
     wager: float
 
 
