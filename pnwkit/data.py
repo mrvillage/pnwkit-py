@@ -132,6 +132,7 @@ class Account(Data):
         "last_active": datetime.datetime.fromisoformat,
         "discord_id": lambda x: int(x) if x is not None else None,
     }
+    
     id: int
     last_active: datetime.datetime
     credits: Optional[int]
@@ -202,11 +203,11 @@ class Nation(Data):
     continent: str
     #: The war policy the nation is on [deprecated]
     warpolicy: str
-    #: The war policy the nation is on
+    #: Enumeration representing the war policy the nation is currently on ("ATTRITION", "TURTLE", "BLITZKRIEG", "FORTRESS", "MONEYBAGS", "PIRATE", "TACTICIAN", "GUARDIAN", "COVERT", or "ARCANE")
     war_policy: WarPolicy
     #: The domestic policy the nation is on [deprecated]
     dompolicy: str
-    #: The domestic policy the nation is one
+    #: Enumeration representing the domestic policy the nation is currently on ("MANIFEST_DESTINY", "OPEN_MARKETS", "TECHNOLOGICAL_ADVANCEMENT", "IMPERIALISM", "URBANIZATION", or "RAPID_EXPANSION")
     domestic_policy: DomesticPolicy
     #: The color the nation is on ("white", "green", etc.)
     color: str
@@ -260,7 +261,7 @@ class Nation(Data):
     defensive_wars: List[War]
     #: List of wars the nation has been involved in within the past 14 days
     wars: List[Bankrec]
-    #: List of the nation's tax records within the last 14 days, this field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
+    #: List of the nation's tax records within the last 14 days. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     taxrecs: Optional[List[Bankrec]]
     #: List of bounties currently on the nation
     bounties: List[Bounty]
@@ -292,6 +293,7 @@ class Nation(Data):
     aluminum: Optional[float]
     #: Amount of food currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     food: Optional[float]
+    #: Number of projects the nation has
     projects: int
     project_bits: int
     ironw: bool
@@ -477,41 +479,41 @@ class Alliance(Data):
     forumlink: str
     #: Link to the alliance's forum
     forum_link: str
-    #: Linke to the alliance's Internet Relay Chat (IRC) [deprecated]
+    #: Link to the alliance's Internet Relay Chat (IRC) [deprecated]
     irclink: str
     #: Link to the alliance's Discord server
     discord_link: str
     #: Link to the alliance's wiki page
     wiki_link: str
-    #: List of the alliance's bank records
+    #: List of the alliance's bank records in the past 14 days. This field will not return alliance to alliance transactions unless you are in this alliance and have access to view its bank.
     bankrecs: List[Bankrec]
-    #: List of the alliance's tax records
+    #: List of the alliance's tax records in the past 14 days. This field will return null unless you are in this alliance and have access to view its bank.
     taxrecs: Optional[List[Bankrec]]
-    #: List of the alliance's tax brackets
+    #: List of the alliance's tax brackets. This field will return null unless you are an officer or higher in this alliance.
     tax_brackets: List[TaxBracket]
-    #: How much money the alliance has in its bank
+    #: How much money the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     money: Optional[float]
-    #: How much coal the alliance has in its bank
+    #: How much coal the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     coal: Optional[float]
-    #: How much oil the alliance has in its bank
+    #: How much oil the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     oil: Optional[float]
-    #: How much uranium the alliance has in its bank
+    #: How much uranium the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     uranium: Optional[float]
-    #: How much iron the alliance has in its bank
+    #: How much iron the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     iron: Optional[float]
-    #: How much bauxite the alliance has in its bank
+    #: How much bauxite the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     bauxite: Optional[float]
-    #: How much lead the alliance has in its bank
+    #: How much lead the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     lead: Optional[float]
-    #: How much gasoline the alliance has in its bank
+    #: How much gasoline the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     gasoline: Optional[float]
-    #: How much munitions the alliance has in its bank
+    #: How much munitions the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     munitions: Optional[float]
-    #: How much steel the alliance has in its bank
+    #: How much steel the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     steel: Optional[float]
-    #: How much aluminum the alliance has in its bank
+    #: How much aluminum the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     aluminum: Optional[float]
-    #: How much food the alliance has in its bank
+    #: How much food the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     food: Optional[float]
 
 
@@ -522,6 +524,7 @@ class Treaty(Data):
         "alliance1_id": int,
         "alliance2_id": int,
     }
+    
     #: ID of the treaty
     id: int
     #: Date and time the treaty was (proposed or accepted?)
@@ -949,20 +952,35 @@ class BBPlayer(Data):
         "team_id": int,
     }
 
+    #: ID of the baseball player
     id: int
+    #: Currently the date and time of the team's founding, possibly meant to be the date and time the player was added to the team
     date: datetime.datetime
+    #: ID of the nation they belong to
     nation_id: int
+    #: Nation they belong to
     nation: Nation
+    #: ID of the team they play for
     team_id: int
+    #: The team they play for
     team: BBTeam
+    #: The name of the player
     name: str
+    #: The age of the player
     age: int
+    #: The players position
     position: str
+    #: The player's pictching ability
     pitching: float
+    #: The player's batting ability
     batting: float
+    #: The player's speed
     speed: float
+    #: The player's awareness
     awareness: float
+    #: The player's overall performance (average of the player's three relevant skills)
     overall: float
+    #: Days until the player's next birthday (note: 1 turn = 5 days for baseball players)
     birthday: int
 
 
@@ -976,7 +994,9 @@ class Color(Data):
 
 
 class GameInfo(Data):
-    _CONVERTERS = {"game_date": datetime.datetime.fromisoformat}
+    _CONVERTERS = {
+        "game_date": datetime.datetime.fromisoformat
+    }
 
     #: The current date and time in-game
     game_date: datetime.datetime
