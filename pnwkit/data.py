@@ -293,83 +293,161 @@ class Nation(Data):
     aluminum: Optional[float]
     #: Amount of food currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     food: Optional[float]
+    #: Number of credits currently held by the nation. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
+    credits: Optional[int]
     #: Number of projects the nation has
     projects: int
+    #: Integer representing the binary string of projects the nation has in this order (right to left): Ironworks, Bauxiteworks, Arms Stockpile, Emergency Gasoline Reserve, Mass Irrigation, International Trade Center, Missile Launch Pad, Nuclear Research Facility, Iron Dome, Vital Defense System, Central Intelligence Agency, Center for Civil Engineering, Propaganda Bureau, Uranium Enrichment Program, Urban Planning, Advanced Urban Planning, Space Program, Spy Satellite, Moon Landing, Pirate Economy, Recycling Initiative, Telecommunications Satellite, Green Technologies, Arable Land Agency, Clinical Research Center, Specialized Police Training Program, Advanced Engineering Corps, Government Support Agency, Research and Development Center, Resource Production Center, Metropolitan Planning, Military Salvage, Fallout Shelter
     project_bits: int
+    #: Whether or not the nation has the Ironworks project [deprecated]
     ironw: bool
+    #: Whether or not the nation has the Ironworks project
     iron_works: bool
+    #: Whether or not the nation has the Bauxiteworks project [deprecated]
     bauxitew: bool
+    #: Whether or not the nation has the Bauxiteworks project
     bauxite_works: bool
+    #: Whether or not the nation has the Arms Stockpile project [deprecated]
     armss: bool
+    #: Whether or not the nation has the Arms Stockpile project
     arms_stockpile: bool
+    #: Whether or not the nation has the Emergency Gasoline Reserve project [deprecated]
     egr: bool
+    #: Whether or not the nation has the Emergency Gasoline Reserve project
     emergency_gasoline_reserve: bool
+    #: Whether or not the nation has the Fallout Shelter project
     fallout_shelter: bool
+    #: Whether or not the nation has the Mass Irrigation project [deprecated]
     massirr: bool
+    #: Whether or not the nation has the Mass Irrigation project
     mass_irrigation: bool
+    #: Whether or not the nation has the International Trade Center project [deprecated]
     itc: bool
+    #: Whether or not the nation has the International Trade Center project
     international_trade_center: bool
+    #: Whether or not the nation has the Missile Launch Pad project [deprecated]
     mlp: bool
+    #: Whether or not the nation has the Missile Launch Pad project
     missile_launch_pad: bool
+    #: Whether or not the nation has the Military Salvage project
     military_salvage: bool
+    #: Whether or not the nation has the Nuclear Research Facility project [deprecated]
     nrf: bool
+    #: Whether or not the nation has the Nuclear Research Facility project
     nuclear_research_facility: bool
+    #: Whether or not the nation has the Iron Dome project [deprecated]
     irond: bool
+    #: Whether or not the nation has the Iron Dome project
     iron_dome: bool
+    #: Whether or not the nation has the Vital Defense System project [deprecated]
     vds: bool
+    #: Whether or not the nation has the Vital Defense System project
     vital_defense_system: bool
+    #: Whether or not the nation has the Central Intelligence Agency project [deprecated]
     cia: bool
+    #: Whether or not the nation has the Central Intelligence Agency project
     central_intelligence_agency: bool
+    #: Whether or not the nation has the Center for Civil Engineering project [deprecated]
     cfce: bool
+    #: Whether or not the nation has the Center for Civil Engineering project
     center_for_civil_engineering: bool
+    #: Whether or not the nation has the Propaganda Bureau project [deprecated]
     propb: bool
+    #: Whether or not the nation has the Propaganda Bureau project
     propaganda_bureau: bool
+    #: Whether or not the nation has the Uranium Enrichment Program project [deprecated]
     uap: bool
+    #: Whether or not the nation has the Uranium Enrichment Program project
     uranium_enrichment_program: bool
+    #: Whether or not the nation has the Urban Planning project [deprecated]
     city_planning: bool
+    #: Whether or not the nation has the Urban Planning project
     urban_planning: bool
+    #: Whether or not the nation has the Advanced Urban Planning project [deprecated]
     adv_city_planning: bool
+    #: Whether or not the nation has the Advanced Urban Planning project
     advanced_urban_planning: bool
+    #: Whether or not the nation has the Metropolitan Planning project
     metropolitan_planning: bool
+    #: Whether or not the nation has the Space Program project
     space_program: bool
+    #: Whether or not the nation has the Spy Satellite project
     spy_satellite: bool
+    #: Whether or not the nation has the Moon Landing project
     moon_landing: bool
+    #: Whether or not the nation has the Pirate Economy project
     pirate_economy: bool
+    #: Whether or not the nation has the Recycling Initiative project
     recycling_initiative: bool
+    #: Whether or not the nation has the Telecommunications Satellite project [deprecated]
     telecom_satellite: bool
+    #: Whether or not the nation has the Telecommunications Satellite
     telecommunications_satellite: bool
+    #: Whether or not the nation has the Green Technologies project [deprecated]
     green_tech: bool
+    #: Whether or not the nation has the Green Technologies project
     green_technologies: bool
+    #: Whether or not the nation has the Arable Land Agency project
     arable_land_agency: bool
+    #: Whether or not the nation has the Clinical Research Center project
     clinical_research_center: bool
+    #: Whether or not the nation has the Specialized Police Training Program project [deprecated]
     specialized_police_training: bool
+    #: Whether or not the nation has the Specialized Police Training Program project
     specialized_police_training_program: bool
+    #: Whether or not the nation has the Advanced Engineering Corps project [deprecated]
     adv_engineering_corps: bool
+    #: Whether or not the nation has the Advanced Engineering Corps project
     advanced_engineering_corps: bool
+    #: Whether or not the nation has the Government Support Agency project
     government_support_agency: bool
+    #: Whether or not the nation has the Research and Development Center project
     research_and_development_center: bool
+    #: Whether or not the nation has the Resource Production Center project
     resource_production_center: bool
+    #: How many wars the nation has won
     wars_won: int
+    #: How many wars the nation has lost
     wars_lost: int
+    #: The nation's tax ID (the ID of the tax bracket they're on?)
     tax_id: int
+    #: How many turns the nation has been in their alliance
     alliance_seniority: int
+    #: The nation's baseball team
     baseball_team: BBTeam
+    #: Gross National Income (GNI) of the nation
     gross_national_income: float
+    #: Gross Domestic Product (GDP) of the nation
     gross_domestic_product: float
+    #: How many soldiers the nation has lost
     soldier_casualties: int
+    #: How many soldiers the nation has killed
     soldier_kills: int
+    #: How many tanks the nation has lost
     tank_casualties: int
+    #: How many tanks he nation has killed
     tank_kills: int
+    #: How many aircraft the nation has lost
     aircraft_casualties: int
+    #: How many aircraft the nation has killed
     aircraft_kills: int
+    #: How many ships the nation has lost
     ship_casualties: int
+    #: How many ships the nation has killed
     ship_kills: int
+    #: How many missiles the nation has launched (includes lost to espionage?)
     missile_casualties: int
+    #: How many missiles the nation has eaten/received (includes blocked by ID?)
     missile_kills: int
+    #: How many nukes the nation has launched (includes lost to espionage?)
     nuke_casualties: int
+    #: How many nukes the nation has eaten/received (includes blocked by VDS?)
     nuke_kills: int
+    #: How many spies the nation has lost
     spy_casualties: int
+    #: How many spies the nation has killed
     spy_kills: int
+    #: How much money the nation has looted across all wars
     money_looted: float
 
 
@@ -490,7 +568,7 @@ class Alliance(Data):
     #: List of the alliance's tax records in the past 14 days. This field will return null unless you are in this alliance and have access to view its bank.
     taxrecs: Optional[List[Bankrec]]
     #: List of the alliance's tax brackets. This field will return null unless you are an officer or higher in this alliance.
-    tax_brackets: List[TaxBracket]
+    tax_brackets: Optional[List[TaxBracket]]
     #: How much money the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     money: Optional[float]
     #: How much coal the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
@@ -1031,7 +1109,7 @@ class Tradeprice(Data):
 
     #: ID of the trade price data
     id: int
-    #: Date the data was pulled (generall once a dat)
+    #: Date the data was pulled (generally once a day)
     date: datetime.datetime
     #: Average price of coal
     coal: float
@@ -1106,7 +1184,7 @@ class Trade(Data):
     #: Amount of the resource being sold/bought
     offer_amount: int
     #: Whether the offer is a buy offer or a sell offer ("buy" or "sell")
-    buy_or_sell: str # perhaps this could be chance to two separate bools like TreasureTrade? or change TreasureTrade to match for consistency?
+    buy_or_sell: str # perhaps this could be changed to two separate bools like TreasureTrade? or change TreasureTrade to match for consistency?
     #: Price per unit (PPU) that the resource is being sold/bought for [deprecated]
     total: int
     #: Price per unit (PPU) that the resource is being sold/bought for
