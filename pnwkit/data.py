@@ -409,7 +409,7 @@ class Nation(Data):
     wars_won: int
     #: How many wars the nation has lost
     wars_lost: int
-    #: The nation's tax ID (the ID of the tax bracket they're on?)
+    #: The nation's tax ID
     tax_id: int
     #: How many turns the nation has been in their alliance
     alliance_seniority: int
@@ -435,13 +435,13 @@ class Nation(Data):
     ship_casualties: int
     #: How many ships the nation has killed
     ship_kills: int
-    #: How many missiles the nation has launched (includes lost to espionage?)
+    #: How many missiles the nation has launched
     missile_casualties: int
-    #: How many missiles the nation has eaten/received (includes blocked by ID?)
+    #: How many missiles the nation has eaten/received
     missile_kills: int
-    #: How many nukes the nation has launched (includes lost to espionage?)
+    #: How many nukes the nation has launched
     nuke_casualties: int
-    #: How many nukes the nation has eaten/received (includes blocked by VDS?)
+    #: How many nukes the nation has eaten/received
     nuke_kills: int
     #: How many spies the nation has lost
     spy_casualties: int
@@ -605,7 +605,7 @@ class Treaty(Data):
     
     #: ID of the treaty
     id: int
-    #: Date and time the treaty was (proposed or accepted?)
+    #: Date and time the treaty was accepted
     date: datetime.datetime
     #: What type of treaty it is (MDP, ODP, protectorate etc.)
     treaty_type: str
@@ -747,7 +747,7 @@ class City(Data):
     nation: Nation
     #: Name of the city
     name: str
-    #: Date and time the city was founded
+    #: Date the city was founded
     date: datetime.datetime
     #: Current infrastructure level in the city
     infrastructure: float
@@ -1485,7 +1485,7 @@ class Embargo(Data):
     
     #: ID of the embargo
     id: int
-    #: Date and time the embargo was placed
+    #: Date the embargo was placed
     date: datetime.datetime
     #: The nation ID of the embargoing nation
     sender_id: int
