@@ -736,60 +736,115 @@ class City(Data):
         else datetime.datetime.fromisoformat(x),
     }
 
+    #: ID of the city
     id: int
+    #: ID of the nation the city is in
     nation_id: int
+    #: Nation the city is in
     nation: Nation
+    #: Name of the city
     name: str
+    #: Date and time the city was founded
     date: datetime.datetime
+    #: Current infrastructure level in the city
     infrastructure: float
+    #: Current land level in the city
     land: float
+    #: Whether or not the city is powered
     powered: bool
+    #: Number of oil power plants [deprecated]
     oilpower: int
+    #: Number of oil power plants
     oil_power: int
+    #: Number of wind power plants [deprecated]
     windpower: int
+    #: Number of wind power plants
     wind_power: int
+    #: Number of coal power plants [deprecated]
     coalpower: int
+    #: Number of coal power plants
     coal_power: int
+    #: Number of nuclear power plants [deprecated]
     nuclearpower: int
+    #: Number of nuclear power plants
     nuclear_power: int
+    #: Number of coal mines [deprecated]
     coalmine: int
+    #: Number of coal mines
     coal_mine: int
+    #: Number of oil wells [deprecated]
     oilwell: int
+    #: Number of oil wells
     oil_well: int
+    #: Number of uranium mines [deprecated]
     uramine: int
+    #: Number of uranium mines
     uranium_mine: int
+    #: Number of barracks
     barracks: int
+    #: Number of farms
     farm: int
+    #: Number of police stations [deprecated]
     policestation: int
+    #: Number of police stations
     police_station: int
+    #: Number of hospitals
     hospital: int
+    #: Number of recycling centers [deprecated]
     recyclingcenter: int
+    #: Number of recycling centers
     recycling_center: int
+    #: Number of subways
     subway: int
+    #: Number of supermarkets
     supermarket: int
+    #: Number of banks
     bank: int
+    #: Number of shopping malls [deprecated]
     mall: int
+    #: Number of shopping malls
     shopping_mall: int
+    #: Number of stadiums
     stadium: int
+    #: Number of lead mines [deprecated]
     leadmine: int
+    #: Number of lead mines
     lead_mine: int
+    #: Number of iron mines [deprecated]
     ironmine: int
+    #: Number of iron mines
     iron_mine: int
+    #: Number of bauxite mines [deprecated]
     bauxitemine: int
+    #: Number of bauxite mines
     bauxite_mine: int
+    #: Number of oil refineries [deprecated]
     gasrefinery: int
+    #: Number of oil refineries
     oil_refinery: int
+    #: Number of aluminum refineries [deprecated]
     aluminumrefinery: int
+    #: Number of aluminum refineries
     aluminum_refinery: int
+    #: Number of steel mills [deprecated]
     steelmill: int
+    #: Number of steel mills
     steel_mill: int
+    #: Number of munitions factories [deprecated]
     munitionsfactory: int
+    #: Number of munitions factories
     munitions_factory: int
+    #: Number of (tank) factories
     factory: int
+    #: Number of hangars [deprecated]
     airforcebase: int
+    #: Number of hangars
     hangar: int
+    #: Number of drydocks
     drydock: int
+    #: Date the city was last nuked [deprecated]
     nukedate: Optional[datetime.datetime]
+    #: Date the city was last nuked
     nuke_date: Optional[datetime.datetime]
 
 
