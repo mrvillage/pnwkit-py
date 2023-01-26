@@ -634,33 +634,61 @@ class Bankrec(Data):
         "tax_id": int,
     }
 
+    #: ID of the bank record
     id: int
+    #: Date and time of the record
     date: datetime.datetime
+    #: ID of the sender (nation or alliance) [deprecated]
     sid: int
+    #: ID of the sender (nation or alliance)
     sender_id: int
+    #: Whether the sending is a nation (1) or alliance (2) [deprecated]
     stype: int
+    #: Whether the sending is a nation (1) or alliance (2)
     sender_type: int
+    #: ID of the receiver (nation or alliance) [deprecated]
     rid: int
+    #: ID of the receiver (nation or alliance) [deprecated]
     recipient_id: int
+    #: ID of the receiver (nation or alliance)
     receiver_id: int
+    #: Whether the receiver is a nation (1) or alliance (2) [deprecated]
     rtype: int
+    #: Whether the receiver is a nation (1) or alliance (2) [deprecated]
     recipient_type: int
+    #: Whether the receiver is a nation (1) or alliance (2)
     receiver_type: int
+    #: ID of the banker [deprecated]
     pid: int
+    #: ID of the banker
     banker_id: int
+    #: Note attached to the bank record
     note: str
+    #: Money sent in the transaction
     money: float
+    #: Coal sent in the transaction
     coal: float
+    #: Oil sent in the transaction
     oil: float
+    #: Uranium sent in the transaction
     uranium: float
+    #: Iron sent in the transaction
     iron: float
+    #: Bauxite sent in the transaction
     bauxite: float
+    #: Lead sent in the transaction
     lead: float
+    #: Gasoline sent in the transaction
     gasoline: float
+    #: Munitions sent in the transaction
     munitions: float
+    #: Steel sent in the transaction
     steel: float
+    #: Aluminum sent in the transaction
     aluminum: float
+    #: Food sent in the transaction
     food: float
+    #: Tax ID associated with the bank record (for tax records)
     tax_id: int
 
 
@@ -673,15 +701,25 @@ class TaxBracket(Data):
         "last_modifier_id": int,
     }
 
+    #: ID of the tax bracket
     id: int
+    #: ID of the alliance the tax bracket belongs to
     alliance_id: int
+    #: Alliance the tax bracket belongs to
     alliance: Alliance
+    #: The date and time the tax bracket was created
     date: datetime.datetime
+    #: The date and time the tax bracket was last modified
     date_modified: datetime.datetime
+    #: ID of the nation that last modified the tax bracket
     last_modifier_id: int
+    #: Nation that last modified the tax bracket
     last_modifier: Nation
+    #: Rate at which money is taxed on the tax bracket
     tax_rate: int
+    #: Rate at which resources are taxed on the tax bracket
     resource_tax_rate: int
+    #: Name of the tax bracket
     bracket_name: str
 
 
@@ -762,13 +800,21 @@ class Treasure(Data):
         "nation_id": int,
     }
 
+    #: Name of the treasure
     name: str
+    #: What color bloc the treasure spawns on
     color: str
+    #: What continent the treasure spawns on
     continent: str
+    #: Bonus provided by the treasure to the nation holding it
     bonus: int
+    #: The date the treasure spawned in [deprecated]
     spawndate: datetime.datetime
+    #: The date the treasure spawned in
     spawn_date: datetime.datetime
+    #: ID of the nation currently holding the treasure
     nation_id: int
+    #: Nation currently holding the treasure
     nation: Nation
 
 
