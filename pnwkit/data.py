@@ -185,7 +185,7 @@ class Nation(Data):
 
     #: ID of the nation
     id: int
-    #: ID of the alliance the nation is currently in
+    #: ID of the alliance the nation is currently in (returns 0 if None)
     alliance_id: int
     #: Enumeration representing the position of the nation in their alliance ("NOALLIANCE", "APPLICANT", "MEMBER", "OFFICER", "HEIR", or "LEADER")
     alliance_position: AlliancePositionEnum
@@ -297,7 +297,7 @@ class Nation(Data):
     credits: Optional[int]
     #: Number of projects the nation has
     projects: int
-    #: Integer representing the binary string of projects the nation has in this order (right to left): Ironworks, Bauxiteworks, Arms Stockpile, Emergency Gasoline Reserve, Mass Irrigation, International Trade Center, Missile Launch Pad, Nuclear Research Facility, Iron Dome, Vital Defense System, Central Intelligence Agency, Center for Civil Engineering, Propaganda Bureau, Uranium Enrichment Program, Urban Planning, Advanced Urban Planning, Space Program, Spy Satellite, Moon Landing, Pirate Economy, Recycling Initiative, Telecommunications Satellite, Green Technologies, Arable Land Agency, Clinical Research Center, Specialized Police Training Program, Advanced Engineering Corps, Government Support Agency, Research and Development Center, Resource Production Center, Metropolitan Planning, Military Salvage, Fallout Shelter
+    #: Integer representing the binary string of projects the nation has in this order (note: binary is read right to left, so if the nation has ironworks it will be a 1 at the rightmost bit): Ironworks, Bauxiteworks, Arms Stockpile, Emergency Gasoline Reserve, Mass Irrigation, International Trade Center, Missile Launch Pad, Nuclear Research Facility, Iron Dome, Vital Defense System, Central Intelligence Agency, Center for Civil Engineering, Propaganda Bureau, Uranium Enrichment Program, Urban Planning, Advanced Urban Planning, Space Program, Spy Satellite, Moon Landing, Pirate Economy, Recycling Initiative, Telecommunications Satellite, Green Technologies, Arable Land Agency, Clinical Research Center, Specialized Police Training Program, Advanced Engineering Corps, Government Support Agency, Research and Development Center, Resource Production Center, Metropolitan Planning, Military Salvage, Fallout Shelter
     project_bits: int
     #: Whether or not the nation has the Ironworks project [deprecated]
     ironw: bool
@@ -411,7 +411,7 @@ class Nation(Data):
     wars_lost: int
     #: The nation's tax ID
     tax_id: int
-    #: How many turns the nation has been in their alliance
+    #: How many days the nation has been in their alliance
     alliance_seniority: int
     #: The nation's baseball team
     baseball_team: BBTeam
