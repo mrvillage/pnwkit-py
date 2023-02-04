@@ -539,9 +539,9 @@ class Alliance(Data):
     date: datetime.datetime
     #: List of nations in the alliance (includes applicants)
     nations: List[Nation]
-    #: Treaties the alliance has sent (includes pending) [deprecated]
+    #: Treaties the alliance has sent and that were approved [deprecated]
     sent_treaties: List[Treaty]
-    #: Treaties the alliance has received (includes pending) [deprecated]
+    #: Treaties the alliance has received and approved [deprecated]
     received_treaties: List[Treaty]
     #: Treaties the alliance has active or pending
     treaties: List[Treaty]
@@ -645,9 +645,9 @@ class Bankrec(Data):
     sid: int
     #: ID of the sender (nation or alliance)
     sender_id: int
-    #: Whether the sending is a nation (1) or alliance (2) [deprecated]
+    #: Whether the sender is a nation (1) or alliance (2) [deprecated]
     stype: int
-    #: Whether the sending is a nation (1) or alliance (2)
+    #: Whether the sender is a nation (1) or alliance (2)
     sender_type: int
     #: ID of the receiver (nation or alliance) [deprecated]
     rid: int
@@ -1095,7 +1095,7 @@ class WarAttack(Data):
     defcas1: int
     #: Number of secondary units lost by the attacker (only used for tanks in ground attacks)
     attcas2: int
-    #: Number of secondary units lost by the defender (only used for tanks in ground attacks)
+    #: Number of secondary units lost by the defender (only used for tanks in ground attacks or units targeted by an airstrike)
     defcas2: int
     #: ID of the city the attack affected [deprecated]
     cityid: int
@@ -1334,7 +1334,7 @@ class Radiation(Data):
     africa: float
     #: Radiation levels in Asia
     asia: float
-    #: Radiation levels in Australis
+    #: Radiation levels in Australia
     australia: float
     #: Radiation levels in Antarctica
     antarctica: float
@@ -1400,23 +1400,23 @@ class Trade(Data):
 
     #: ID of the trade
     id: int
-    #: An enumeration representing the type of trade (returns the "GLOBAL", "PERSONAL", or "ALLIANCE")
+    #: An enumeration representing the type of trade (returns "GLOBAL", "PERSONAL", or "ALLIANCE")
     type: TradeType
     #: Date and time the trade was posted
     date: datetime.datetime
-    #: ID of the nation posting the trade [deprecated]
+    #: ID of the nation selling [deprecated]
     sid: int
-    #: ID of the nation posting the trade
+    #: ID of the nation selling
     sender_id: int
-    #: ID of the nation receiving the trade [deprecated]
+    #: ID of the nation buying [deprecated]
     rid: int
-    #: ID of the nation receiving the trade [deprecated]
+    #: ID of the nation buying [deprecated]
     recipient_id: int
-    #: ID of the nation receiving the trade
+    #: ID of the nation buying
     receiver_id: int
-    #: Nation of the sender
+    #: Nation of the seller
     sender: Nation
-    #: Nation of the receiver
+    #: Nation of the buyer
     receiver: Nation
     #: Which resource the offer is for
     offer_resource: str
