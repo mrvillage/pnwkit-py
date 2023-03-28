@@ -488,7 +488,6 @@ class QueryKit:
         filters: Optional[SubscriptionFilters] = None,
         *callbacks: Callback[T],
     ) -> Subscription[Any]:
-
         """Create a new subscription with this QueryKit.
 
         Parameters
@@ -518,7 +517,6 @@ class QueryKit:
         *fields: FieldValue,
         **variables: MutableMapping[str, Any],
     ) -> Mutation[Result]:
-
         """Create a new mutation with this QueryKit.
 
         Parameters
@@ -1351,7 +1349,9 @@ class Subscription(Generic[T]):
         ) as response:
             try:
                 data = await response.json()
-                logger.debug("Got response %s while requesting subscription channel", data)
+                logger.debug(
+                    "Got response %s while requesting subscription channel", data
+                )
                 if data.get("error") is not None:
                     raise errors.SubscribeError(data["error"])
                 return data["channel"]
