@@ -1543,6 +1543,7 @@ class Socket:
                             channel = ws_event["channel"]
                             subscription = self.channels.get(channel)
                             if subscription is None:
+                                logger.debug("No subscription for channel %s", channel)
                                 continue
                             subscription.handle_event(event, data)
                     except ConnectionResetError as e:
