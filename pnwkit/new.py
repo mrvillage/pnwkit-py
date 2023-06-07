@@ -1365,18 +1365,25 @@ class Subscription(Generic[T]):
             self.channel = None
 
     def handle_event(self, event: str, data: Any) -> None:
-        converter = utils.find_event_data_class(event).from_data
-        if event.startswith("BULK_"):
-            for item in data:
-                item = converter(item)
-                self.queue.put_nowait(item)
-                for callback in self.callbacks:
-                    asyncio.create_task(callback(item))
-        else:
-            item = converter(data)
-            self.queue.put_nowait(item)
+        # If the event is unknown because the API has been updated, log a warning and return
+        try:
+            converter = utils.find_event_data_class(event).from_data
+        except AttributeError:
+            logger.warning(f"No event data class found for event by name '{event}'")
+            return
+
+        items = data if event.startswith("BULK_") else [data]
+
+        for item in items:
+            try:
+                converted_item = converter(item)
+                self.queue.put_nowait(converted_item)
+            except Exception:
+                logger.exception(f"Failed to convert and queue data")
+                continue
+
             for callback in self.callbacks:
-                asyncio.create_task(callback(item))
+                asyncio.create_task(callback(converted_item))
 
     def __aiter__(self) -> Self:
         return self
