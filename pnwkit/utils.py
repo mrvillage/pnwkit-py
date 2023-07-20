@@ -62,6 +62,8 @@ def convert_data_array(data: List[Any]) -> List[Any]:
 
 
 def convert_data_dict(data: Dict[Any, Any]) -> Union[Any, List[Any]]:
+    if data.get("__typename") is None:
+        return data
     if data["__typename"].endswith("Paginator"):
         return convert_data_array(data["data"])
     return find_data_class(data["__typename"]).from_data(data)
