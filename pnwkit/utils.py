@@ -57,6 +57,8 @@ def get_datetime_or_none(value: Optional[Any]) -> Optional[datetime.datetime]:
 def convert_data_array(data: List[Any]) -> List[Any]:
     if not data:
         return []
+    if data[0].get("__typename") is None:
+        return data
     cls = find_data_class(data[0]["__typename"])
     return [cls.from_data(i) for i in data]
 
