@@ -1402,6 +1402,7 @@ class VariableType(enum.Enum):
     FLOAT_ARRAY = "[Float]"
     BOOLEAN = "Boolean"
     TRADE_TYPE = "TradeType"
+    WAR_ACTIVITY = "WarActivity"
 
 
 class Variable:
