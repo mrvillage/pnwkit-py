@@ -39,6 +39,7 @@ __all__ = (
     "Continents",
     "EconomicPolicy",
     "GovernmentType",
+    "WarActivity",
     "ApiKeyDetails",
     "AlliancePositionEnum",
     "WarPolicy",
