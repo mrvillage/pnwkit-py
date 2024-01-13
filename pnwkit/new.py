@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import datetime
 import enum
 import hashlib
 import json
@@ -1137,6 +1138,8 @@ class Field:
             return f"[{', '.join(self.resolve_argument(i) for i in value)}]"  # type: ignore
         elif isinstance(value, bool):
             return str(value).lower()
+        elif isinstance(value, datetime.datetime):
+            return value.strftime("%Y-%m-%d %H:%M:%S")
         return str(value)
 
     def resolve_fields(self) -> str:
