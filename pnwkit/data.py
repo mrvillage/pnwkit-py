@@ -31,6 +31,15 @@ from typing import TYPE_CHECKING
 from . import utils
 
 __all__ = (
+    "QueryNationsOrderByColumn",
+    "QueryBannedNationsOrderByColumn",
+    "ApiKeyPermissions",
+    "SocialPolicy",
+    "Resources",
+    "Continents",
+    "EconomicPolicy",
+    "GovernmentType",
+    "WarActivity",
     "ApiKeyDetails",
     "AlliancePositionEnum",
     "WarPolicy",
@@ -117,6 +126,72 @@ class Data:
         }
 
 
+class QueryNationsOrderByColumn(enum.Enum):
+    ID = 1
+    DATE = 2
+    SOLDIERS = 3
+    SOLDIERS_LOST = 4
+    SOLDIER_KILLS = 5
+    TANKS = 6
+    TANKS_LOST = 7
+    TANK_KILLS = 8
+    AIRCRAFT = 9
+    AIRCRAFT_LOST = 10
+    AIRCRAFT_KILLS = 11
+    SHIPS = 12
+    SHIPS_LOST = 13
+    SHIP_KILLS = 14
+    MISSILES = 15
+    MISSILES_LAUNCHED = 16
+    MISSILES_EATEN = 17
+    NUKES = 18
+    NUKES_LAUNCHED = 19
+    NUKES_EATEN = 20
+    CITIES = 21
+    SCORE = 22
+    GDP = 23
+    POPULATION = 24
+    APPROVAL_RATING = 25
+    INFRA_DESTROYED = 26
+    INFRA_LOST = 27
+
+
+class QueryBannedNationsOrderByColumn(enum.Enum):
+    NATION_ID = 1
+    DATE = 2
+
+
+class ApiKeyPermissions(Data):
+    nation_view_resources: bool
+    nation_deposit_to_bank: bool
+    nation_military_buys: bool
+    nation_see_reset_timers: bool
+    nation_see_spies: bool
+    nation_view_trades: bool
+    nation_accept_trade: bool
+    nation_send_message: bool
+    alliance_view_bank: bool
+    alliance_withdraw_bank: bool
+    alliance_change_permissions: bool
+    alliance_see_spies: bool
+    alliance_see_reset_timers: bool
+    alliance_tax_brackets: bool
+    alliance_accept_applicants: bool
+    alliance_remove_members: bool
+    alliance_manage_treaties: bool
+    alliance_promote_self_to_leader: bool
+
+
+class SocialPolicy(enum.Enum):
+    ANARCHIST = 1
+    LIBERTARIAN = 2
+    LIBERAL = 3
+    MODERATE = 4
+    CONSERVATIVE = 5
+    AUTHORITARIAN = 6
+    FASCIST = 7
+
+
 class ApiKeyDetails(Data):
     #: Nation the API key belongs to
     nation: Nation
@@ -126,17 +201,93 @@ class ApiKeyDetails(Data):
     requests: int
     #: Max requests per day the key is allowed (generally 2,000 for non-VIP nations and 15,000 for VIP nations)
     max_requests: int
+    #: Boolean values representing which permissions the API key has
+    permissions: ApiKeyPermissions
+    #: Bitwise value of permissions
+    permission_bits: int
+
 
 class Account(Data):
     _CONVERTERS = {
         "last_active": datetime.datetime.fromisoformat,
         "discord_id": lambda x: int(x) if x is not None else None,
     }
-    
+
     id: int
     last_active: datetime.datetime
     credits: Optional[int]
     discord_id: Optional[int]
+
+
+class Resources(enum.Enum):
+    FOOD = 1
+    COAL = 2
+    OIL = 3
+    URANIUM = 4
+    LEAD = 5
+    IRON = 6
+    BAUXITE = 7
+    GASOLINE = 8
+    MUNITIONS = 9
+    STEEL = 10
+    ALUMINUM = 11
+    CREDIT = 12
+
+
+class Continents(enum.Enum):
+    AFRICA = 1
+    ANTARCTICA = 2
+    ASIA = 3
+    AUSTRALIA = 4
+    EUROPE = 5
+    NORTH_AMERICA = 6
+    SOUTH_AMERICA = 7
+
+
+class EconomicPolicy(enum.Enum):
+    EXTREME_LEFT = 1
+    FAR_LEFT = 2
+    LEFT = 3
+    MODERATE = 4
+    RIGHT = 5
+    FAR_RIGHT = 6
+    EXTREME_RIGHT = 7
+
+
+class GovernmentType(enum.Enum):
+    ABSOLUTE_MONARCHY = 1
+    ANARCHY = 2
+    ARISTOCRACY = 3
+    BANANA_REPUBLIC = 4
+    COMMUNIST_DEMOCRACY = 5
+    COMMUNIST_DICTATORSHIP = 6
+    COMMUNIST_MONARCHY = 7
+    COMMUNIST_REPUBLIC = 8
+    COMMUNIST_THEOCRACY = 9
+    CONSTITUTIONAL_MONARCHY = 10
+    CONSTITUTIONAL_REPUBLIC = 11
+    DEMARCHY = 12
+    DEMOCRACY = 13
+    DEMOCRATIC_REPUBLIC = 14
+    DICTATORSHIP = 15
+    FEDERAL_REPUBLIC = 16
+    MONARCHY = 17
+    NOOCRACY = 18
+    OLIGARCHY = 19
+    PARLIAMENTARY_DEMOCRACY = 20
+    PARLIAMENTARY_REPUBLIC = 21
+    PEOPLES_REPUBLIC = 22
+    REPUBLIC = 23
+    SOCIAL_DEMOCRACY = 24
+    SOCIALIST_DICTATORSHIP = 25
+    SOCIALIST_REPUBLIC = 26
+    SOCIALIST_THEOCRACY = 27
+    STRATOCRACY = 28
+    TECHNOCRACY = 29
+    THEOCRACY = 30
+    THEOCRATIC_DEMOCRACY = 31
+    THEOCRATIC_DICTATORSHIP = 32
+    THEOCRATIC_REPUBLIC = 33
 
 
 class AlliancePositionEnum(enum.Enum):
@@ -181,6 +332,12 @@ class Nation(Data):
         "tax_id": int,
         "last_active": datetime.datetime.fromisoformat,
         "date": datetime.datetime.fromisoformat,
+        "moon_landing_date": datetime.datetime.fromisoformat,
+        "mars_landing_date": datetime.datetime.fromisoformat,
+        "alliance_join_date": datetime.datetime.fromisoformat,
+        "economic_policy": EconomicPolicy.__members__.get,
+        "social_policy": SocialPolicy.__members__.get,
+        "government_type": GovernmentType.__members__.get,
     }
 
     #: ID of the nation
@@ -251,8 +408,24 @@ class Nation(Data):
     nukes: int
     #: Number of spies the nation has. This field will return null unless you are an officer or higher in the same alliance as this nation and this nation allows alliance bank access or you are this nation
     spies: Optional[int]
+    #: Number of soldiers the nation bought today, this field will return null unless you are this nation
+    soldiers_today: int
+    #: Number of tanks the nation bought today, this field will return null unless you are this nation
+    tanks_today: int
+    #: Number of aircraft the nation bought today, this field will return null unless you are this nation
+    aircraft_today: int
+    #: Number of ships the nation bought today, this field will return null unless you are this nation
+    ships_today: int
+    #: Number of missiles the nation bought today, this field will return null unless you are this nation
+    missiles_today: int
+    #: Number of nukes the nation bought today, this field will return null unless you are this nation
+    nukes_today: int
+    #: Number of spies the nation bought today, this field will return null unless you are this nation
+    spies_today: int
     #: The Discord username of the nation
     discord: str
+    #: String representing the numerical ID of the nation's Discord
+    discord_id: str
     #: List of treasures the nation has
     treasures: List[Treasure]
     #: List of offensive wars the nation has been involved in within the past 14 days [deprecated]
@@ -260,7 +433,15 @@ class Nation(Data):
     #: List of defensive wars the nation has been involved in within the past 14 days [deprecated]
     defensive_wars: List[War]
     #: List of wars the nation has been involved in within the past 14 days
-    wars: List[Bankrec]
+    wars: List[War]
+    #: All sent bank transactions within the last 14 days [deprecated]
+    sent_bankrecs: List[Bankrec]
+    #: All received bank transactions within the last 14 days [deprecated]
+    received_bankrecs: List[Bankrec]
+    #: All bank transactions within the last 14 days
+    bankrecs: List[Bankrec]
+    #: All trades the nation has pending or accepted
+    trades: List[Trade]
     #: List of the nation's tax records within the last 14 days. This field will return null unless you are an officer or higher in the same alliance as this nation, and this nation allows alliance bank access or you are this nation
     taxrecs: Optional[List[Bankrec]]
     #: List of bounties currently on the nation
@@ -403,8 +584,22 @@ class Nation(Data):
     government_support_agency: bool
     #: Whether or not the nation has the Research and Development Center project
     research_and_development_center: bool
-    #: Whether or not the nation has the Resource Production Center project
+    #: Whether or not the nation has the Resource Production Center project [deprecated]
     resource_production_center: bool
+    #: Whether or not the nation has the Activity Center project
+    activity_center: bool
+    #: Whether or not the nation has the Bureau of Domestic Affairs project
+    bureau_of_domestic_affairs: bool
+    #: Whether or not the nation has the Advanced Pirate Economy project
+    advanced_pirate_economy: bool
+    #: Whether or not the nation has the Mars Landing project
+    mars_landing: bool
+    #: Whether or not the nation has the Surveillance Network project
+    surveillance_network: bool
+    #: Date when the nation built the Moon Landing project
+    moon_landing_date: datetime.datetime
+    #: Date when the nation built the Mars Landing project
+    mars_landing_date: datetime.datetime
     #: How many wars the nation has won
     wars_won: int
     #: How many wars the nation has lost
@@ -449,6 +644,24 @@ class Nation(Data):
     spy_kills: int
     #: How much money the nation has looted across all wars
     money_looted: float
+    #: How many espionage attacks the nation has performed since their last military reset
+    spy_attacks: int
+    #: Whether or not the nation has VIP
+    vip: bool
+    #: Number of commendations the nation has recevied
+    commendations: int
+    #: Number of denouncements the nation has received
+    denouncements: int
+    #: Enum representing the nation's economic policy
+    economic_policy: EconomicPolicy
+    #: Enum representing the nation's social policy
+    social_policy: SocialPolicy
+    #: Enum representing the nation's government type
+    government_type: GovernmentType
+    #: How many credits the nation has redeemed this month
+    credits_redeemed_this_month: int
+    #: The date that the nation joined their respective alliance
+    alliance_join_date: datetime.datetime
 
 
 class AlliancePosition(Data):
@@ -539,6 +752,8 @@ class Alliance(Data):
     date: datetime.datetime
     #: List of nations in the alliance (includes applicants)
     nations: List[Nation]
+    #: The average score of all nations in the alliance (not including applicants)
+    average_score: float
     #: Treaties the alliance has sent and that were approved [deprecated]
     sent_treaties: List[Treaty]
     #: Treaties the alliance has received and approved [deprecated]
@@ -569,6 +784,8 @@ class Alliance(Data):
     taxrecs: Optional[List[Bankrec]]
     #: List of the alliance's tax brackets. This field will return null unless you are an officer or higher in this alliance.
     tax_brackets: Optional[List[TaxBracket]]
+    #: All wars within the last 14 days
+    wars: List[War]
     #: How much money the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
     money: Optional[float]
     #: How much coal the alliance has in its bank. This field will return null unless you are in this alliance and have access to view its bank.
@@ -602,7 +819,7 @@ class Treaty(Data):
         "alliance1_id": int,
         "alliance2_id": int,
     }
-    
+
     #: ID of the treaty
     id: int
     #: Date and time the treaty was accepted
@@ -882,6 +1099,12 @@ class WarType(enum.Enum):
     RAID = 2
 
 
+class WarActivity(enum.Enum):
+    ALL = 2
+    ACTIVE = 1
+    INACTIVE = 0
+
+
 class War(Data):
     _CONVERTERS = {
         "id": int,
@@ -901,6 +1124,8 @@ class War(Data):
         "defid": int,
         "def_id": int,
         "def_alliance_id": int,
+        "att_alliance_position": AlliancePositionEnum.__members__.get,
+        "def_alliance_position": AlliancePositionEnum.__members__.get,
     }
 
     #: ID of the war
@@ -939,6 +1164,8 @@ class War(Data):
     att_id: int
     #: ID of the alliance the attacking nation belongs to
     att_alliance_id: int
+    #: Enumeration representing the position of the attacker in their alliance ('NOALLIANCE', 'APPLICANT', 'MEMBER', 'OFFICER', 'HEIR', or 'LEADER')
+    att_alliance_position: AlliancePositionEnum
     #: Attacking nation
     attacker: Nation
     #: ID of the defending nation [deprecated]
@@ -947,6 +1174,8 @@ class War(Data):
     def_id: int
     #: ID of the alliance the defending nation belongs to
     def_alliance_id: int
+    #: Enumeration representing the position of the defender in their alliance ('NOALLIANCE', 'APPLICANT', 'MEMBER', 'OFFICER', 'HEIR', or 'LEADER')
+    def_alliance_position: AlliancePositionEnum
     #: Defending nation
     defender: Nation
     #: How many Military Action Points (MAPs) the attacker has [deprecated]
@@ -982,13 +1211,13 @@ class War(Data):
     #: How many munitions the defender has used
     def_mun_used: float
     #: How much aluminum the attacker has used
-    att_alum_used: int
+    att_alum_used: float
     #: How much aluminum the defender has used
-    def_alum_used: int
+    def_alum_used: float
     #: How much steel the attacker has used
-    att_steel_used: int
+    att_steel_used: float
     #: How much steel the defender has used
-    def_steel_used: int
+    def_steel_used: float
     #: How much infrastructure the attacker has destroyed
     att_infra_destroyed: float
     #: How much infrastructure the defender has destroyed
@@ -997,21 +1226,37 @@ class War(Data):
     att_money_looted: float
     #: How much money the defender has looted
     def_money_looted: float
-    #: How many soldiers the attacker has killed
+    #: How many soldiers the defender has lost
+    def_soldiers_lost: int
+    #: How many soldiers the attacker has lost
+    att_soldiers_lost: int
+    #: How many tanks the defender has lost
+    def_tanks_lost: int
+    #: How many tanks the attacker has lost
+    att_tanks_lost: int
+    #: How many aircraft the defender has lost
+    def_aircraft_lost: int
+    #: How many aircraft the attacker has lost
+    att_aircraft_lost: int
+    #: How many ships the defender has lost
+    def_ships_lost: int
+    #: How many ships the attacker has lost
+    att_ships_lost: int
+    #: How many soldiers the attacker has killed [deprecated]
     att_soldiers_killed: int
-    #: How many soldiers the defender has killed
+    #: How many soldiers the defender has killed [deprecated]
     def_soldiers_killed: int
-    #: How many tanks the attacker has destroyed
+    #: How many tanks the attacker has destroyed [deprecated]
     att_tanks_killed: int
-    #: How many tanks the defender has destroyed
+    #: How many tanks the defender has destroyed [deprecated]
     def_tanks_killed: int
-    #: How many aircraft the attacker has destroyed
+    #: How many aircraft the attacker has destroyed [deprecated]
     att_aircraft_killed: int
-    #: How many aircraft the defender has destroyed
+    #: How many aircraft the defender has destroyed [deprecated]
     def_aircraft_killed: int
-    #: How many ships the attacker has destroyed
+    #: How many ships the attacker has destroyed [deprecated]
     att_ships_killed: int
-    #: How many ships the defender has destroyed
+    #: How many ships the defender has destroyed [deprecated]
     def_ships_killed: int
     #: How many missiles the attacker has launched
     att_missiles_used: int
@@ -1107,7 +1352,7 @@ class WarAttack(Data):
     infra_destroyed: float
     #: Number of improvements destroyed in the attack (0-2) [deprecated]
     improvementslost: int
-    #: Number of improvements destroyed in the attack (0-2)
+    #: Number of improvements destroyed in the attack (0-2) [deprecated]
     improvements_lost: int
     #: Money stolen in the attack [deprecated]
     moneystolen: float
@@ -1115,8 +1360,10 @@ class WarAttack(Data):
     money_stolen: float
     #: String containing the entire text stating what the winner looted (note: contains "\r" and "\n" for HTML formatting)
     loot_info: str
-    #: Resistance eliminated by the attack
+    #: Resistance eliminated by the attack [deprecated]
     resistance_eliminated: int
+    #: Resistance eliminated by the attack
+    resistance_lost: int
     #: How much infrastructure was in the city prior to the attack
     city_infra_before: float
     #: Value of infrastructure destroyed in the attack
@@ -1129,7 +1376,7 @@ class WarAttack(Data):
     att_gas_used: float
     #: How much gasoline the defender used in the attack
     def_gas_used: float
-    #: How many aircraft the attacker destroyed in the attack using tanks (only applies to ground attacks when the attacker has ground control, otherwise 0)
+    #: How many aircraft the attacker destroyed in the attack using tanks (only applies to ground attacks when the attacker has ground control, otherwise 0) [deprecated]
     aircraft_killed_by_tanks: int
 
 
@@ -1311,9 +1558,7 @@ class Color(Data):
 
 
 class GameInfo(Data):
-    _CONVERTERS = {
-        "game_date": datetime.datetime.fromisoformat
-    }
+    _CONVERTERS = {"game_date": datetime.datetime.fromisoformat}
 
     #: The current date and time in-game
     game_date: datetime.datetime
@@ -1482,7 +1727,7 @@ class Embargo(Data):
         "sender_id": int,
         "receiver_id": int,
     }
-    
+
     #: ID of the embargo
     id: int
     #: Date the embargo was placed
