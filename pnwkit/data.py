@@ -332,9 +332,15 @@ class Nation(Data):
         "tax_id": int,
         "last_active": datetime.datetime.fromisoformat,
         "date": datetime.datetime.fromisoformat,
-        "moon_landing_date": datetime.datetime.fromisoformat,
-        "mars_landing_date": datetime.datetime.fromisoformat,
-        "alliance_join_date": datetime.datetime.fromisoformat,
+        "moon_landing_date": lambda x: None
+        if x is None
+        else datetime.datetime.fromisoformat(x),
+        "mars_landing_date": lambda x: None
+        if x is None
+        else datetime.datetime.fromisoformat(x),
+        "alliance_join_date": lambda x: None
+        if x is None
+        else datetime.datetime.fromisoformat(x),
         "economic_policy": EconomicPolicy.__members__.get,
         "social_policy": SocialPolicy.__members__.get,
         "government_type": GovernmentType.__members__.get,
